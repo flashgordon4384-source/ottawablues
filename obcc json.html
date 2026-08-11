@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OBCC Board — Schedule, Scores &amp; Standings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --oyster:#F1EEE8;
+  --paper:#FFFFFF;
+  --ink:#101A2B;
+  --slate:#5D6879;
+  --rule:#DBD5CA;
+  --rule-soft:#E9E4DB;
+  --pitch:#1F7A4C;
+  --pitch-soft:#E4F0E9;
+  --whistle:#C8801B;
+  --whistle-soft:#FBEFDC;
+  --alarm:#B3261E;
+  --max:1180px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--oyster);
+  color:var(--ink);
+  font-family:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  font-size:15px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 16px}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:none}
+a{color:var(--ink)}
+:focus-visible{outline:2.5px solid var(--whistle);outline-offset:2px;border-radius:2px}
+
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--slate);
+}
+
+/* ---------- crash banner (hidden unless something breaks) ---------- */
+#crash{
+  display:none;background:var(--alarm);color:#fff;padding:12px 16px;
+  font-family:"IBM Plex Mono",monospace;font-size:12.5px;line-height:1.5;
+}
+#crash b{display:block;font-size:13px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+
+/* ---------- masthead ---------- */
+.mast{background:var(--ink);color:var(--oyster);position:sticky;top:0;z-index:60}
+.mast-in{display:flex;align-items:center;gap:14px;justify-content:space-between;padding:11px 0}
+.mark{display:flex;align-items:baseline;gap:9px;min-width:0}
+.mark b{
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:26px;
+  letter-spacing:.03em;line-height:1;text-transform:uppercase;
+}
+.mark span{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.14em;color:#93A2B8;white-space:nowrap}
+.clockchip{
+  font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.06em;color:#B9C6D8;
+  border:1px solid #2C3A50;border-radius:999px;padding:5px 10px;white-space:nowrap;
+}
+.clockchip b{color:var(--oyster);font-weight:600}
+
+/* ---------- status board ---------- */
+.board{padding:22px 0 6px}
+.board-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:11px}
+.fields{display:grid;gap:10px;grid-template-columns:1fr}
+.field{
+  background:var(--paper);border:1px solid var(--rule);border-radius:3px;
+  padding:13px 14px 14px;position:relative;overflow:hidden;
+}
+.field::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--rule)}
+.field.live::before{background:var(--pitch)}
+.field.next::before{background:var(--whistle)}
+.field-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.field-no{
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:15px;
+  letter-spacing:.1em;text-transform:uppercase;
+}
+.state{
+  font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.13em;
+  text-transform:uppercase;padding:3px 7px;border-radius:2px;display:inline-flex;align-items:center;gap:5px;
+  background:#EFEDE7;color:var(--slate);
+}
+.state.live{background:var(--pitch-soft);color:var(--pitch)}
+.state.next{background:var(--whistle-soft);color:var(--whistle)}
+.dot{width:5px;height:5px;border-radius:50%;background:currentColor;display:inline-block}
+.state.live .dot{animation:pulse 1.7s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.matchup{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center}
+.side{
+  font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:19px;line-height:1.15;
+  overflow:hidden;text-overflow:ellipsis;
+}
+.side.dim{color:var(--slate);font-weight:500}
+.sc{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:21px;text-align:right;min-width:1.6ch}
+.field-foot{margin-top:10px;padding-top:9px;border-top:1px solid var(--rule-soft);display:flex;justify-content:space-between;gap:8px}
+.field-foot span{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.06em;color:var(--slate)}
+.field-empty{font-size:13px;color:var(--slate);padding:6px 0 2px}
+
+/* ---------- tabs ---------- */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--rule);margin:26px 0 0;overflow-x:auto}
+.tab{
+  font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:17px;letter-spacing:.06em;
+  text-transform:uppercase;padding:10px 15px 9px;color:var(--slate);
+  border-bottom:2.5px solid transparent;margin-bottom:-1px;white-space:nowrap;
+}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+.panel{padding:20px 0 0}
+.panel[hidden]{display:none}
+
+/* ---------- filter row ---------- */
+.filters{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px;align-items:center}
+.pill{
+  font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+  padding:6px 11px;border:1px solid var(--rule);border-radius:999px;background:var(--paper);color:var(--slate);
+}
+.pill[aria-pressed="true"]{background:var(--ink);color:var(--oyster);border-color:var(--ink)}
+
+/* ---------- timetable ---------- */
+.slot{display:grid;grid-template-columns:58px 1fr;gap:12px;padding-bottom:16px}
+.slot-time{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;padding-top:11px;position:relative}
+.slot-time::after{content:"";position:absolute;left:calc(100% + 5px);top:0;bottom:-16px;width:1px;background:var(--rule)}
+.slot-games{display:grid;gap:8px}
+.game{background:var(--paper);border:1px solid var(--rule);border-radius:3px;padding:11px 12px}
+.game.done{background:#FAF8F4}
+.game-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:7px}
+.tag{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--slate)}
+.row{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center}
+.tname{font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:17.5px;line-height:1.2}
+.tname.lost{color:var(--slate);font-weight:500}
+.tscore{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:16px;text-align:right}
+.tbd{color:var(--slate);font-style:italic;font-weight:500}
+
+/* ---------- entry ---------- */
+.entry{margin-top:10px;padding-top:10px;border-top:1px dashed var(--rule);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.stepper{display:flex;align-items:center;gap:0;border:1px solid var(--rule);border-radius:3px;overflow:hidden;background:var(--paper)}
+.stepper button{width:34px;height:34px;font-size:17px;line-height:1;color:var(--slate)}
+.stepper button:hover{background:var(--oyster);color:var(--ink)}
+.stepper input{
+  width:44px;height:34px;text-align:center;border:none;border-left:1px solid var(--rule-soft);
+  border-right:1px solid var(--rule-soft);font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:15px;
+  background:transparent;color:var(--ink);
+}
+.stepper input::-webkit-outer-spin-button,.stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.stepper label{
+  font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:13px;letter-spacing:.06em;
+  text-transform:uppercase;padding:0 9px;color:var(--slate);max-width:110px;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap;
+}
+.btn{
+  font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:14.5px;letter-spacing:.07em;
+  text-transform:uppercase;padding:9px 14px;border-radius:3px;border:1px solid var(--ink);
+  background:var(--ink);color:var(--oyster);
+}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--rule)}
+.btn.ghost:hover{border-color:var(--ink)}
+.btn.sm{padding:7px 11px;font-size:13px}
+
+/* ---------- standings ---------- */
+.pools{display:grid;gap:22px;grid-template-columns:1fr}
+.pool h3{
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:19px;letter-spacing:.07em;
+  text-transform:uppercase;margin-bottom:2px;
+}
+.pool p.sub{font-size:12px;color:var(--slate);margin-bottom:9px}
+table{width:100%;border-collapse:collapse;background:var(--paper);border:1px solid var(--rule);border-radius:3px}
+th{
+  font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--slate);font-weight:400;text-align:right;padding:9px 6px;border-bottom:1px solid var(--rule);
+}
+th:first-child{text-align:left;padding-left:11px}
+td{padding:9px 6px;border-bottom:1px solid var(--rule-soft);text-align:right;font-family:"IBM Plex Mono",monospace;font-size:13px}
+td:first-child{text-align:left;padding-left:11px;font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:16.5px}
+tr:last-child td{border-bottom:none}
+tr.adv td:first-child{box-shadow:inset 3px 0 0 var(--pitch)}
+td.pts{font-weight:600}
+.legend{font-size:12px;color:var(--slate);margin-top:9px;display:flex;gap:6px;align-items:baseline}
+.legend b{color:var(--pitch)}
+
+/* ---------- bracket ---------- */
+.brackets{display:grid;gap:26px;grid-template-columns:1fr}
+.bk h3{
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:19px;letter-spacing:.07em;
+  text-transform:uppercase;margin-bottom:11px;
+}
+.bkrow{display:grid;gap:8px;margin-bottom:8px}
+.bkgame{background:var(--paper);border:1px solid var(--rule);border-radius:3px;padding:10px 12px}
+.bkgame.final-match{border-color:var(--ink);border-width:1.5px}
+.bklab{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--slate);margin-bottom:6px}
+.champ{
+  margin-top:9px;background:var(--ink);color:var(--oyster);border-radius:3px;padding:11px 13px;
+  display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+}
+.champ .lab{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:#93A2B8}
+.champ .who{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:21px;letter-spacing:.02em}
+
+/* ---------- organizer bar ---------- */
+.opsbar{background:var(--ink);color:var(--oyster);border-radius:3px;padding:14px;margin:20px 0 0}
+.opsbar h4{
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:16px;letter-spacing:.08em;
+  text-transform:uppercase;margin-bottom:3px;
+}
+.opsbar p{font-size:12.5px;color:#A9B7C9;margin-bottom:11px;max-width:62ch}
+.ops-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.opsbar .btn{background:transparent;border-color:#38465C;color:var(--oyster)}
+.opsbar .btn:hover{border-color:var(--oyster)}
+.opsbar .btn.solid{background:var(--oyster);color:var(--ink);border-color:var(--oyster)}
+.opsbar input[type=text],.opsbar input[type=password],.opsbar select{
+  font-family:"IBM Plex Mono",monospace;font-size:13px;padding:9px 10px;border-radius:3px;
+  border:1px solid #38465C;background:#18243A;color:var(--oyster);
+}
+.ops-note{font-size:11.5px;color:#8A99AD;margin-top:10px;font-family:"IBM Plex Mono",monospace}
+
+/* ---------- footer ---------- */
+footer{margin-top:34px;border-top:1px solid var(--rule);padding:20px 0 40px;color:var(--slate);font-size:12.5px}
+.demo-flag{
+  display:inline-flex;align-items:center;gap:7px;background:var(--whistle-soft);color:var(--whistle);
+  border:1px solid #EBD3AC;border-radius:2px;padding:6px 10px;font-family:"IBM Plex Mono",monospace;
+  font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;
+}
+
+@media(min-width:640px){
+  .fields{grid-template-columns:repeat(3,1fr)}
+  .pools{grid-template-columns:1fr 1fr}
+  .brackets{grid-template-columns:1fr 1fr}
+  .slot{grid-template-columns:74px 1fr}
+  .slot-games{grid-template-columns:repeat(3,1fr);align-items:start}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div id="crash"><b>The board stopped</b><span id="crash-msg"></span></div>
+
+<div class="mast">
+  <div class="wrap mast-in">
+    <div class="mark">
+      <b>OBCC Board</b>
+      <span>BEN FRANKLIN SUPERDOME</span>
+    </div>
+    <div class="clockchip" id="clockchip">—</div>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <section class="board">
+    <div class="board-head">
+      <div class="eyebrow">On the pitch</div>
+      <div class="eyebrow" id="progress">—</div>
+    </div>
+    <div class="fields" id="fields"></div>
+  </section>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-schedule"  aria-selected="true"  aria-controls="p-schedule">Schedule</button>
+    <button class="tab" role="tab" id="tab-standings" aria-selected="false" aria-controls="p-standings">Standings</button>
+    <button class="tab" role="tab" id="tab-playoffs"  aria-selected="false" aria-controls="p-playoffs">Playoffs</button>
+  </div>
+
+  <section class="panel" id="p-schedule" role="tabpanel" aria-labelledby="tab-schedule">
+    <div class="filters" id="filters"></div>
+    <div id="schedule"></div>
+  </section>
+
+  <section class="panel" id="p-standings" role="tabpanel" aria-labelledby="tab-standings" hidden>
+    <div class="pools" id="standings"></div>
+    <p class="legend"><b>▌</b> Green bar marks the top two in each pool — they advance to the semi-finals.</p>
+    <p class="legend">Three points a win, one a draw. Ties broken by goal difference, then goals for, then wins.</p>
+  </section>
+
+  <section class="panel" id="p-playoffs" role="tabpanel" aria-labelledby="tab-playoffs" hidden>
+    <div class="brackets" id="brackets"></div>
+  </section>
+
+  <div class="opsbar">
+    <h4>Organizer controls</h4>
+    <p id="ops-blurb">Scores are entered here. Sign in to turn on score entry.</p>
+    <div class="ops-actions" id="ops-actions"></div>
+    <div class="ops-note" id="ops-note"></div>
+    <input type="file" id="restore-file" accept="application/json" hidden>
+  </div>
+
+  <footer>
+    <div class="demo-flag"><span>Demo build — invented teams and scores</span></div>
+    <p><b>Ottawa Blues Charity Classic</b> · Thursday 22 &amp; Friday 23 October 2026 · Ben Franklin Superdome, 191 Knoxdale Rd, Ottawa.</p>
+    <p style="margin-top:6px">Teams, scores and results on this page are made up for demonstration. Nothing here is a real fixture.</p>
+    <p style="margin-top:6px">Scores live in this page only, and reset when it reloads. Use <b>Download results</b> to keep a copy and <b>Restore from file</b> to put it back.</p>
+  </footer>
+
+</main>
+
+<script>
+/* ============================================================
+   OBCC Board — single-file demo
+   Plain JavaScript. No build step, no framework, no storage.
+   Team names live in TEAMS; the schedule is built from them.
+   ============================================================ */
+(function(){
+"use strict";
+
+/* ---- 0. If anything throws, say so on the page. ---- */
+function crash(err){
+  var box = document.getElementById("crash");
+  var msg = document.getElementById("crash-msg");
+  if(!box) return;
+  box.style.display = "block";
+  msg.textContent = " " + (err && err.message ? err.message : String(err)) +
+    " — reload the page. If it keeps happening, send this line on.";
+}
+window.addEventListener("error", function(e){ crash(e.error || e.message); });
+
+/* ---- 1. Teams. Edit names here and everything else follows. ---- */
+var TEAMS = [
+  {id:"a1", name:"Station 12 Strikers",  div:"rec",  pool:"A"},
+  {id:"a2", name:"Dispatch United",      div:"rec",  pool:"A"},
+  {id:"a3", name:"Bytown Medics",        div:"rec",  pool:"A"},
+  {id:"a4", name:"Rideau Rescue",        div:"rec",  pool:"A"},
+
+  {id:"b1", name:"Kanata Ladder Co.",    div:"rec",  pool:"B"},
+  {id:"b2", name:"Comms Centre FC",      div:"rec",  pool:"B"},
+  {id:"b3", name:"Carp Valley Crossers", div:"rec",  pool:"B"},
+  {id:"b4", name:"Nepean Pumpers",       div:"rec",  pool:"B"},
+
+  {id:"c1", name:"Blue Line FC",         div:"comp", pool:"C"},
+  {id:"c2", name:"Engine 44",            div:"comp", pool:"C"},
+  {id:"c3", name:"Trauma Team FC",       div:"comp", pool:"C"},
+  {id:"c4", name:"Marine Unit",          div:"comp", pool:"C"},
+
+  {id:"d1", name:"Tactical FC",          div:"comp", pool:"D"},
+  {id:"d2", name:"Air Ambulance FC",     div:"comp", pool:"D"},
+  {id:"d3", name:"Corrections Athletic", div:"comp", pool:"D"},
+  {id:"d4", name:"K9 Squad",             div:"comp", pool:"D"}
+];
+
+var POOLS = ["A","B","C","D"];
+var POOL_DIV = {A:"rec", B:"rec", C:"comp", D:"comp"};
+var DIV_NAME = {rec:"Recreational", comp:"Competitive"};
+var ACCESS_CODE = "2026";
+var GAME_MINUTES = 40;
+
+function teamById(id){ for(var i=0;i<TEAMS.length;i++){ if(TEAMS[i].id===id) return TEAMS[i]; } return null; }
+function poolTeams(p){ return TEAMS.filter(function(t){ return t.pool === p; }); }
+
+/* ---- 2. Time helpers. Thursday is day 0, Friday day 1. ---- */
+function mins(t){ var p = t.split(":"); return Number(p[0])*60 + Number(p[1]); }
+function dayNo(d){ return d === "thu" ? 0 : 1; }
+function stamp(day, time){ return dayNo(day)*1440 + mins(time); }
+function nowStamp(){ return stamp(state.clock.day, state.clock.time); }
+function startOf(g){ return stamp(g.day, g.time); }
+
+/* ---- 3. Schedule. Pool play Thursday, playoffs Friday. ---- */
+var RR = [[[0,1],[2,3]], [[0,2],[1,3]], [[0,3],[1,2]]];
+
+var THU_SLOTS = [
+  {time:"08:00", games:[["A",0,0],["A",0,1],["B",0,0]]},
+  {time:"08:45", games:[["B",0,1],["C",0,0],["C",0,1]]},
+  {time:"09:30", games:[["D",0,0],["D",0,1],["A",1,0]]},
+  {time:"10:15", games:[["A",1,1],["B",1,0],["B",1,1]]},
+  {time:"11:00", games:[["C",1,0],["C",1,1],["D",1,0]]},
+  {time:"11:45", games:[["D",1,1],["A",2,0],["A",2,1]]},
+  {time:"12:30", games:[["B",2,0],["B",2,1],["C",2,0]]},
+  {time:"13:15", games:[["C",2,1],["D",2,0],["D",2,1]]}
+];
+
+var FRI = [
+  {time:"09:00", field:1, div:"rec",  stage:"sf",     label:"Rec semi-final 1",  home:{seed:"A1"}, away:{seed:"B2"}},
+  {time:"09:00", field:2, div:"rec",  stage:"sf",     label:"Rec semi-final 2",  home:{seed:"B1"}, away:{seed:"A2"}},
+  {time:"10:00", field:1, div:"comp", stage:"sf",     label:"Comp semi-final 1", home:{seed:"C1"}, away:{seed:"D2"}},
+  {time:"10:00", field:2, div:"comp", stage:"sf",     label:"Comp semi-final 2", home:{seed:"D1"}, away:{seed:"C2"}},
+  {time:"11:15", field:1, div:"rec",  stage:"bronze", label:"Rec third place",   home:{loser:"fri-0900-f1"},  away:{loser:"fri-0900-f2"}},
+  {time:"11:15", field:2, div:"comp", stage:"bronze", label:"Comp third place",  home:{loser:"fri-1000-f1"},  away:{loser:"fri-1000-f2"}},
+  {time:"12:30", field:1, div:"rec",  stage:"final",  label:"Rec final",         home:{winner:"fri-0900-f1"}, away:{winner:"fri-0900-f2"}},
+  {time:"12:30", field:2, div:"comp", stage:"final",  label:"Comp final",        home:{winner:"fri-1000-f1"}, away:{winner:"fri-1000-f2"}}
+];
+
+var GAMES = [];
+
+THU_SLOTS.forEach(function(slot){
+  slot.games.forEach(function(g, fieldIdx){
+    var pool = g[0], round = g[1], idx = g[2];
+    var pair = RR[round][idx];
+    var roster = poolTeams(pool);
+    GAMES.push({
+      id: "thu-" + slot.time.replace(":","") + "-f" + (fieldIdx+1),
+      day:"thu", time:slot.time, field:fieldIdx+1,
+      div:POOL_DIV[pool], stage:"pool", pool:pool,
+      home:{team:roster[pair[0]].id}, away:{team:roster[pair[1]].id}
+    });
+  });
+});
+
+FRI.forEach(function(g){
+  GAMES.push({
+    id:"fri-" + g.time.replace(":","") + "-f" + g.field,
+    day:"fri", time:g.time, field:g.field, div:g.div,
+    stage:g.stage, label:g.label, home:g.home, away:g.away
+  });
+});
+
+function gameById(id){ for(var i=0;i<GAMES.length;i++){ if(GAMES[i].id===id) return GAMES[i]; } return null; }
+
+/* ---- 4. State. Held in memory only — nothing is written to the browser. ---- */
+var state = { results:{}, clock:{day:"thu", time:"10:35"}, organizer:false };
+
+/* Deterministic pseudo-random scores so the board looks the same every reload. */
+function fakeScore(id){
+  var n = 0, i;
+  for(i=0;i<id.length;i++){ n = (n*31 + id.charCodeAt(i)) % 100000; }
+  function r(k){ n = (n*1103515245 + 12345) % 2147483648; return Math.floor(n / 2147483648 * k); }
+  return [r(6), r(5)];
+}
+
+/* Fill plausible scores for every pool fixture that has already kicked off. */
+function seedResults(){
+  var at = nowStamp();
+  var out = {};
+  GAMES.forEach(function(g){
+    if(g.stage !== "pool") return;
+    var s = startOf(g);
+    var sc = fakeScore(g.id);
+    if(s + GAME_MINUTES <= at){
+      out[g.id] = {h:sc[0], a:sc[1], final:true};
+    } else if(s <= at){
+      out[g.id] = {h:Math.min(sc[0],2), a:Math.min(sc[1],2), final:false};
+    }
+  });
+  return out;
+}
+
+/* ---- 5. Standings ---- */
+function standings(pool){
+  var rows = poolTeams(pool).map(function(t){
+    return {team:t, gp:0, w:0, d:0, l:0, gf:0, ga:0, pts:0};
+  });
+  function find(id){ for(var i=0;i<rows.length;i++){ if(rows[i].team.id===id) return rows[i]; } return null; }
+
+  GAMES.filter(function(g){ return g.stage === "pool" && g.pool === pool; }).forEach(function(g){
+    var res = state.results[g.id];
+    if(!res || !res.final) return;
+    var H = find(g.home.team), A = find(g.away.team);
+    H.gp++; A.gp++;
+    H.gf += res.h; H.ga += res.a;
+    A.gf += res.a; A.ga += res.h;
+    if(res.h > res.a){ H.w++; A.l++; H.pts += 3; }
+    else if(res.h < res.a){ A.w++; H.l++; A.pts += 3; }
+    else { H.d++; A.d++; H.pts++; A.pts++; }
+  });
+
+  rows.sort(function(x,y){
+    return (y.pts - x.pts) ||
+           ((y.gf - y.ga) - (x.gf - x.ga)) ||
+           (y.gf - x.gf) ||
+           (y.w - x.w) ||
+           x.team.name.localeCompare(y.team.name);
+  });
+  return rows;
+}
+
+function poolComplete(pool){
+  return GAMES.filter(function(g){ return g.stage === "pool" && g.pool === pool; })
+              .every(function(g){ var r = state.results[g.id]; return r && r.final; });
+}
+
+/* ---- 6. Who plays in a playoff slot ---- */
+function resolve(side){
+  if(!side) return null;
+  if(side.team) return teamById(side.team);
+  if(side.seed){
+    var pool = side.seed.charAt(0), place = Number(side.seed.charAt(1));
+    if(!poolComplete(pool)) return null;
+    var row = standings(pool)[place-1];
+    return row ? row.team : null;
+  }
+  var ref = side.winner || side.loser;
+  if(ref){
+    var g = gameById(ref), res = state.results[ref];
+    if(!g || !res || !res.final || res.h === res.a) return null;
+    var homeWon = res.h > res.a;
+    var wantHome = side.winner ? homeWon : !homeWon;
+    return resolve(wantHome ? g.home : g.away);
+  }
+  return null;
+}
+
+function sideLabel(side){
+  var t = resolve(side);
+  if(t) return {name:t.name, tbd:false};
+  if(side.seed) return {name:(side.seed.charAt(1)==="1" ? "Winner" : "Runner-up") + " Pool " + side.seed.charAt(0), tbd:true};
+  if(side.winner){ var gw = gameById(side.winner); return {name:"Winner of " + (gw ? gw.label : "earlier game"), tbd:true}; }
+  if(side.loser){  var gl = gameById(side.loser);  return {name:"Loser of "  + (gl ? gl.label : "earlier game"), tbd:true}; }
+  return {name:"TBD", tbd:true};
+}
+
+/* ---- 7. Game state ---- */
+function gameState(g){
+  var res = state.results[g.id];
+  if(res && res.final) return "final";
+  var s = startOf(g), now = nowStamp();
+  if(now >= s && now < s + GAME_MINUTES) return "live";
+  if(now >= s + GAME_MINUTES) return "awaiting";
+  return "upcoming";
+}
+
+/* ---- 8. Rendering ---- */
+var filterDay = "thu";
+var filterDiv = "all";
+function $(sel){ return document.querySelector(sel); }
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+function renderClock(){
+  var d = state.clock.day === "thu" ? "Thu 22 Oct" : "Fri 23 Oct";
+  $("#clockchip").innerHTML = "<b>" + d + "</b> · " + esc(state.clock.time);
+  var done = GAMES.filter(function(g){ var r = state.results[g.id]; return r && r.final; }).length;
+  $("#progress").textContent = done + " of " + GAMES.length + " results in";
+}
+
+function renderFields(){
+  var now = nowStamp();
+  var html = [1,2,3].map(function(f){
+    var onField = GAMES.filter(function(g){ return g.field === f; })
+                       .sort(function(a,b){ return startOf(a) - startOf(b); });
+    var g = null, mode = "live";
+    for(var i=0;i<onField.length;i++){ if(gameState(onField[i]) === "live"){ g = onField[i]; break; } }
+    if(!g){
+      mode = "next";
+      for(var j=0;j<onField.length;j++){ if(startOf(onField[j]) > now){ g = onField[j]; break; } }
+    }
+    if(!g){
+      mode = "done";
+      var past = onField.filter(function(x){ return startOf(x) <= now; });
+      g = past.length ? past[past.length-1] : null;
+    }
+    if(!g){
+      return '<div class="field"><div class="field-top"><div class="field-no">Field ' + f + '</div></div>' +
+             '<p class="field-empty">Nothing scheduled.</p></div>';
+    }
+
+    var res = state.results[g.id] || {h:0, a:0, final:false};
+    var H = sideLabel(g.home), A = sideLabel(g.away);
+    var st = gameState(g);
+    var cls  = st === "live" ? "live" : (mode === "next" ? "next" : "");
+    var badge = st === "live" ? '<span class="state live"><span class="dot"></span>Playing</span>'
+              : st === "awaiting" ? '<span class="state">Awaiting score</span>'
+              : mode === "next" ? '<span class="state next"><span class="dot"></span>Up next</span>'
+              : '<span class="state">Final</span>';
+    var showScore = st === "live" || st === "awaiting" || st === "final";
+
+    return '<div class="field ' + cls + '">' +
+      '<div class="field-top"><div class="field-no">Field ' + f + '</div>' + badge + '</div>' +
+      '<div class="matchup">' +
+        '<div class="side ' + (H.tbd?"dim":"") + '">' + esc(H.name) + '</div>' +
+        '<div class="sc">' + (showScore ? res.h : "") + '</div>' +
+        '<div class="side ' + (A.tbd?"dim":"") + '">' + esc(A.name) + '</div>' +
+        '<div class="sc">' + (showScore ? res.a : "") + '</div>' +
+      '</div>' +
+      '<div class="field-foot">' +
+        '<span>' + (g.day === "thu" ? "THU" : "FRI") + ' ' + g.time + '</span>' +
+        '<span>' + (g.stage === "pool" ? "POOL " + g.pool : (g.label || "").toUpperCase()) + '</span>' +
+      '</div></div>';
+  }).join("");
+  $("#fields").innerHTML = html;
+}
+
+function renderFilters(){
+  $("#filters").innerHTML =
+    '<button class="pill" data-day="thu" aria-pressed="' + (filterDay==="thu") + '">Thu 22 Oct</button>' +
+    '<button class="pill" data-day="fri" aria-pressed="' + (filterDay==="fri") + '">Fri 23 Oct</button>' +
+    '<span style="flex:1 1 12px"></span>' +
+    '<button class="pill" data-div="all"  aria-pressed="' + (filterDiv==="all")  + '">All</button>' +
+    '<button class="pill" data-div="rec"  aria-pressed="' + (filterDiv==="rec")  + '">Rec</button>' +
+    '<button class="pill" data-div="comp" aria-pressed="' + (filterDiv==="comp") + '">Comp</button>';
+}
+
+function renderSchedule(){
+  var list = GAMES.filter(function(g){
+    return g.day === filterDay && (filterDiv === "all" || g.div === filterDiv);
+  });
+  var times = [];
+  list.forEach(function(g){ if(times.indexOf(g.time) === -1) times.push(g.time); });
+  times.sort();
+
+  var html = times.map(function(time){
+    var cards = list.filter(function(g){ return g.time === time; })
+                    .sort(function(a,b){ return a.field - b.field; })
+                    .map(gameCard).join("");
+    return '<div class="slot"><div class="slot-time mono">' + time + '</div><div class="slot-games">' + cards + '</div></div>';
+  }).join("");
+
+  if(filterDay === "fri"){
+    html += '<div class="slot"><div class="slot-time mono">13:45</div><div class="slot-games">' +
+            '<div class="game"><div class="tag">All fields</div>' +
+            '<div class="tname" style="margin-top:6px">Awards and cheque presentation</div></div></div></div>';
+  }
+  $("#schedule").innerHTML = html;
+}
+
+function gameCard(g){
+  var st = gameState(g);
+  var res = state.results[g.id];
+  var H = sideLabel(g.home), A = sideLabel(g.away);
+  var hs = res ? res.h : null, as = res ? res.a : null;
+  var badge = st === "live" ? '<span class="state live"><span class="dot"></span>Playing</span>'
+            : st === "final" ? '<span class="state">Final</span>'
+            : st === "awaiting" ? '<span class="state next">Needs score</span>'
+            : "";
+  var hLost = res && res.final && res.h < res.a;
+  var aLost = res && res.final && res.a < res.h;
+
+  return '<div class="game ' + (st==="final"?"done":"") + '">' +
+    '<div class="game-top">' +
+      '<span class="tag">Field ' + g.field + ' · ' + (g.stage === "pool" ? "Pool " + g.pool : esc(g.label)) + '</span>' +
+      badge +
+    '</div>' +
+    '<div class="row">' +
+      '<div class="tname ' + (H.tbd?"tbd":"") + ' ' + (hLost?"lost":"") + '">' + esc(H.name) + '</div>' +
+      '<div class="tscore">' + (hs !== null ? hs : "–") + '</div>' +
+      '<div class="tname ' + (A.tbd?"tbd":"") + ' ' + (aLost?"lost":"") + '">' + esc(A.name) + '</div>' +
+      '<div class="tscore">' + (as !== null ? as : "–") + '</div>' +
+    '</div>' +
+    (state.organizer && !H.tbd && !A.tbd ? entryBlock(g, res, H, A) : "") +
+  '</div>';
+}
+
+function entryBlock(g, res, H, A){
+  var h = res ? res.h : 0, a = res ? res.a : 0;
+  function step(side, val, name){
+    return '<div class="stepper">' +
+      '<button type="button" data-step="-1" data-game="' + g.id + '" data-side="' + side + '" aria-label="Remove a goal from ' + esc(name) + '">−</button>' +
+      '<input type="number" min="0" step="1" value="' + val + '" data-input="' + side + '" data-game="' + g.id + '" aria-label="' + esc(name) + ' goals">' +
+      '<button type="button" data-step="1" data-game="' + g.id + '" data-side="' + side + '" aria-label="Add a goal for ' + esc(name) + '">+</button>' +
+      '<label>' + esc(name) + '</label>' +
+    '</div>';
+  }
+  return '<div class="entry">' +
+    step("h", h, H.name) +
+    step("a", a, A.name) +
+    '<button type="button" class="btn sm ' + (res && res.final ? "ghost" : "") + '" data-final="' + g.id + '">' +
+      (res && res.final ? "Reopen" : "Mark final") +
+    '</button>' +
+  '</div>';
+}
+
+function renderStandings(){
+  $("#standings").innerHTML = POOLS.map(function(p){
+    var rows = standings(p);
+    var body = rows.map(function(r,i){
+      var gd = r.gf - r.ga;
+      return '<tr class="' + (i < 2 ? "adv" : "") + '">' +
+        '<td>' + esc(r.team.name) + '</td>' +
+        '<td>' + r.gp + '</td><td>' + r.w + '</td><td>' + r.d + '</td><td>' + r.l + '</td>' +
+        '<td>' + r.gf + '</td><td>' + r.ga + '</td>' +
+        '<td>' + (gd > 0 ? "+" : "") + gd + '</td>' +
+        '<td class="pts">' + r.pts + '</td></tr>';
+    }).join("");
+    return '<div class="pool">' +
+      '<h3>Pool ' + p + '</h3>' +
+      '<p class="sub">' + DIV_NAME[POOL_DIV[p]] + ' division · ' + (poolComplete(p) ? "pool play complete" : "pool play in progress") + '</p>' +
+      '<table><thead><tr><th>Team</th><th>GP</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr></thead>' +
+      '<tbody>' + body + '</tbody></table></div>';
+  }).join("");
+}
+
+function renderBrackets(){
+  $("#brackets").innerHTML = ["rec","comp"].map(function(div){
+    var gs = GAMES.filter(function(g){ return g.div === div && g.stage !== "pool"; });
+    function card(g){
+      var H = sideLabel(g.home), A = sideLabel(g.away);
+      var res = state.results[g.id];
+      var done = !!(res && res.final);
+      return '<div class="bkgame ' + (g.stage === "final" ? "final-match" : "") + '">' +
+        '<div class="bklab">' + esc(g.label) + ' · ' + g.time + ' · Field ' + g.field + '</div>' +
+        '<div class="row">' +
+          '<div class="tname ' + (H.tbd?"tbd":"") + ' ' + (done && res.h < res.a ? "lost":"") + '">' + esc(H.name) + '</div>' +
+          '<div class="tscore">' + (done ? res.h : "–") + '</div>' +
+          '<div class="tname ' + (A.tbd?"tbd":"") + ' ' + (done && res.a < res.h ? "lost":"") + '">' + esc(A.name) + '</div>' +
+          '<div class="tscore">' + (done ? res.a : "–") + '</div>' +
+        '</div></div>';
+    }
+    var fin = gs.filter(function(g){ return g.stage === "final"; })[0];
+    var champ = fin ? resolve({winner:fin.id}) : null;
+    return '<div class="bk">' +
+      '<h3>' + DIV_NAME[div] + '</h3>' +
+      '<div class="bkrow">' + gs.filter(function(g){return g.stage==="sf";}).map(card).join("") + '</div>' +
+      '<div class="bkrow">' + gs.filter(function(g){return g.stage==="bronze";}).map(card).join("") + '</div>' +
+      '<div class="bkrow">' + gs.filter(function(g){return g.stage==="final";}).map(card).join("") + '</div>' +
+      '<div class="champ"><span class="lab">Champion</span>' +
+      '<span class="who">' + (champ ? esc(champ.name) : "—") + '</span></div></div>';
+  }).join("");
+}
+
+function renderOps(){
+  var a = $("#ops-actions");
+  if(!state.organizer){
+    $("#ops-blurb").textContent = "Score entry is off. Sign in to put results in.";
+    a.innerHTML =
+      '<input type="password" id="pin" placeholder="Access code" autocomplete="off" style="width:150px">' +
+      '<button type="button" class="btn solid" id="signin">Turn on score entry</button>';
+    $("#ops-note").textContent = "Demo access code: " + ACCESS_CODE;
+  } else {
+    $("#ops-blurb").textContent = "Score entry is on. Steppers appear under every fixture on the Schedule tab.";
+    a.innerHTML =
+      '<select id="cday">' +
+        '<option value="thu"' + (state.clock.day==="thu"?" selected":"") + '>Thu 22 Oct</option>' +
+        '<option value="fri"' + (state.clock.day==="fri"?" selected":"") + '>Fri 23 Oct</option>' +
+      '</select>' +
+      '<input type="text" id="ctime" value="' + esc(state.clock.time) + '" style="width:78px" aria-label="Demo clock time">' +
+      '<button type="button" class="btn" id="setclock">Set demo clock</button>' +
+      '<button type="button" class="btn" id="jumpfinals">Jump to the finals</button>' +
+      '<button type="button" class="btn" id="exp">Download results</button>' +
+      '<button type="button" class="btn" id="imp">Restore from file</button>' +
+      '<button type="button" class="btn" id="wipe">Clear the board</button>' +
+      '<button type="button" class="btn" id="signout">Turn off score entry</button>';
+    $("#ops-note").textContent = "The demo clock only exists so the board looks live in August. On tournament days it reads the real time.";
+  }
+}
+
+function renderAll(){
+  renderClock(); renderFields(); renderFilters();
+  renderSchedule(); renderStandings(); renderBrackets(); renderOps();
+}
+
+/* ---- 9. Events ---- */
+document.addEventListener("click", function(e){
+  try{
+    var t = e.target.closest ? e.target.closest("button") : null;
+    if(!t) return;
+
+    if(t.classList.contains("tab")){
+      var tabs = document.querySelectorAll(".tab");
+      for(var i=0;i<tabs.length;i++){
+        var on = tabs[i] === t;
+        tabs[i].setAttribute("aria-selected", on ? "true" : "false");
+        document.getElementById(tabs[i].getAttribute("aria-controls")).hidden = !on;
+      }
+      return;
+    }
+    if(t.dataset.day){ filterDay = t.dataset.day; renderFilters(); renderSchedule(); return; }
+    if(t.dataset.div){ filterDiv = t.dataset.div; renderFilters(); renderSchedule(); return; }
+
+    if(t.dataset.step){
+      var id = t.dataset.game, side = t.dataset.side;
+      var r = state.results[id] || {h:0, a:0, final:false};
+      r[side] = Math.max(0, r[side] + Number(t.dataset.step));
+      state.results[id] = r; renderAll(); return;
+    }
+    if(t.dataset.final){
+      var fid = t.dataset.final;
+      var fr = state.results[fid] || {h:0, a:0, final:false};
+      fr.final = !fr.final;
+      state.results[fid] = fr; renderAll(); return;
+    }
+
+    switch(t.id){
+      case "signin":
+        if($("#pin").value.trim() === ACCESS_CODE){ state.organizer = true; renderAll(); }
+        else { $("#ops-note").textContent = "That code doesn't match. Try " + ACCESS_CODE + "."; }
+        break;
+      case "signout":
+        state.organizer = false; renderAll(); break;
+      case "setclock": {
+        var time = $("#ctime").value.trim();
+        var m = /^(\d{1,2}):(\d{2})$/.exec(time);
+        if(!m || Number(m[1]) > 23 || Number(m[2]) > 59){
+          $("#ops-note").textContent = "Use a 24-hour time between 00:00 and 23:59, like 10:35.";
+          break;
+        }
+        state.clock = {day:$("#cday").value, time:(m[1].length === 1 ? "0" : "") + time};
+        renderAll();
+        $("#ops-note").textContent = "Demo clock set to " + (state.clock.day === "thu" ? "Thursday" : "Friday") + " " + state.clock.time + ".";
+        break;
+      }
+      case "jumpfinals":
+        jumpToFinals(); break;
+      case "exp": {
+        var blob = new Blob([JSON.stringify({clock:state.clock, results:state.results}, null, 2)], {type:"application/json"});
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement("a");
+        link.href = url; link.download = "obcc-results.json";
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        URL.revokeObjectURL(url); break;
+      }
+      case "imp":
+        $("#restore-file").click(); break;
+      case "wipe":
+        state.results = {}; renderAll();
+        $("#ops-note").textContent = "Board cleared. Every fixture is back to no score."; break;
+    }
+  }catch(err){ crash(err); }
+});
+
+document.addEventListener("change", function(e){
+  try{
+    var inp = e.target.closest ? e.target.closest("input[data-input]") : null;
+    if(!inp) return;
+    var r = state.results[inp.dataset.game] || {h:0, a:0, final:false};
+    r[inp.dataset.input] = Math.max(0, Number(inp.value) || 0);
+    state.results[inp.dataset.game] = r;
+    renderAll();
+  }catch(err){ crash(err); }
+});
+
+var restoreInput = document.getElementById("restore-file");
+if(restoreInput){
+  restoreInput.addEventListener("change", function(e){
+    var file = e.target.files && e.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      try{
+        var data = JSON.parse(reader.result);
+        state.results = data.results || {};
+        if(data.clock && data.clock.day && data.clock.time) state.clock = data.clock;
+        renderAll();
+        $("#ops-note").textContent = "Results restored from " + file.name + ".";
+      }catch(err){
+        $("#ops-note").textContent = "That file isn't a results file this board can read.";
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  });
+}
+
+function jumpToFinals(){
+  state.clock = {day:"fri", time:"13:20"};
+  state.results = seedResults();
+  ["sf","bronze","final"].forEach(function(stage){
+    GAMES.filter(function(g){ return g.stage === stage; }).forEach(function(g){
+      if(!resolve(g.home) || !resolve(g.away)) return;
+      var sc = fakeScore(g.id);
+      var h = sc[0], a = sc[1];
+      if(h === a) a = a + 1;
+      state.results[g.id] = {h:h, a:a, final:true};
+    });
+  });
+  renderAll();
+}
+
+/* ---- 10. Start ---- */
+try{
+  state.results = seedResults();
+  renderAll();
+}catch(err){ crash(err); }
+
+})();
+</script>
+</body>
+</html>
