@@ -322,7 +322,7 @@ window.onerror=function(m,s,l,c,e){crash(e||m);};
    which build they're looking at — a stale stamp on a phone
    means a caching problem, not a code problem.
    --------------------------------------------------------- */
-var BUILD_STAMP="2026-08-31 · b1";
+var BUILD_STAMP="2026-08-31 · b2";
 document.getElementById("buildStampMast").textContent=BUILD_STAMP;
 document.getElementById("buildStampFoot").textContent=BUILD_STAMP;
 
@@ -1744,6 +1744,7 @@ document.addEventListener("click",function(ev){
       var g3=gameById(openGame),w=whichEntry(),E3=sheet(g3.id)[w];
       E3.submitted=true;E3.by=ROLES[state.role].label;
       E3.at=new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
+      postSheet(g3.id,w,E3);
       renderAll();return;
     }
     if(t.id==="unlock"){
@@ -1918,9 +1919,44 @@ function fillDemo(){
 }
 
 /* ---------------------------------------------------------
+   25b. SYNC — shared game-sheet state via the Worker API.
+   The one piece of state that leaves this tab: marshal and
+   referee entries, the actual "three phones, three records"
+   blocker (CLAUDE.md section 7). Everything else — standings,
+   cards, rosters, tie-breakers — is still computed locally from
+   whatever sheets this tab knows about, exactly as before.
+
+   Fails quietly with no server behind /api (e.g. opened straight
+   from disk, or the Worker isn't deployed yet) — the app just
+   keeps whatever's already in this tab, same as it always has.
+   --------------------------------------------------------- */
+function postSheet(gameId,side,entry){
+  fetch("/api/sheet",{
+    method:"POST",
+    headers:{"content-type":"application/json"},
+    body:JSON.stringify({gameId:gameId,side:side,entry:entry})
+  }).catch(function(){/* offline or no server yet — local copy still holds */});
+}
+function syncFromServer(){
+  fetch("/api/state").then(function(r){return r.ok?r.json():null;}).then(function(d){
+    if(!d||!d.sheets)return;
+    var changed=false;
+    Object.keys(d.sheets).forEach(function(gameId){
+      if(gameId===openGame)return; // never clobber a sheet being edited right now
+      var incoming=d.sheets[gameId],local=sheet(gameId);
+      if(incoming.marshal&&JSON.stringify(incoming.marshal)!==JSON.stringify(local.marshal)){local.marshal=incoming.marshal;changed=true;}
+      if(incoming.ref&&JSON.stringify(incoming.ref)!==JSON.stringify(local.ref)){local.ref=incoming.ref;changed=true;}
+    });
+    if(changed){rebuild();renderAll();}
+  }).catch(function(){/* offline — keep showing the last known state */});
+}
+
+/* ---------------------------------------------------------
    26. START
    --------------------------------------------------------- */
 try{rebuild();renderAll();}catch(e){crash(e);}
+syncFromServer();
+setInterval(syncFromServer,7000);
 </script>
 </body>
 </html>

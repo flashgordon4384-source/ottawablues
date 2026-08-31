@@ -1,0 +1,35 @@
+# Cloudflare Workers config for the OBCC tournament tool.
+#
+# This exists now because it has to: Durable Object bindings and
+# migrations are config-file-only features in wrangler, unlike
+# --assets/--name which the dashboard was passing as plain CLI
+# flags with no config file at all (see CLAUDE.md section 2, "Known
+# gap", 31 Aug entry). That decision doesn't apply anymore now that
+# a Durable Object is in the picture — this file is the only way to
+# declare one.
+#
+# NOT YET APPLIED to the live project. Confirmed matches to the
+# dashboard as of 31 Aug 2026 (name, assets directory). Still
+# needed before this does anything: change the dashboard's Deploy
+# command from
+#   npx wrangler deploy --assets ./public --name ottawablues
+# to
+#   npx wrangler deploy
+# so wrangler reads this file instead of the hardcoded flags — do
+# that together, live, per CLAUDE.md section 2.
+
+name = "ottawablues"
+main = "worker/index.js"
+compatibility_date = "2026-08-31"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+
+[[durable_objects.bindings]]
+name = "TOURNAMENT"
+class_name = "TournamentState"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["TournamentState"]

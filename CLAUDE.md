@@ -40,6 +40,8 @@ tournament tool ships and nothing else.
 - **App:** `public/index.html` — a single self-contained file. No
   build step, no framework, no package.json, no dependencies.
 - **Headers:** `public/_headers`
+- **Backend:** `worker/index.js` — a Durable Object holding shared
+  game-sheet entries. See "Shared state" below. Not live yet.
 - **Host:** Cloudflare, project `ottawablues`. Deploys automatically
   on push to `main`.
 
@@ -111,6 +113,33 @@ reconstruction from memory.
 redirect both carry `Cache-Control: no-cache, must-revalidate`, plus
 `nosniff` and the referrer-policy header. Workers static assets do
 honour it here — that question is closed.
+
+### Shared state — in progress, not deployed
+
+`wrangler.toml` and `worker/index.js` were added 31 August 2026 to
+start on the database (§7's "actual blocker"). A Durable Object holds
+`state.sheets` — marshal and referee game-sheet entries — so three
+phones stop producing three records that never meet. Nothing else
+moved server-side: standings, cards, rosters and tie-breakers are
+still computed client-side in `public/index.html` exactly as before,
+reading whatever sheets that tab has synced.
+
+Deliberately scoped to just this one piece rather than the whole
+`state` object — see the comment at the top of `worker/index.js` for
+why (schemaless Durable Object storage means extending it later, for
+penalty entry or forfeits or whatever comes next, is cheap; there was
+no reason to wait for the rest of §7 to settle before starting).
+
+**None of this is live.** `public/index.html` now calls `/api/state`
+and `/api/sheet`, but fails silently with no server behind those
+paths — confirmed the page still works normally with nothing
+deployed. To actually turn it on: create the Durable Object binding
+and change the dashboard's Deploy command from the explicit
+`--assets`/`--name` flags to plain `npx wrangler deploy` so it reads
+this `wrangler.toml` instead. That's a live, together, walk-through-it
+session — not something to do from a diff. Target: working and
+testable well before 20 September 2026 (Abdel's schedule is due the
+15th).
 
 ---
 
