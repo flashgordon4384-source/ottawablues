@@ -406,6 +406,45 @@ Scoped to pool games only — the resolving playoff bracket already has
 its own view on Schedule, and folding it in felt like scope creep for
 a first pass.
 
+**Batch five (31 Aug 2026)** — team detail page, and player name
+privacy.
+
+*Team detail*, from Gord's "single player / full team" perspective:
+clicking a team's Roster link now opens all of its games across both
+days (reusing `fixtureCard`, same as Now), its full division standings
+table with its own row highlighted, and the squad — one screen instead
+of cross-referencing Schedule, Standings and Teams separately.
+Read-only, public, no sign-in, same `showRoster()` entry point as
+before, just richer.
+
+*Player name privacy*, because some of the police teams have officers
+whose posting means they can't be publicly named. `p.private` is a
+per-player flag. When set, every public-facing surface — the team
+detail roster, Cards &amp; suspensions, Leading scorers, the sin-bin bar,
+and the game sheet as seen by a marshal or referee entering it —
+shows "Player #N" instead of the real name. Only the organizer and
+that player's own team captain (see §5) see the real name, since
+neither a marshal nor a referee actually needs off-field identity to
+record which numbered player took a card. The waiver itself, and the
+roster editor for admin/captain, always show the real name — a legal
+document and a team's own management screen aren't the "public"
+surface this protects.
+
+**Two ways to set it, both live:** the organizer or the team's own
+captain can tick **Private** per player in the roster editor: or the
+player can tick it themselves on their own waiver form when signing —
+unticked by default, so a player who does nothing is shown normally.
+Both write the same flag.
+
+**This is a draft, not a settled policy.** Gord's own framing: "we
+just have to draft it, Devo will give us the answer." Open questions
+Devo should weigh in on before the event: should the default be
+opt-in (as built) or opt-out for certain teams entirely; should
+`private` be settable by the roster editor at all versus waiver-only;
+and whether "Player #N" is the right public label versus something
+else. Don't treat the current behaviour as final without checking
+back.
+
 ### Design decisions worth preserving
 
 **The paste creates the player, not the waiver.** A captain pastes name
@@ -481,6 +520,9 @@ Also outstanding:
   a subdomain, or `ncbluesfoundation.org`. These are different sites
   and the tournament content currently sits on the foundation one.
 - **Whether the foundation accepts the no-witness waiver.**
+- **Player name privacy policy** — Devo to confirm. Current build:
+  opt-in per player at waiver signing (or set by the organizer/
+  captain), unticked by default. See §6, "Player name privacy."
 
 ---
 

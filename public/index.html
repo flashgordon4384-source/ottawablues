@@ -357,7 +357,7 @@ window.onerror=function(m,s,l,c,e){crash(e||m);};
    which build they're looking at — a stale stamp on a phone
    means a caching problem, not a code problem.
    --------------------------------------------------------- */
-var BUILD_STAMP="2026-08-31 · b9";
+var BUILD_STAMP="2026-08-31 · b11";
 document.getElementById("buildStampMast").textContent=BUILD_STAMP;
 document.getElementById("buildStampFoot").textContent=BUILD_STAMP;
 
@@ -554,6 +554,26 @@ function squad(teamId){
 function player(id){for(var i=0;i<PLAYERS.length;i++){if(PLAYERS[i].id===id)return PLAYERS[i];}return null;}
 function playerByToken(tk){for(var i=0;i<PLAYERS.length;i++){if(PLAYERS[i].token===tk)return PLAYERS[i];}return null;}
 function signed(p){return !!(p&&p.waiver);}
+
+/* Some players -- police officers whose posting requires it,
+   mainly -- can't be publicly named. p.private is set per-player
+   by the organizer or that team's own captain (editRoster). Only
+   the organizer and that player's own captain see the real name;
+   everyone else, including a marshal or referee running the
+   sheet, sees the jersey number instead. That's deliberate: a
+   referee needs to know which numbered player took a card, not
+   who they are off the field. */
+function canSeeRealName(p){
+  if(!p)return false;
+  if(state.role==="admin")return true;
+  if(state.role==="captain"&&state.captainTeam===p.teamId)return true;
+  return false;
+}
+function displayName(p){
+  if(!p)return "—";
+  if(!p.private||canSeeRealName(p))return p.name;
+  return "Player #"+(p.jersey||"?");
+}
 
 /* Rule 4: one team only. The same address on two rosters is
    the error we can actually catch. */
@@ -1079,7 +1099,7 @@ function validateSheet(g,teamId){
     out.push({level:"warn",text:"Exactly two female players available — no margin. A recruit from a team in the division below is permitted."});
   susp.forEach(function(pid){
     var p=player(pid);
-    if(p&&p.teamId===teamId)out.push({level:"warn",text:p.name+" (#"+p.jersey+") is suspended for this game."});
+    if(p&&p.teamId===teamId)out.push({level:"warn",text:displayName(p)+" (#"+p.jersey+") is suspended for this game."});
   });
   return out;
 }
@@ -1265,7 +1285,7 @@ function renderNow(){
       var scorers=leadingScorers(5);
       if(!scorers.length)return '<p class="note" style="padding:14px">No agreed goals recorded yet.</p>';
       return '<div class="tablewrap"><table><tbody>'+scorers.map(function(s,i){
-        return '<tr><td class="pos">'+(i+1)+'</td><td class="teamname"><span class="teamline">'+teamBadge(s.team,16)+'<span class="nm">'+esc(s.player.name)+'</span></span></td><td class="n"><b>'+s.goals+'</b></td></tr>';
+        return '<tr><td class="pos">'+(i+1)+'</td><td class="teamname"><span class="teamline">'+teamBadge(s.team,16)+'<span class="nm">'+esc(displayName(s.player))+'</span></span></td><td class="n"><b>'+s.goals+'</b></td></tr>';
       }).join("")+'</tbody></table></div>';
     })()+
     '</div></div>'+
@@ -1399,7 +1419,7 @@ function renderDiscipline(){
     var p=player(pid),R=d[pid];
     var reason=R.expelled?"Two red cards — out of the tournament":
       (R.miss.length?"Misses "+R.miss.map(function(m){return m.label;}).join(", "):"Suspension outstanding — no further game scheduled");
-    html+='<div class="discrow"><div><b>'+esc(p.name)+'</b> <span class="pos">#'+p.jersey+' · '+esc(teamName(p.teamId))+'</span>'+
+    html+='<div class="discrow"><div><b>'+esc(displayName(p))+'</b> <span class="pos">#'+p.jersey+' · '+esc(teamName(p.teamId))+'</span>'+
       '<div class="note" style="margin-top:2px">'+esc(reason)+'</div></div>'+
       '<div class="cards">'+pips(R.yTotal,"y")+pips(R.rTotal,"r")+'</div></div>';
   });
@@ -1410,7 +1430,7 @@ function renderDiscipline(){
   carrying.sort(function(a,b){return (d[b].yTotal+d[b].rTotal*3)-(d[a].yTotal+d[a].rTotal*3);}).forEach(function(pid){
     var p=player(pid),R=d[pid];
     var warn=R.y===RULES.yellowsToSuspend-1?'<span class="tag warn">One yellow from a suspension</span>':'';
-    html+='<div class="discrow"><div><b>'+esc(p.name)+'</b> <span class="pos">#'+p.jersey+' · '+esc(teamName(p.teamId))+'</span> '+warn+'</div>'+
+    html+='<div class="discrow"><div><b>'+esc(displayName(p))+'</b> <span class="pos">#'+p.jersey+' · '+esc(teamName(p.teamId))+'</span> '+warn+'</div>'+
       '<div class="cards">'+pips(R.yTotal,"y")+pips(R.rTotal,"r")+'</div></div>';
   });
   html+='</div></div>';
@@ -1522,12 +1542,14 @@ function editRoster(teamId){
     '<div class="btnrow" style="margin-top:9px"><button class="btn go" id="doimport">Add to squad</button>'+
     '<span class="note" id="importmsg"></span></div></div></div>';
 
-  html+='<div class="card"><h3>Squad <span class="pos">'+sq.length+' of '+RULES.squadMax+'</span></h3><div class="body flush"><div class="tablewrap"><table>'+
-    '<thead><tr><th class="n">#</th><th>Player</th><th>Email</th><th></th><th>Waiver</th><th></th></tr></thead><tbody>';
+  html+='<div class="card"><h3>Squad <span class="pos">'+sq.length+' of '+RULES.squadMax+'</span></h3><div class="body">'+
+    '<p class="note" style="margin-bottom:8px">Some officers can\'t be publicly named — check <b>Private</b> for anyone who needs it. Their name still shows here and to the organizer; everywhere public (roster, cards, leading scorers, game sheets entered by marshals and referees) shows their number instead.</p>'+
+    '</div><div class="body flush"><div class="tablewrap"><table>'+
+    '<thead><tr><th class="n">#</th><th>Player</th><th>Email</th><th></th><th>Waiver</th><th>Private</th><th></th></tr></thead><tbody>';
   sq.forEach(function(p){
     html+='<tr><td class="n"><input class="plain" style="width:52px;padding:4px 6px" type="number" min="1" max="99" '+
         'value="'+(p.jersey||"")+'" data-jersey="'+p.id+'"></td>'+
-      '<td>'+esc(p.name)+(p.addedAtField?' <span class="tag warn">added at the field</span>':'')+'</td>'+
+      '<td>'+esc(p.name)+(p.addedAtField?' <span class="tag warn">added at the field</span>':'')+(p.private?' <span class="tag warn">private</span>':'')+'</td>'+
       '<td class="pos" style="font-size:12px">'+esc(p.email||"—")+'</td>'+
       '<td><select class="plain" style="padding:4px 6px" data-gender="'+p.id+'">'+
         '<option value=""'+(!p.gender?" selected":"")+'>?</option>'+
@@ -1536,9 +1558,10 @@ function editRoster(teamId){
       '<td>'+(signed(p)
         ?'<span class="tag ok">Signed</span>'
         :'<button class="linkbtn" data-waiverlink="'+p.id+'">Open waiver</button>')+'</td>'+
+      '<td style="text-align:center"><input type="checkbox" data-private="'+p.id+'"'+(p.private?" checked":"")+'></td>'+
       '<td><button class="linkbtn" data-drop="'+p.id+'" style="color:var(--alarm)">Remove</button></td></tr>';
   });
-  if(!sq.length)html+='<tr><td colspan="6" class="note" style="padding:14px">No players yet. Paste a squad above.</td></tr>';
+  if(!sq.length)html+='<tr><td colspan="7" class="note" style="padding:14px">No players yet. Paste a squad above.</td></tr>';
   html+='</tbody></table></div></div></div>';
 
   html+='<div class="card"><h3>Master list</h3><div class="body">'+
@@ -1569,6 +1592,7 @@ var WAIVER={
    "4) I, for myself and on behalf of my heirs, assigns, personal representatives and next of kin, HEREBY RELEASE AND HOLD HARMLESS (Ottawa Blues FC, Ottawa Blues Charity Classic) their volunteers, officials, agents, and/or employees, other participants, sponsoring agencies, sponsors, advertisers, and if applicable, owners and lessors of premises (Ben Franklin Super Dome) used to conduct the event, WITH RESPECT TO ANY AND ALL INJURY, DISABILITY, DEATH, or loss or damage to person or property, to the fullest extent permitted by law."],
   agree:"I have read this release of liability and assumption of risk agreement, fully understand its terms, understand that I have given up substantial rights by signing it, and sign it freely and voluntarily without any inducement.",
   nameLabel:"Type your full name",
+  privacyLabel:"Don't show my name publicly (schedule, standings, cards) — show my jersey number instead. The organizer can still see my name.",
   submit:"Sign the waiver",
   done:"Signed. You are cleared to play.",
   other:"Français"},
@@ -1581,6 +1605,7 @@ var WAIVER={
    "4) Je, moi-même et de la part de mes héritiers, mes assignes, mes représentants personnels et mes proches, par la présente EXONÈRE DE TOUTES RESPONSABILITÉS (Ottawa Blues FC, Ottawa Blues Charity Classic) leurs bénévoles, leurs officiels, leurs agents, et/ou leurs employés, les autres participants, les commanditaires, les agences commanditaires, et si applicable, les propriétaires ou locataires des lieux (Ben Franklin Super Dome) utilisés pour l'évènement, EN CE QUI A TRAIT À TOUTES BLESSURES, TEMPORAIRES OU PERMANENTES OU MORT, ou perte ou dommage à une personne ou propriété, à l'étendue que la loi permet de couvrir."],
   agree:"J'ai lu et pris connaissance de cette exonération de responsabilité et de l'acceptation de l'accord des risques, je comprends tous les termes. Je comprends que je renonce à mes droits substantiels en signant ce document, et que je le signe librement et volontairement sans aucune incitation.",
   nameLabel:"Écrivez votre nom complet",
+  privacyLabel:"Ne pas afficher mon nom publiquement (horaire, classement, cartes) — afficher mon numéro de chandail à la place. L'organisateur peut toujours voir mon nom.",
   submit:"Signer la décharge",
   done:"Signé. Vous êtes autorisé à jouer.",
   other:"English"}
@@ -1612,6 +1637,7 @@ function renderWaiver(){
     '<label class="check"><input type="checkbox" id="wagree"><span>'+esc(W.agree.split(",")[0])+'</span></label>'+
     '<label style="display:block;margin-top:10px"><span class="eyebrow">'+esc(W.nameLabel)+'</span>'+
     '<input class="plain" id="wname" style="width:100%;margin-top:5px" autocomplete="name"></label>'+
+    '<label class="check" style="margin-top:12px"><input type="checkbox" id="wprivate"'+(p.private?" checked":"")+'><span>'+esc(W.privacyLabel)+'</span></label>'+
     '<div class="btnrow" style="margin-top:12px"><button class="btn go" id="wsign">'+esc(W.submit)+'</button>'+
     '<span class="note" id="wmsg"></span></div></div></div>';
   html+='<div class="btnrow"><button class="btn ghost" id="closebtn">Close</button></div>';
@@ -1799,7 +1825,7 @@ function renderSheet(){
     var opts=['<option value="">Select the player</option>'];
     [homeId(g),awayId(g)].forEach(function(tid){
       squad(tid).forEach(function(p){
-        opts.push('<option value="'+p.id+'"'+(E.injuryPlayer===p.id?" selected":"")+'>#'+p.jersey+' '+esc(p.name)+' — '+esc(teamName(tid))+'</option>');
+        opts.push('<option value="'+p.id+'"'+(E.injuryPlayer===p.id?" selected":"")+'>#'+p.jersey+' '+esc(displayName(p))+' — '+esc(teamName(tid))+'</option>');
       });
     });
     html+='<select class="plain" id="injuryPlayer" style="width:100%;margin-top:8px"'+(locked||!editable?" disabled":"")+'>'+opts.join("")+'</select>';
@@ -1841,7 +1867,7 @@ function teamBlock(g,teamId,sideKey,E,editable){
         ?'<input type="number" min="1" max="99" value="'+(numberIn(g.id,p)||"")+'" data-gnum="'+p.id+'" '+
           'style="width:100%;background:none;border:none;color:#fff;text-align:center;font:inherit">'
         :(numberIn(g.id,p)||"—"))+'</span>'+
-      '<span class="pname">'+esc(p.name)+'<span class="g">'+(p.gender==="f"?"F":p.gender==="m"?"M":"?")+
+      '<span class="pname">'+esc(displayName(p))+'<span class="g">'+(p.gender==="f"?"F":p.gender==="m"?"M":"?")+
         (susped?" · suspended":"")+(nosign?" · waiver outstanding":"")+'</span></span>'+
       '<span></span>'+
       '<span class="counters">'+
@@ -1882,7 +1908,7 @@ function renderBins(){
     var p=player(b.pid);
     html+='<span class="bin'+(left===0?" up":"")+'">'+
       '<span class="sw" style="background:'+(b.kind==="y"?"var(--card-y)":"var(--card-r)")+'"></span>'+
-      '<span>'+esc(p?p.name.split(" ").pop():"")+' #'+(p?p.jersey:"")+'</span>'+
+      '<span>'+esc(p?displayName(p).split(" ").pop():"")+' #'+(p?p.jersey:"")+'</span>'+
       '<span class="clk">'+(left===0?"back on":m+":"+(s<10?"0":"")+s)+'</span>'+
       '<button data-bin="'+i+'">&times;</button></span>';
   });
@@ -1941,6 +1967,8 @@ document.addEventListener("click",function(ev){
       var p=player(waiverPlayer);
       if(!ok.checked){m.textContent=waiverLang==="en"?"Tick the box to agree.":"Cochez la case pour accepter.";m.style.color="var(--alarm)";return;}
       if(nm.value.trim().length<3){m.textContent=waiverLang==="en"?"Type your full name.":"Écrivez votre nom complet.";m.style.color="var(--alarm)";return;}
+      var wp=document.getElementById("wprivate");
+      if(wp)p.private=wp.checked;
       p.waiver={name:nm.value.trim(),at:new Date().toISOString().slice(0,16).replace("T"," "),
                 version:WAIVER_VERSION,lang:waiverLang,token:p.token};
       renderWaiver();renderAll();return;
@@ -2024,6 +2052,7 @@ document.addEventListener("change",function(ev){
     }
     if(el.dataset.jersey){var pj=player(el.dataset.jersey);if(pj)pj.jersey=el.value?+el.value:null;return;}
     if(el.dataset.gender){var pg=player(el.dataset.gender);if(pg)pg.gender=el.value;renderRosters();return;}
+    if(el.dataset.private){var pp=player(el.dataset.private);if(pp){pp.private=el.checked;editRoster(rosterTeam);renderAll();}return;}
     if(el.dataset.gnum){setNumberIn(openGame,el.dataset.gnum,el.value);return;}
     if(el.dataset.qual){qualifiers[el.dataset.qual]=+el.value;rebuild();renderAll();return;}
     if(!openGame)return;
@@ -2111,21 +2140,59 @@ function tryCode(role){
   }
 }
 
+/* ---------------------------------------------------------
+   18d. TEAM DETAIL — everything about one team in one place:
+   both days' games, where they stand against their division,
+   and the squad. The "single player / full team" view -- pick
+   your team once instead of cross-referencing Schedule and
+   Standings yourself. Read-only, public, no sign-in.
+   --------------------------------------------------------- */
 function showRoster(teamId){
   openGame=null;
-  $("#modal-t").textContent=teamName(teamId);
+  var t=team(teamId);if(!t)return;
+  $("#modal-t").textContent="";
+  var myGames=chronological().filter(function(g){return homeId(g)===teamId||awayId(g)===teamId;});
+  var rows=standings(t.div);
+  var myRank=rows.findIndex(function(r){return r.id===teamId;});
+
+  var html='<div class="btnrow" style="margin-bottom:14px;gap:12px">'+teamBadge(t,40)+
+    '<div><div style="font-family:\'Barlow Condensed\',sans-serif;font-size:24px;font-weight:700;text-transform:uppercase">'+esc(t.name)+'</div>'+
+    '<span class="tag '+t.div+'">'+DIV_NAME[t.div]+'</span></div></div>';
+
+  html+='<div class="card"><h3>Games — Thursday &amp; Friday</h3><div class="body'+(myGames.length?" flush":"")+'">';
+  if(myGames.length){
+    html+='<div class="fixtures" style="padding:12px">'+myGames.map(fixtureCard).join("")+'</div>';
+  } else {
+    html+='<p class="note">No games scheduled yet.</p>';
+  }
+  html+='</div></div>';
+
+  html+='<div class="card"><h3>Standing <span class="pos">'+(myRank>=0?ordinal(myRank+1)+" of "+rows.length:"—")+'</span></h3>'+
+    '<div class="body flush"><div class="tablewrap"><table>'+
+    '<thead><tr><th></th><th>Team</th><th class="n">P</th><th class="n">W</th><th class="n">D</th><th class="n">L</th>'+
+    '<th class="n">GF</th><th class="n">GA</th><th class="n">GD</th><th class="n">Pts</th></tr></thead><tbody>';
+  rows.forEach(function(r,i){
+    html+='<tr'+(r.id===teamId?' style="background:var(--oyster)"':'')+'><td class="pos">'+(i+1)+'</td>'+
+      '<td class="teamname"><span class="teamline">'+teamBadge(team(r.id),16)+'<span class="nm">'+esc(teamName(r.id))+'</span></span></td>'+
+      '<td class="n">'+r.p+'</td><td class="n">'+r.w+'</td><td class="n">'+r.d+'</td><td class="n">'+r.l+'</td>'+
+      '<td class="n">'+r.gf+'</td><td class="n">'+r.ga+'</td><td class="n">'+(r.gf-r.ga>0?"+":"")+(r.gf-r.ga)+'</td>'+
+      '<td class="n"><b>'+r.pts+'</b></td></tr>';
+  });
+  html+='</tbody></table></div></div></div>';
+
   var sq=squad(teamId),d=discipline();
-  var html='<div class="card"><h3>Squad <span class="pos">'+sq.length+' of '+RULES.squadMax+'</span></h3><div class="body flush"><div class="tablewrap"><table>'+
+  html+='<div class="card"><h3>Squad <span class="pos">'+sq.length+' of '+RULES.squadMax+'</span></h3><div class="body flush"><div class="tablewrap"><table>'+
     '<thead><tr><th class="n">#</th><th>Player</th><th></th><th class="n">Goals</th><th>Cards</th></tr></thead><tbody>';
   sq.forEach(function(p){
     var R=d[p.id]||{yTotal:0,rTotal:0};
     var goals=0;
     GAMES.forEach(function(g){var L=agreedLines(g)[p.id];if(L)goals+=L.g||0;});
-    html+='<tr><td class="n">'+p.jersey+'</td><td>'+esc(p.name)+'</td><td class="pos">'+(p.gender==="f"?"F":"M")+'</td>'+
+    html+='<tr><td class="n">'+p.jersey+'</td><td>'+esc(displayName(p))+'</td><td class="pos">'+(p.gender==="f"?"F":"M")+'</td>'+
       '<td class="n">'+goals+'</td><td>'+pips(R.yTotal,"y")+pips(R.rTotal,"r")+'</td></tr>';
   });
-  html+='</tbody></table></div></div></div>'+
-    '<div class="btnrow"><button class="btn ghost" id="closebtn">Close</button></div>';
+  html+='</tbody></table></div></div></div>';
+
+  html+='<div class="btnrow"><button class="btn ghost" id="closebtn">Close</button></div>';
   $("#modal-b").innerHTML=html;
   $("#modal").classList.add("on");
 }
