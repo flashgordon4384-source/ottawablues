@@ -58,15 +58,24 @@ a{color:var(--ink)}
 .mast .wrap{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between}
 .mast h1{font-family:"Barlow Condensed",sans-serif;font-size:34px;font-weight:700;line-height:1;text-transform:uppercase;letter-spacing:.02em}
 .mast .sub{color:#A9B4C4;font-size:13px;margin-top:4px}
-.whoami{display:flex;gap:8px;align-items:center;font-size:12px;color:#A9B4C4;padding-bottom:4px}
-.whoami b{color:#fff}
-.mast-tabs{display:flex;gap:2px;margin-top:16px;overflow-x:auto}
+.whoami{display:flex;gap:8px;align-items:center;font-size:12px;color:#8792A3;padding-bottom:4px}
+.whoami b{color:#C7CEDA;font-weight:600}
+.whoami .btn.ghost{border-color:#2A3A54;color:#A9B4C4;font-size:12px;padding:5px 10px}
+.whoami .btn.ghost:hover{border-color:#3A4A63;color:#fff;background:none}
+.mast-stats{display:flex;gap:8px;flex-wrap:wrap;padding-bottom:14px}
+.stat-pill{display:flex;align-items:baseline;gap:5px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:99px;padding:5px 12px}
+.stat-pill b{font-family:"Barlow Condensed",sans-serif;font-size:15px;font-weight:700;color:#fff}
+.stat-pill span{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#A9B4C4;font-weight:600}
+.mast-tabs{display:flex;gap:4px;margin-top:2px;overflow-x:auto}
 .mast-tabs button{
   font-family:"Barlow Condensed",sans-serif;font-size:16px;font-weight:600;
   text-transform:uppercase;letter-spacing:.06em;color:#A9B4C4;
-  padding:10px 15px;border-radius:5px 5px 0 0;white-space:nowrap;
+  padding:10px 16px;border-radius:6px 6px 0 0;white-space:nowrap;
+  transition:background-color .18s ease,color .18s ease;
 }
+.mast-tabs button:hover{color:#fff;background:rgba(255,255,255,.08)}
 .mast-tabs button[aria-selected="true"]{background:var(--oyster);color:var(--ink);box-shadow:inset 0 -3px 0 var(--pitch)}
+.mast-tabs button[aria-selected="true"]:hover{background:var(--oyster)}
 
 /* ---------- banner ---------- */
 .banner{background:var(--whistle-soft);border-bottom:1px solid var(--rule);padding:9px 0;font-size:13px}
@@ -98,24 +107,30 @@ main{padding-top:20px}
 .chip{
   border:1px solid var(--rule);background:var(--paper);border-radius:99px;
   padding:6px 13px;font-size:13px;font-weight:500;color:var(--slate);
+  transition:background-color .18s ease,border-color .18s ease,color .18s ease;
 }
+.chip:hover:not([aria-pressed="true"]){border-color:var(--ink);color:var(--ink)}
 .chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
 
 /* ---------- fixtures ---------- */
-.slot{margin-bottom:16px}
-.slot-h{display:flex;align-items:baseline;gap:10px;padding:0 2px 6px;border-bottom:2px solid var(--ink);margin-bottom:8px}
+.slot{margin-bottom:18px;background:var(--paper);border:1px solid var(--rule-soft);border-radius:12px;padding:14px 14px 16px}
+.slot-h{display:flex;align-items:baseline;gap:10px;padding:0 2px 8px;border-bottom:2px solid var(--ink);margin-bottom:10px}
 .slot-h .t{font-family:"Barlow Condensed",sans-serif;font-size:21px;font-weight:700}
 .slot-h .r{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--slate);font-weight:600}
-.fixtures{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
-.fix{background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:11px 12px;position:relative}
+.fixtures{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(290px,1fr))}
+.fix{background:var(--paper);border:1px solid var(--rule);border-radius:9px;padding:13px 14px 12px;position:relative;box-shadow:0 1px 2px rgba(16,26,43,.04);transition:box-shadow .18s ease,transform .18s ease}
+.fix:hover{box-shadow:0 5px 16px rgba(16,26,43,.10);transform:translateY(-1px)}
 .fix.done{border-left:4px solid var(--pitch)}
 .fix.part{border-left:4px solid var(--whistle)}
-.fix .fixtop{display:flex;justify-content:space-between;gap:8px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--slate);font-weight:600;margin-bottom:7px}
-.side{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:3px 0}
-.side .nm{font-weight:500}
+.fix .fixtop{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--slate);font-weight:600;margin-bottom:9px}
+.fix .fixtop .field{background:var(--oyster);color:var(--ink);padding:2px 8px;border-radius:4px;font-weight:700;letter-spacing:.06em}
+.side{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:4px 0}
+.side .teamline{flex:1;min-width:0}
+.side .nm{font-size:16px;font-weight:600;letter-spacing:-.005em;white-space:nowrap}
 .side .sc{font-family:"IBM Plex Mono",monospace;font-size:19px;font-weight:600;min-width:26px;text-align:right}
-.side.win .nm{font-weight:600}
+.side.win .nm{font-weight:700}
 .side.lose{color:var(--slate)}
+.side.lose .nm{font-weight:500}
 .fix .meta{margin-top:8px;padding-top:8px;border-top:1px solid var(--rule-soft);display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--slate);flex-wrap:wrap}
 .tagline{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
 .tag{font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;padding:2px 7px;border-radius:3px;background:var(--rule-soft);color:var(--slate)}
@@ -125,6 +140,13 @@ main{padding-top:20px}
 .tag.comp{background:var(--comp-soft);color:var(--comp)}
 .tag.rec{background:var(--rec-soft);color:var(--rec)}
 .linkbtn{font-size:13px;font-weight:600;color:var(--pitch);text-decoration:underline;text-underline-offset:3px}
+
+.team-badge{border-radius:4px;flex:none;vertical-align:middle;display:block}
+img.team-badge{object-fit:cover;background:var(--oyster);border:1px solid var(--rule)}
+.team-badge-empty{display:inline-block;background:var(--rule-soft);border-radius:4px}
+.teamline{display:inline-flex;align-items:center;gap:8px;min-width:0}
+.teamline .nm{overflow:hidden;text-overflow:ellipsis}
+.teamname .nm{font-weight:600;font-size:14.5px}
 
 /* ---------- tables ---------- */
 table{width:100%;border-collapse:collapse;font-size:14px}
@@ -170,8 +192,12 @@ tr.qual td{background:var(--pitch-soft)}
 .btn{
   border:1px solid var(--ink);background:var(--ink);color:#fff;border-radius:7px;
   padding:9px 16px;font-weight:600;font-size:14px;
+  transition:background-color .18s ease,border-color .18s ease,opacity .18s ease,transform .18s ease;
 }
+.btn:hover:not(:disabled){opacity:.88}
+.btn:active:not(:disabled){transform:translateY(1px)}
 .btn.ghost{background:none;color:var(--ink)}
+.btn.ghost:hover:not(:disabled){background:var(--oyster);opacity:1}
 .btn.sm{padding:6px 11px;font-size:13px}
 .btn.go{background:var(--pitch);border-color:var(--pitch)}
 .btn.danger{background:var(--alarm);border-color:var(--alarm)}
@@ -244,7 +270,12 @@ select.plain,input.plain{border:1px solid var(--rule);border-radius:7px;padding:
 footer{border-top:1px solid var(--rule);margin-top:32px;padding:20px 0 40px;color:var(--slate);font-size:12px}
 .flag{display:inline-block;background:var(--whistle);color:#fff;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;padding:3px 9px;border-radius:3px;margin-bottom:8px}
 @media (max-width:560px){
-  .mast h1{font-size:26px}
+  .mast h1{font-size:22px}
+  .mast-logo{height:34px}
+  .mast .wrap{align-items:center}
+  .stat-pill{padding:4px 10px}
+  .stat-pill b{font-size:14px}
+  .fix .fixtop .field{padding:2px 6px}
   .rosterrow{grid-template-columns:38px 1fr;grid-template-areas:"j n" ". c"}
   .rosterrow .jer{grid-area:j}
   .rosterrow .pname{grid-area:n}
@@ -268,7 +299,10 @@ iVBORw0KGgoAAAANSUhEUgAAAIQAAACgCAYAAADNecSHAAAQAElEQVR4Aey9BaBeRZI2/FT3ee26xd2N
         <div class="sub">Thursday 22 &amp; Friday 23 October 2026 · Ben Franklin Superdome · 3 fields · <span id="buildStampMast" class="mono"></span></div>
       </div>
     </div>
-    <div class="whoami">Signed in as <b id="who">Public</b> <button class="btn ghost sm" id="signbtn" style="border-color:#3A4A63;color:#fff">Change</button></div>
+    <div class="whoami">Signed in as <b id="who">Public</b> <button class="btn ghost sm" id="signbtn">Change</button></div>
+  </div>
+  <div class="wrap">
+    <div class="mast-stats" id="mastStats"></div>
   </div>
   <div class="wrap">
     <div class="mast-tabs" role="tablist" id="tabs"></div>
@@ -322,7 +356,7 @@ window.onerror=function(m,s,l,c,e){crash(e||m);};
    which build they're looking at — a stale stamp on a phone
    means a caching problem, not a code problem.
    --------------------------------------------------------- */
-var BUILD_STAMP="2026-08-31 · b3";
+var BUILD_STAMP="2026-08-31 · b5";
 document.getElementById("buildStampMast").textContent=BUILD_STAMP;
 document.getElementById("buildStampFoot").textContent=BUILD_STAMP;
 
@@ -385,6 +419,67 @@ var DIVS=["comp","rec"];
 function team(id){for(var i=0;i<TEAMS.length;i++){if(TEAMS[i].id===id)return TEAMS[i];}return null;}
 function teamName(id){var t=team(id);return t?t.name:"—";}
 function divTeams(d){return TEAMS.filter(function(t){return t.div===d;});}
+
+/* ---------------------------------------------------------
+   2b. TEAM BADGES — a captain's own logo if uploaded (organizer-
+   side, via the roster editor; stored on the team record as a
+   data URI), otherwise a generated shield so every team has a
+   mark even before anyone uploads one. Deterministic from the
+   team id, so the same team always gets the same colour.
+
+   Logos are local to this tab for now, same as rosters and
+   waivers — they ride the shared-state work already in progress
+   (see CLAUDE.md, "Shared state") once that's live.
+   --------------------------------------------------------- */
+var BADGE_PALETTE=["#35507A","#9A5B2E","#1F7A4C","#7A3B49","#4A5568","#8A5A0C","#4B6B8A","#6B4C3A"];
+function hashStr(s){
+  var h=0;
+  for(var i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))|0;}
+  return Math.abs(h);
+}
+function teamInitials(name){
+  var words=String(name||"").split(/\s+/).filter(function(w){return w.length;});
+  var letters=words.map(function(w){return w[0];}).join("").toUpperCase();
+  return letters.slice(0,3)||"?";
+}
+function teamBadge(t,size){
+  size=size||22;
+  if(!t)return '<span class="team-badge team-badge-empty" style="width:'+size+'px;height:'+size+'px"></span>';
+  if(t.logo){
+    return '<img class="team-badge" src="'+t.logo+'" width="'+size+'" height="'+size+'" alt="">';
+  }
+  var color=BADGE_PALETTE[hashStr(t.id)%BADGE_PALETTE.length];
+  var initials=esc(teamInitials(t.name));
+  return '<svg class="team-badge" width="'+size+'" height="'+size+'" viewBox="0 0 24 24" aria-hidden="true">'+
+    '<path d="M12 1 L21 3.4 V11 C21 16.6 17.2 20.9 12 23 C6.8 20.9 3 16.6 3 11 V3.4 Z" fill="'+color+'"/>'+
+    '<text x="12" y="14.7" text-anchor="middle" font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="'+(initials.length>2?8:9.5)+'" fill="#fff">'+initials+'</text>'+
+  '</svg>';
+}
+/* Resize an uploaded image down to a small square before storing
+   it as a data URI — a phone photo straight off a camera would
+   otherwise bloat every save file and, eventually, every synced
+   copy of the tournament state. */
+function readLogoFile(file,cb){
+  if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(){
+    var img=new Image();
+    img.onload=function(){
+      var size=96;
+      var c=document.createElement("canvas");
+      c.width=size;c.height=size;
+      var ctx=c.getContext("2d");
+      var scale=Math.max(size/img.naturalWidth,size/img.naturalHeight);
+      var w=img.naturalWidth*scale,h=img.naturalHeight*scale;
+      ctx.drawImage(img,(size-w)/2,(size-h)/2,w,h);
+      cb(c.toDataURL("image/png"));
+    };
+    img.onerror=function(){cb(null);};
+    img.src=reader.result;
+  };
+  reader.onerror=function(){cb(null);};
+  reader.readAsDataURL(file);
+}
 
 /* ---------------------------------------------------------
    3. PLAYERS — generated placeholders so the sheet is usable.
@@ -1051,6 +1146,24 @@ function renderBanner(){
   $("#banner").innerHTML=html;
 }
 
+/* Compact stat pills under the title — the "at a glance" summary
+   a returning visitor or a sponsor looks for first. Purely a
+   read of numbers already computed elsewhere (structureCheck,
+   TEAMS, GAMES); no new state. */
+function renderMastStats(){
+  var chk=structureCheck();
+  var days=Object.keys(GAMES.reduce(function(acc,g){acc[g.day]=1;return acc;},{})).length||2;
+  var stats=[
+    {v:chk.total,k:chk.total===1?"Game":"Games"},
+    {v:RULES.fields,k:RULES.fields===1?"Field":"Fields"},
+    {v:TEAMS.length,k:TEAMS.length===1?"Team":"Teams"},
+    {v:days,k:days===1?"Day":"Days"}
+  ];
+  $("#mastStats").innerHTML=stats.map(function(s){
+    return '<div class="stat-pill"><b>'+s.v+'</b><span>'+esc(s.k)+'</span></div>';
+  }).join("");
+}
+
 /* ---------------------------------------------------------
    15. SCHEDULE
    --------------------------------------------------------- */
@@ -1100,6 +1213,7 @@ function renderSchedule(){
 function fixtureCard(g){
   var res=result(g),st=sheetStatus(g);
   var cls=st==="final"?"fix done":(st==="part"||st==="started"||st==="disputed"?"fix part":"fix");
+  var hTeam=team(homeId(g)),aTeam=team(awayId(g));
   var h=esc(g.stage==="pool"?teamName(g.home):sideLabel(g,"home"));
   var a=esc(g.stage==="pool"?teamName(g.away):sideLabel(g,"away"));
   var known=!!(homeId(g)&&awayId(g));
@@ -1117,9 +1231,9 @@ function fixtureCard(g){
       (can("marshalEntry")||can("refEntry")?"Open game sheet":"View sheet")+'</button>':'';
 
   return '<div class="'+cls+'">'+
-    '<div class="fixtop"><span>Field '+g.field+'</span><span class="tag '+g.div+'">'+(g.label?esc(g.label.replace(DIV_NAME[g.div]+" — ","")):DIV_NAME[g.div])+'</span></div>'+
-    '<div class="side '+(hw?"win":(aw?"lose":""))+'"><span class="nm">'+h+'</span><span class="sc">'+hs+'</span></div>'+
-    '<div class="side '+(aw?"win":(hw?"lose":""))+'"><span class="nm">'+a+'</span><span class="sc">'+as+'</span></div>'+
+    '<div class="fixtop"><span class="field">Field '+g.field+'</span><span class="tag '+g.div+'">'+(g.label?esc(g.label.replace(DIV_NAME[g.div]+" — ","")):DIV_NAME[g.div])+'</span></div>'+
+    '<div class="side '+(hw?"win":(aw?"lose":""))+'"><span class="teamline">'+(hTeam?teamBadge(hTeam,20):"")+'<span class="nm">'+h+'</span></span><span class="sc">'+hs+'</span></div>'+
+    '<div class="side '+(aw?"win":(hw?"lose":""))+'"><span class="teamline">'+(aTeam?teamBadge(aTeam,20):"")+'<span class="nm">'+a+'</span></span><span class="sc">'+as+'</span></div>'+
     (tags?'<div class="tagline">'+tags+'</div>':"")+
     '<div class="meta"><span>'+dayName(g.day)+'</span>'+open+'</div>'+
   '</div>';
@@ -1138,7 +1252,7 @@ function renderStandings(){
       '<thead><tr><th></th><th>Team</th><th class="n">P</th><th class="n">W</th><th class="n">D</th><th class="n">L</th>'+
       '<th class="n">GF</th><th class="n">GA</th><th class="n">GD</th><th class="n">Y</th><th class="n">R</th><th class="n">Pts</th></tr></thead><tbody>';
     rows.forEach(function(r,i){
-      html+='<tr><td class="pos">'+(i+1)+'</td><td>'+esc(teamName(r.id))+(r.coin?' <span class="tag bad">coin toss</span>':'')+'</td>'+
+      html+='<tr><td class="pos">'+(i+1)+'</td><td class="teamname"><span class="teamline">'+teamBadge(team(r.id),18)+'<span class="nm">'+esc(teamName(r.id))+'</span></span>'+(r.coin?' <span class="tag bad">coin toss</span>':'')+'</td>'+
         '<td class="n">'+r.p+'</td><td class="n">'+r.w+'</td><td class="n">'+r.d+'</td><td class="n">'+r.l+'</td>'+
         '<td class="n">'+r.gf+'</td><td class="n">'+r.ga+'</td><td class="n">'+(r.gf-r.ga>0?"+":"")+(r.gf-r.ga)+'</td>'+
         '<td class="n">'+r.y+'</td><td class="n">'+r.r+'</td><td class="n"><b>'+r.pts+'</b></td></tr>';
@@ -1206,7 +1320,7 @@ function renderTeams(){
       var sq=squad(t.id),w=sq.filter(function(p){return p.gender==="f";}).length;
       var gs=GAMES.filter(function(g){return homeId(g)===t.id||awayId(g)===t.id;}).length;
       var sgn=sq.filter(signed).length;
-      html+='<tr><td>'+esc(t.name)+'</td><td class="n">'+sq.length+'</td>'+
+      html+='<tr><td class="teamname"><span class="teamline">'+teamBadge(t,18)+'<span class="nm">'+esc(t.name)+'</span></span></td><td class="n">'+sq.length+'</td>'+
         '<td class="n"'+(w<2?' style="color:var(--alarm);font-weight:600"':'')+'>'+w+'</td>'+
         '<td class="n"'+(sgn<sq.length?' style="color:var(--alarm);font-weight:600"':'')+'>'+sgn+'/'+sq.length+'</td>'+
         '<td class="n">'+gs+'</td>'+
@@ -1269,9 +1383,20 @@ function editRoster(teamId){
   $("#modal-t").textContent=teamName(teamId);
   var sq=squad(teamId),issues=rosterIssues(teamId);
   var dl=checkinDeadline(teamId),ci=state.checkin[teamId];
+  var t=team(teamId);
 
   var html="";
   issues.forEach(function(i){html+='<div class="msg '+i.level+'">'+esc(i.text)+'</div>';});
+
+  html+='<div class="card"><h3>Team logo</h3><div class="body">'+
+    '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">'+
+    teamBadge(t,64)+
+    '<div style="flex:1;min-width:200px">'+
+    '<p class="note" style="margin-bottom:8px">'+(t.logo?"Custom logo uploaded.":"No logo uploaded yet — showing a generated shield.")+' Used beside the team name on the schedule, standings and teams tab.</p>'+
+    '<div class="btnrow">'+
+    '<label class="btn ghost sm" style="cursor:pointer">Upload logo<input type="file" id="logoupload" accept="image/*" style="display:none"></label>'+
+    (t.logo?'<button class="btn ghost sm" id="removelogo" style="color:var(--alarm)">Remove logo</button>':"")+
+    '</div></div></div></div></div>';
 
   html+='<div class="card"><h3>Add players</h3><div class="body">'+
     '<p class="note" style="margin-bottom:8px">One player a line. Name is all that is required; email, F or M, and a shirt number can follow in any order, separated by commas or tabs. Paste straight from a spreadsheet.</p>'+
@@ -1652,7 +1777,7 @@ setInterval(function(){if(state.bins.length)renderBins();},1000);
    --------------------------------------------------------- */
 function renderAll(){
   try{
-    renderTabs();renderBanner();
+    renderTabs();renderBanner();renderMastStats();
     $("#who").textContent=ROLES[state.role].label;
     TABS.forEach(function(t){var el=$("#p-"+t.id);if(el)el.hidden=(t.id!==tab);});
     if(tab==="schedule")renderSchedule();
@@ -1684,6 +1809,11 @@ document.addEventListener("click",function(ev){
     if(t.dataset.waiverlink){openWaiver(t.dataset.waiverlink);return;}
     if(t.dataset.drop){
       PLAYERS=PLAYERS.filter(function(p){return p.id!==t.dataset.drop;});
+      editRoster(rosterTeam);renderAll();return;
+    }
+    if(t.id==="removelogo"){
+      var tt=team(rosterTeam);
+      if(tt)tt.logo=null;
       editRoster(rosterTeam);renderAll();return;
     }
     if(t.id==="langswap"){waiverLang=waiverLang==="en"?"fr":"en";renderWaiver();return;}
@@ -1766,6 +1896,13 @@ document.addEventListener("change",function(ev){
   try{
     if(el.id==="teamfilter"){fTeam=el.value;renderSchedule();return;}
     if(el.id==="loadfile"){loadFrom(el.files&&el.files[0]);el.value="";return;}
+    if(el.id==="logoupload"){
+      var file=el.files&&el.files[0],tt2=team(rosterTeam);
+      if(file&&tt2)readLogoFile(file,function(dataUrl){
+        if(dataUrl){tt2.logo=dataUrl;editRoster(rosterTeam);renderAll();}
+      });
+      return;
+    }
     if(el.dataset.jersey){var pj=player(el.dataset.jersey);if(pj)pj.jersey=el.value?+el.value:null;return;}
     if(el.dataset.gender){var pg=player(el.dataset.gender);if(pg)pg.gender=el.value;renderRosters();return;}
     if(el.dataset.gnum){setNumberIn(openGame,el.dataset.gnum,el.value);return;}

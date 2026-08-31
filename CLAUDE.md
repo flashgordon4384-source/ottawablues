@@ -318,6 +318,39 @@ check-in gate against the 30-minute rule, duplicate-email detection,
 per-game shirt numbers, the resolving Friday bracket, and a team
 editor.
 
+**Batch three (31 Aug 2026)** — team badges and a visual refinement
+pass, from a Gord + ChatGPT-drafted design brief.
+
+*Team badges:* every team gets a small shield next to its name,
+everywhere a name appears (schedule cards, standings, teams tab). A
+team's own logo if the organizer has uploaded one via the roster
+editor's "Team logo" card (resized client-side to 96×96 before
+storing, so a phone photo doesn't bloat the save file); otherwise a
+generated shield — initials plus a colour, both deterministic from the
+team id, so the same team always looks the same. **Logos are local to
+this tab for now**, same as rosters and waivers — they need the same
+shared-state work in progress (see "Shared state" above) before a
+captain's upload shows up on anyone else's device.
+
+*Visual pass* — kept the existing layout, workflow and palette exactly
+as instructed; the changes are: stat pills under the title (games /
+fields / teams / days, computed live, not hardcoded); a pitch-green
+accent bar and tab-underline for wayfinding; heavier team-name
+weighting in cards and tables; a chip treatment for the field label;
+subtle card elevation and hover states (150–200ms transitions
+throughout, nothing dramatic); each time-slot now reads as one grouped
+block instead of a header floating over loose cards; the "Signed in
+as / Change" control was quieted down so it reads as a minor utility
+rather than competing with the tournament identity. Checked against
+mobile (375px) and it holds up — header, stats, filters and cards all
+stack correctly.
+
+Remaining opportunities, not done in this pass: team badges in the
+game-sheet modal header and the Structure tab's qualifier pickers;
+long team names on narrow screens wrap instead of truncating in table
+cells (not broken, just not tight); a full WCAG contrast/keyboard
+audit beyond what already existed.
+
 ### Design decisions worth preserving
 
 **The paste creates the player, not the waiver.** A captain pastes name
@@ -370,6 +403,8 @@ Also outstanding:
   currently leaves the bracket stuck with no way to record who
   advanced.
 - **Crossover games** for pools of three.
+- **Shared team logos** — uploads via the roster editor are local to
+  that tab, same as the rest of §7's shared-state problem.
 - **Access codes out of the page source.**
 - **Forfeit as a result type** (2:0, recorded, not a normal score).
 - **Real 2026 teams and rosters**, once Devo settles the counts.
