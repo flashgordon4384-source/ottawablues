@@ -1,0 +1,14 @@
+# Cloudflare reads this file and applies the headers below.
+# The HTML must never be cached, or phones will keep serving an
+# old build after a deploy. Static assets can cache for a year
+# because their filenames change when they change.
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
+/
+  Cache-Control: no-cache, must-revalidate
+
+/index.html
+  Cache-Control: no-cache, must-revalidate
