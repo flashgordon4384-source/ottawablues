@@ -277,6 +277,7 @@ is final.
 | Field marshal | Enter the marshal record at their field. **Cannot see the referee record** | 1111 |
 | Head referee (Babak) | Enter the referee record. See both. Settle disagreements | 2222 |
 | Organizer (Gord, Sable) | Everything, including marshal notes and rosters | 3333 |
+| Team captain | Their own team's roster, waivers, check-in and logo only — sees the check-in overview for every team but can only open their own | one code per team, derived from the team id (`captainCode()`), organizer looks it up on Rosters and hands it to the captain |
 
 **Referees deliberately have no access.** Referees report to the head
 referee; marshals report to Gord. The app preserves those existing
@@ -285,7 +286,23 @@ referee side because sheets already flow to him.
 
 **The codes are in the page source.** Acceptable for a demo,
 unacceptable once a code controls the official record. This must be
-fixed before the event.
+fixed before the event. Now applies to captain codes too, same
+caveat, same fix needed before the event.
+
+**Team captain, added 31 Aug 2026.** From a three-perspectives review
+(player / coach / organizer) — the coach was the one persona with
+nothing between "read-only public" and "full organizer," even though
+CLAUDE.md's own description of the workflow ("a captain pastes the
+squad") assumes a captain acts directly. Now they can, scoped to just
+their own team.
+
+**Be honest about what this does and doesn't fix yet.** It's built on
+top of the same local-only state as the rest of the roster editor —
+see "Shared state" in section 2. A captain editing their roster on
+their own phone doesn't put anything anywhere Gord's phone can see
+until that work ships. Right now this mainly helps in one browser at
+a time (e.g. handing a laptop to a captain at check-in), not "captains
+use this from home." Don't oversell it as more than that.
 
 ### Why two records
 

@@ -357,7 +357,7 @@ window.onerror=function(m,s,l,c,e){crash(e||m);};
    which build they're looking at — a stale stamp on a phone
    means a caching problem, not a code problem.
    --------------------------------------------------------- */
-var BUILD_STAMP="2026-08-31 · b8";
+var BUILD_STAMP="2026-08-31 · b9";
 document.getElementById("buildStampMast").textContent=BUILD_STAMP;
 document.getElementById("buildStampFoot").textContent=BUILD_STAMP;
 
@@ -437,6 +437,13 @@ function hashStr(s){
   var h=0;
   for(var i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))|0;}
   return Math.abs(h);
+}
+/* Per-team captain code, derived rather than stored -- same
+   "fine for a demo" tier as the three fixed role codes (see
+   Data tab), just one level narrower: this one only opens that
+   team's own roster, nothing else. */
+function captainCode(teamId){
+  return String(1000+(hashStr("captain:"+teamId)%9000));
 }
 function teamInitials(name){
   var words=String(name||"").split(/\s+/).filter(function(w){return w.length;});
@@ -844,6 +851,7 @@ function chronological(){
    --------------------------------------------------------- */
 var state={
   role:"public",
+  captainTeam:null,        // set when role==="captain" -- which team they can edit
   numbers:{},              // gameId -> playerId -> number worn that game
   checkin:{},              // teamId -> {at, by}           // public | marshal | headref | admin
   sheets:{},               // gameId -> {marshal:{}, ref:{}, resolved:{}}
@@ -1083,7 +1091,8 @@ var ROLES={
   public:{label:"Public",code:null},
   marshal:{label:"Field marshal",code:"1111"},
   headref:{label:"Head referee",code:"2222"},
-  admin:{label:"Head marshal / organizer",code:"3333"}
+  admin:{label:"Head marshal / organizer",code:"3333"},
+  captain:{label:"Team captain",code:"varies"}
 };
 function can(what){
   var r=state.role;
@@ -1092,7 +1101,7 @@ function can(what){
   if(what==="resolve")return r==="admin"||r==="headref";
   if(what==="seeBoth")return r==="admin"||r==="headref";
   if(what==="notes")return r==="marshal"||r==="admin"||r==="headref";
-  if(what==="roster")return r==="admin";
+  if(what==="roster")return r==="admin"||r==="captain";
   return false;
 }
 
@@ -1442,12 +1451,12 @@ function renderRosters(){
     '<p class="note">A captain pastes the squad, which creates each player with the waiver outstanding. Signing turns them green. Only players on the master list may play — the rules give you 30 minutes before each team\'s first game.</p></div>';
 
   if(!can("roster")){
-    html+='<div class="msg warn">Sign in as an organizer to build rosters.</div>';
+    html+='<div class="msg warn">Sign in as an organizer or team captain to build rosters.</div>';
     $("#p-rosters").innerHTML=html;return;
   }
 
   var dups=duplicateEmails(),dupKeys=Object.keys(dups);
-  if(dupKeys.length){
+  if(dupKeys.length&&state.role==="admin"){
     html+='<div class="msg bad"><b>The same person is on more than one roster.</b> A player may be registered with only one team for the tournament.<ul style="margin:8px 0 0 18px">';
     dupKeys.forEach(function(e){
       html+='<li>'+esc(e)+' — '+dups[e].map(function(p){return esc(teamName(p.teamId));}).join(" and ")+'</li>';
@@ -1463,24 +1472,30 @@ function renderRosters(){
     '<div><div class="v">'+TEAMS.filter(function(t){return rosterReady(t.id);}).length+' / '+TEAMS.length+'</div><div class="k">Teams cleared</div></div>'+
   '</div>';
 
+  var isAdmin=state.role==="admin";
   html+='<div class="card"><h3>Check-in</h3><div class="body flush"><div class="tablewrap"><table>'+
-    '<thead><tr><th>Team</th><th class="n">Squad</th><th class="n">Signed</th><th>Master list due</th><th>Status</th><th></th></tr></thead><tbody>';
+    '<thead><tr><th>Team</th><th class="n">Squad</th><th class="n">Signed</th><th>Master list due</th><th>Status</th>'+
+    (isAdmin?'<th>Captain code</th>':'')+'<th></th></tr></thead><tbody>';
   TEAMS.forEach(function(t){
     var sq=squad(t.id),s=sq.filter(signed).length;
     var dl=checkinDeadline(t.id),ci=state.checkin[t.id];
     var ready=rosterReady(t.id);
+    var mine=isAdmin||t.id===state.captainTeam;
     var status=ci?'<span class="tag ok">Checked in '+esc(ci.at)+'</span>'
       :(ready?'<span class="tag warn">Ready — not checked in</span>':'<span class="tag bad">Not ready</span>');
     html+='<tr><td>'+esc(t.name)+'</td><td class="n">'+sq.length+'</td>'+
       '<td class="n"'+(s<sq.length?' style="color:var(--alarm);font-weight:600"':'')+'>'+s+'</td>'+
       '<td class="n">'+(dl?dl.by:"—")+'</td><td>'+status+'</td>'+
-      '<td><button class="linkbtn" data-editroster="'+t.id+'">Open</button></td></tr>';
+      (isAdmin?'<td class="mono">'+captainCode(t.id)+'</td>':'')+
+      '<td>'+(mine?'<button class="linkbtn" data-editroster="'+t.id+'">Open</button>':"—")+'</td></tr>';
   });
   html+='</tbody></table></div></div></div>';
   $("#p-rosters").innerHTML=html;
 }
 
 function editRoster(teamId){
+  if(!can("roster"))return;
+  if(state.role==="captain"&&teamId!==state.captainTeam)return;
   rosterTeam=teamId;openGame=null;
   $("#modal-t").textContent=teamName(teamId);
   var sq=squad(teamId),issues=rosterIssues(teamId);
@@ -1699,6 +1714,7 @@ function renderData(){
     '<div class="kv"><span class="k">Field marshal</span><span class="v mono">1111</span></div>'+
     '<div class="kv"><span class="k">Head referee</span><span class="v mono">2222</span></div>'+
     '<div class="kv"><span class="k">Head marshal / organizer</span><span class="v mono">3333</span></div>'+
+    '<div class="kv"><span class="k">Team captain</span><span class="v mono">varies per team — see Rosters</span></div>'+
     '<p class="note" style="margin-top:10px">Codes in the page source are fine for a demo and not fine for the event. Real sign-in comes with the shared database.</p>'+
     '</div></div>';
   $("#p-data").innerHTML=html;
@@ -2029,10 +2045,11 @@ function signIn(){
   openGame=null;
   $("#modal-t").textContent="Sign in";
   var html='<p class="note" style="margin-bottom:14px">Your role decides what you can enter. Everyone can see the schedule, scores and standings without signing in.</p>';
-  ["public","marshal","headref","admin"].forEach(function(k){
+  ["public","marshal","headref","admin","captain"].forEach(function(k){
     var r=ROLES[k],on=state.role===k;
+    var label=r.label+(on&&k==="captain"&&state.captainTeam?" — "+esc(teamName(state.captainTeam)):"");
     html+='<button class="rolebtn'+(on?" on":"")+'" data-role="'+k+'">'+
-      '<span class="rn">'+r.label+'</span>'+
+      '<span class="rn">'+label+'</span>'+
       '<span class="rd">'+esc(ROLE_BLURB[k])+'</span>'+
       (on?'<span class="tag ok">Signed in</span>':(r.code?'<span class="tag">Code needed</span>':''))+
     '</button>';
@@ -2046,16 +2063,23 @@ var ROLE_BLURB={
   public:"Schedule, scores and standings. No entry.",
   marshal:"Enter the game sheet at your field. You cannot see the referee record.",
   headref:"Enter the referee record. See both records and settle disagreements.",
-  admin:"Everything, including marshal notes and published results."
+  admin:"Everything, including marshal notes and published results.",
+  captain:"Manage your own team's roster, waivers, check-in and logo. Pick your team, then your team's code."
 };
 function askCode(role){
   var box=document.getElementById("codebox");
   if(!box)return;
+  var teamPicker=role==="captain"
+    ?'<select class="plain" id="capteam" style="padding:9px 10px;min-width:180px">'+
+      TEAMS.map(function(t){return '<option value="'+t.id+'">'+esc(t.name)+'</option>';}).join("")+
+     '</select>'
+    :"";
   box.innerHTML='<div class="card" style="margin-top:12px"><h3>'+esc(ROLES[role].label)+'</h3><div class="body">'+
-    '<div class="btnrow"><input class="plain" id="codein" type="text" inputmode="numeric" '+
-    'autocomplete="off" placeholder="Access code" style="flex:1;min-width:140px">'+
+    '<div class="btnrow">'+teamPicker+
+    '<input class="plain" id="codein" type="text" inputmode="numeric" '+
+    'autocomplete="off" placeholder="'+(role==="captain"?"Team code":"Access code")+'" style="flex:1;min-width:140px">'+
     '<button class="btn go" data-code="'+role+'">Sign in</button></div>'+
-    '<div class="note" id="codemsg" style="margin-top:8px">Four digits.</div></div></div>';
+    '<div class="note" id="codemsg" style="margin-top:8px">'+(role==="captain"?"Ask the organizer for your team's code.":"Four digits.")+'</div></div></div>';
   var i=document.getElementById("codein");
   if(i){i.focus();i.addEventListener("keydown",function(e){
     if(e.key==="Enter")tryCode(role);
@@ -2064,6 +2088,19 @@ function askCode(role){
 function tryCode(role){
   var i=document.getElementById("codein"),msg=document.getElementById("codemsg");
   if(!i)return;
+  if(role==="captain"){
+    var sel=document.getElementById("capteam");
+    var teamId=sel?sel.value:null;
+    if(teamId&&i.value.trim()===captainCode(teamId)){
+      state.role="captain";state.captainTeam=teamId;
+      $("#modal").classList.remove("on");
+      renderAll();
+    } else {
+      if(msg){msg.textContent="That code does not match this team. Try again.";msg.style.color="var(--alarm)";}
+      i.value="";i.focus();
+    }
+    return;
+  }
   if(i.value.trim()===ROLES[role].code){
     state.role=role;
     $("#modal").classList.remove("on");
