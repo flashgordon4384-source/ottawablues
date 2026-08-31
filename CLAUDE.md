@@ -82,10 +82,13 @@ this once before the tournament** so it is familiar under pressure.
 
 There is no `wrangler.toml` in the repo — the Cloudflare build
 configuration lives only in the dashboard and is not backed up
-anywhere. Worth capturing before October. Also worth verifying that
-`_headers` is actually being honoured in this project's configuration,
-since support differs between Cloudflare Pages and Workers static
-assets.
+anywhere. Worth capturing before October.
+
+`_headers` was added 31 August 2026 and confirmed live against
+`ottawablues.gordon-perolli.workers.dev`: `/` and the `/index.html`
+redirect both carry `Cache-Control: no-cache, must-revalidate`, plus
+`nosniff` and the referrer-policy header. Workers static assets do
+honour it here — that question is closed.
 
 ---
 
