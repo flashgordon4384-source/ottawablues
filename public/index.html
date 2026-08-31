@@ -357,7 +357,7 @@ window.onerror=function(m,s,l,c,e){crash(e||m);};
    which build they're looking at — a stale stamp on a phone
    means a caching problem, not a code problem.
    --------------------------------------------------------- */
-var BUILD_STAMP="2026-08-31 · b11";
+var BUILD_STAMP="2026-08-31 · b12";
 document.getElementById("buildStampMast").textContent=BUILD_STAMP;
 document.getElementById("buildStampFoot").textContent=BUILD_STAMP;
 
@@ -1493,6 +1493,15 @@ function renderRosters(){
   '</div>';
 
   var isAdmin=state.role==="admin";
+  if(isAdmin){
+    var noPhotoList=PLAYERS.filter(function(p){return p.noPhoto;});
+    html+='<div class="card"><h3>No photos <span class="pos">'+noPhotoList.length+'</span></h3><div class="body">'+
+      (noPhotoList.length
+        ?'<p class="note" style="margin-bottom:8px">Doesn\'t consent to being photographed or filmed for the website or social media. Check this before posting from the day.</p>'+
+          noPhotoList.map(function(p){return '<div class="discrow"><div><b>'+esc(p.name)+'</b> <span class="pos">#'+p.jersey+' · '+esc(teamName(p.teamId))+'</span></div></div>';}).join("")
+        :'<p class="note">Nobody has opted out yet.</p>')+
+      '</div></div>';
+  }
   html+='<div class="card"><h3>Check-in</h3><div class="body flush"><div class="tablewrap"><table>'+
     '<thead><tr><th>Team</th><th class="n">Squad</th><th class="n">Signed</th><th>Master list due</th><th>Status</th>'+
     (isAdmin?'<th>Captain code</th>':'')+'<th></th></tr></thead><tbody>';
@@ -1543,13 +1552,13 @@ function editRoster(teamId){
     '<span class="note" id="importmsg"></span></div></div></div>';
 
   html+='<div class="card"><h3>Squad <span class="pos">'+sq.length+' of '+RULES.squadMax+'</span></h3><div class="body">'+
-    '<p class="note" style="margin-bottom:8px">Some officers can\'t be publicly named — check <b>Private</b> for anyone who needs it. Their name still shows here and to the organizer; everywhere public (roster, cards, leading scorers, game sheets entered by marshals and referees) shows their number instead.</p>'+
+    '<p class="note" style="margin-bottom:8px">Some officers can\'t be publicly named — check <b>Private</b> for anyone who needs it. Their name still shows here and to the organizer; everywhere public (roster, cards, leading scorers, game sheets entered by marshals and referees) shows their number instead. Check <b>No photos</b> separately for anyone who doesn\'t consent to being photographed or filmed for the website or social media — whoever\'s on cameras that day should check this list first.</p>'+
     '</div><div class="body flush"><div class="tablewrap"><table>'+
-    '<thead><tr><th class="n">#</th><th>Player</th><th>Email</th><th></th><th>Waiver</th><th>Private</th><th></th></tr></thead><tbody>';
+    '<thead><tr><th class="n">#</th><th>Player</th><th>Email</th><th></th><th>Waiver</th><th>Private</th><th>No photos</th><th></th></tr></thead><tbody>';
   sq.forEach(function(p){
     html+='<tr><td class="n"><input class="plain" style="width:52px;padding:4px 6px" type="number" min="1" max="99" '+
         'value="'+(p.jersey||"")+'" data-jersey="'+p.id+'"></td>'+
-      '<td>'+esc(p.name)+(p.addedAtField?' <span class="tag warn">added at the field</span>':'')+(p.private?' <span class="tag warn">private</span>':'')+'</td>'+
+      '<td>'+esc(p.name)+(p.addedAtField?' <span class="tag warn">added at the field</span>':'')+(p.private?' <span class="tag warn">private</span>':'')+(p.noPhoto?' <span class="tag bad">no photos</span>':'')+'</td>'+
       '<td class="pos" style="font-size:12px">'+esc(p.email||"—")+'</td>'+
       '<td><select class="plain" style="padding:4px 6px" data-gender="'+p.id+'">'+
         '<option value=""'+(!p.gender?" selected":"")+'>?</option>'+
@@ -1559,9 +1568,10 @@ function editRoster(teamId){
         ?'<span class="tag ok">Signed</span>'
         :'<button class="linkbtn" data-waiverlink="'+p.id+'">Open waiver</button>')+'</td>'+
       '<td style="text-align:center"><input type="checkbox" data-private="'+p.id+'"'+(p.private?" checked":"")+'></td>'+
+      '<td style="text-align:center"><input type="checkbox" data-nophoto="'+p.id+'"'+(p.noPhoto?" checked":"")+'></td>'+
       '<td><button class="linkbtn" data-drop="'+p.id+'" style="color:var(--alarm)">Remove</button></td></tr>';
   });
-  if(!sq.length)html+='<tr><td colspan="7" class="note" style="padding:14px">No players yet. Paste a squad above.</td></tr>';
+  if(!sq.length)html+='<tr><td colspan="8" class="note" style="padding:14px">No players yet. Paste a squad above.</td></tr>';
   html+='</tbody></table></div></div></div>';
 
   html+='<div class="card"><h3>Master list</h3><div class="body">'+
@@ -1593,6 +1603,7 @@ var WAIVER={
   agree:"I have read this release of liability and assumption of risk agreement, fully understand its terms, understand that I have given up substantial rights by signing it, and sign it freely and voluntarily without any inducement.",
   nameLabel:"Type your full name",
   privacyLabel:"Don't show my name publicly (schedule, standings, cards) — show my jersey number instead. The organizer can still see my name.",
+  photoLabel:"I do not consent to being photographed or filmed for the tournament's website or social media.",
   submit:"Sign the waiver",
   done:"Signed. You are cleared to play.",
   other:"Français"},
@@ -1606,6 +1617,7 @@ var WAIVER={
   agree:"J'ai lu et pris connaissance de cette exonération de responsabilité et de l'acceptation de l'accord des risques, je comprends tous les termes. Je comprends que je renonce à mes droits substantiels en signant ce document, et que je le signe librement et volontairement sans aucune incitation.",
   nameLabel:"Écrivez votre nom complet",
   privacyLabel:"Ne pas afficher mon nom publiquement (horaire, classement, cartes) — afficher mon numéro de chandail à la place. L'organisateur peut toujours voir mon nom.",
+  photoLabel:"Je ne consens pas à être photographié(e) ou filmé(e) pour le site web ou les réseaux sociaux du tournoi.",
   submit:"Signer la décharge",
   done:"Signé. Vous êtes autorisé à jouer.",
   other:"English"}
@@ -1638,6 +1650,7 @@ function renderWaiver(){
     '<label style="display:block;margin-top:10px"><span class="eyebrow">'+esc(W.nameLabel)+'</span>'+
     '<input class="plain" id="wname" style="width:100%;margin-top:5px" autocomplete="name"></label>'+
     '<label class="check" style="margin-top:12px"><input type="checkbox" id="wprivate"'+(p.private?" checked":"")+'><span>'+esc(W.privacyLabel)+'</span></label>'+
+    '<label class="check" style="margin-top:8px"><input type="checkbox" id="wphoto"'+(p.noPhoto?" checked":"")+'><span>'+esc(W.photoLabel)+'</span></label>'+
     '<div class="btnrow" style="margin-top:12px"><button class="btn go" id="wsign">'+esc(W.submit)+'</button>'+
     '<span class="note" id="wmsg"></span></div></div></div>';
   html+='<div class="btnrow"><button class="btn ghost" id="closebtn">Close</button></div>';
@@ -1969,6 +1982,8 @@ document.addEventListener("click",function(ev){
       if(nm.value.trim().length<3){m.textContent=waiverLang==="en"?"Type your full name.":"Écrivez votre nom complet.";m.style.color="var(--alarm)";return;}
       var wp=document.getElementById("wprivate");
       if(wp)p.private=wp.checked;
+      var wph=document.getElementById("wphoto");
+      if(wph)p.noPhoto=wph.checked;
       p.waiver={name:nm.value.trim(),at:new Date().toISOString().slice(0,16).replace("T"," "),
                 version:WAIVER_VERSION,lang:waiverLang,token:p.token};
       renderWaiver();renderAll();return;
@@ -2053,6 +2068,7 @@ document.addEventListener("change",function(ev){
     if(el.dataset.jersey){var pj=player(el.dataset.jersey);if(pj)pj.jersey=el.value?+el.value:null;return;}
     if(el.dataset.gender){var pg=player(el.dataset.gender);if(pg)pg.gender=el.value;renderRosters();return;}
     if(el.dataset.private){var pp=player(el.dataset.private);if(pp){pp.private=el.checked;editRoster(rosterTeam);renderAll();}return;}
+    if(el.dataset.nophoto){var pn=player(el.dataset.nophoto);if(pn){pn.noPhoto=el.checked;editRoster(rosterTeam);renderAll();}return;}
     if(el.dataset.gnum){setNumberIn(openGame,el.dataset.gnum,el.value);return;}
     if(el.dataset.qual){qualifiers[el.dataset.qual]=+el.value;rebuild();renderAll();return;}
     if(!openGame)return;

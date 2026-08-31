@@ -445,6 +445,20 @@ and whether "Player #N" is the right public label versus something
 else. Don't treat the current behaviour as final without checking
 back.
 
+*Photo/media consent*, added same day, deliberately kept as its own
+flag rather than folded into name privacy — a player might be fine
+being named but not photographed, or the reverse, and it's a
+different legal question (the proper term is a photo/media release,
+usually a clause inside the same liability waiver, which is where
+it lives here). `p.noPhoto`, set the same two ways as `private` (the
+player's own waiver checkbox, or the organizer/captain in the roster
+editor). It doesn't change anything the app displays — this app
+doesn't publish photos — it just records the consent and gives
+whoever's on cameras a **No photos** list on the Rosters tab
+(admin-only, real names, on purpose: the point of that list is for a
+human to recognize a face, so anonymizing it would defeat it). Same
+draft-not-policy caveat as name privacy above.
+
 ### Design decisions worth preserving
 
 **The paste creates the player, not the waiver.** A captain pastes name
