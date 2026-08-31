@@ -357,7 +357,7 @@ window.onerror=function(m,s,l,c,e){crash(e||m);};
    which build they're looking at — a stale stamp on a phone
    means a caching problem, not a code problem.
    --------------------------------------------------------- */
-var BUILD_STAMP="2026-08-31 · b7";
+var BUILD_STAMP="2026-08-31 · b8";
 document.getElementById("buildStampMast").textContent=BUILD_STAMP;
 document.getElementById("buildStampFoot").textContent=BUILD_STAMP;
 
@@ -1217,8 +1217,10 @@ function renderNow(){
 
   if(upcoming.length){
     var next=upcoming[0];
-    html+='<div class="card div-'+next.div+'"><h3>Up next <span class="pos">'+fmtCountdown(gameDate(next))+'</span></h3>'+
-      '<div class="body flush"><div class="fixtures">'+fixtureCard(next)+'</div></div></div>';
+    var nextSlot=next.day+"|"+next.time;
+    var nextGames=upcoming.filter(function(g){return (g.day+"|"+g.time)===nextSlot;});
+    html+='<div class="card"><h3>Up next <span class="pos">'+fmtCountdown(gameDate(next))+'</span></h3>'+
+      '<div class="body flush"><div class="fixtures">'+nextGames.map(fixtureCard).join("")+'</div></div></div>';
   } else {
     html+='<div class="card"><div class="body"><p class="note">Every pool game has either kicked off or been recorded — nothing left to come.</p></div></div>';
   }
