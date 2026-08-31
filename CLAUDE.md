@@ -78,11 +78,33 @@ Every commit is a restore point. Reverting the previous commit and
 pushing restores the last working build in under a minute. **Practise
 this once before the tournament** so it is familiar under pressure.
 
-### Known gap
+### Known gap — closed 31 August 2026
 
-There is no `wrangler.toml` in the repo — the Cloudflare build
-configuration lives only in the dashboard and is not backed up
-anywhere. Worth capturing before October.
+There is no `wrangler.toml`, and there doesn't need to be one. This
+project's Git integration runs an explicit deploy command instead of
+reading a config file, confirmed against Workers & Pages →
+ottawablues → Settings:
+
+| Setting | Value |
+|---|---|
+| Git repository | `flashgordon4384-source/ottawablues` |
+| Production branch | `main` (builds for non-production branches also on) |
+| Root directory | `/` |
+| Build command | none |
+| Deploy command | `npx wrangler deploy --assets ./public --name ottawablues` |
+| Version command | `npx wrangler versions upload` |
+| Build watch paths | include `*`, exclude `node_modules/**, .git/` |
+| API token | a scoped "ottawablues build token" (in the dashboard, not the repo) |
+| Compatibility date | none set — fine, since this is assets-only with no Worker script |
+| Custom domain | none — only the `workers.dev` subdomain (see §8) |
+| Bindings | none |
+
+A `wrangler.toml` was tried and deliberately dropped: it would have
+duplicated `name`/`--assets` from a second source instead of the
+dashboard's explicit flags, adding a way for the two to disagree
+rather than fixing anything. This table is the backup — if the
+dashboard config is ever lost, it's a paste back into Settings, not a
+reconstruction from memory.
 
 `_headers` was added 31 August 2026 and confirmed live against
 `ottawablues.gordon-perolli.workers.dev`: `/` and the `/index.html`
