@@ -313,6 +313,7 @@ iVBORw0KGgoAAAANSUhEUgAAAIQAAACgCAYAAADNecSHAAAQAElEQVR4Aey9BaBeRZI2/FT3ee26xd2N
 <div class="wrap"><div class="msg warn" style="margin-top:12px">Teams shown are the <b>2025 OBCC field</b> (from the Ottawa Footy Sevens league tables), loaded so the tool demos with real names. They are <b>not</b> the 2026 registration — as of the 14 Aug close that's 5 competitive / 15 recreational, which doesn't divide into a legal schedule yet (see <b>Structure</b>). This will be swapped for the real 2026 teams once the counts are settled.</div></div>
 
 <main class="wrap">
+  <section class="panel" id="p-now"></section>
   <section class="panel" id="p-schedule"></section>
   <section class="panel" id="p-standings" hidden></section>
   <section class="panel" id="p-discipline" hidden></section>
@@ -356,7 +357,7 @@ window.onerror=function(m,s,l,c,e){crash(e||m);};
    which build they're looking at — a stale stamp on a phone
    means a caching problem, not a code problem.
    --------------------------------------------------------- */
-var BUILD_STAMP="2026-08-31 · b6";
+var BUILD_STAMP="2026-08-31 · b7";
 document.getElementById("buildStampMast").textContent=BUILD_STAMP;
 document.getElementById("buildStampFoot").textContent=BUILD_STAMP;
 
@@ -1111,6 +1112,7 @@ function stageName(s){return {pool:"Pool",qf:"Quarter-final",sf:"Semi-final",fin
    13. TABS
    --------------------------------------------------------- */
 var TABS=[
+  {id:"now",       label:"Now"},
   {id:"schedule",  label:"Schedule"},
   {id:"standings", label:"Standings"},
   {id:"discipline",label:"Cards"},
@@ -1119,7 +1121,7 @@ var TABS=[
   {id:"structure", label:"Structure"},
   {id:"data",      label:"Data"}
 ];
-var tab="schedule";
+var tab="now";
 function renderTabs(){
   $("#tabs").innerHTML=TABS.map(function(t){
     return '<button role="tab" data-tab="'+t.id+'" aria-selected="'+(tab===t.id)+'">'+t.label+'</button>';
@@ -1163,6 +1165,104 @@ function renderMastStats(){
     return '<div class="stat-pill"><b>'+s.v+'</b><span>'+esc(s.k)+'</span></div>';
   }).join("");
 }
+
+/* ---------------------------------------------------------
+   14b. NOW — the landing dashboard. What's on right now, what's
+   next, and the top lines of standings and scoring, all in one
+   place. Every number here is a read of state that already
+   exists elsewhere (sheetStatus, result, agreedLines, standings)
+   -- nothing new is tracked, this is just a front door onto it.
+
+   Scoped to pool games only for v1 -- the resolving playoff
+   bracket already has its own view on the Schedule tab.
+   --------------------------------------------------------- */
+var TOURNEY_YEAR="2026";
+function gameDate(g){
+  var d=g.day==="thu"?"10-22":"10-23";
+  return new Date(TOURNEY_YEAR+"-"+d+"T"+g.time+":00");
+}
+function fmtCountdown(target){
+  var ms=target-new Date();
+  if(ms<=0)return "under way";
+  var m=Math.round(ms/60000);
+  if(m<60)return "in "+m+" min";
+  var h=Math.floor(m/60);
+  if(h<24)return "in "+h+"h "+(m%60)+"m";
+  var days=Math.floor(h/24);
+  return "in "+days+" day"+(days===1?"":"s");
+}
+function leadingScorers(limit){
+  var totals={};
+  chronological().forEach(function(g){
+    if(g.stage!=="pool"||!result(g))return;
+    var lines=agreedLines(g);
+    for(var pid in lines){
+      var goals=lines[pid].g||0;
+      if(goals)totals[pid]=(totals[pid]||0)+goals;
+    }
+  });
+  return Object.keys(totals).map(function(pid){
+    var p=player(pid);
+    return p?{player:p,team:team(p.teamId),goals:totals[pid]}:null;
+  }).filter(Boolean).sort(function(a,b){return b.goals-a.goals;}).slice(0,limit||5);
+}
+function renderNow(){
+  var pool=chronological().filter(function(g){return g.stage==="pool";});
+  var upcoming=pool.filter(function(g){return !result(g)&&sheetStatus(g)==="empty";});
+  var inProgress=pool.filter(function(g){var st=sheetStatus(g);return st==="started"||st==="part"||st==="disputed";});
+  var finished=pool.filter(function(g){return !!result(g);}).slice().reverse();
+
+  var html='<div class="sechead"><h2>Now</h2>'+
+    '<p class="note">What’s on right now, what’s next, and the top of the tables. Everything here also lives on Schedule and Standings — this just puts it in one place.</p></div>';
+
+  if(upcoming.length){
+    var next=upcoming[0];
+    html+='<div class="card div-'+next.div+'"><h3>Up next <span class="pos">'+fmtCountdown(gameDate(next))+'</span></h3>'+
+      '<div class="body flush"><div class="fixtures">'+fixtureCard(next)+'</div></div></div>';
+  } else {
+    html+='<div class="card"><div class="body"><p class="note">Every pool game has either kicked off or been recorded — nothing left to come.</p></div></div>';
+  }
+
+  html+='<div class="grid2">'+
+    '<div class="card"><h3>In progress <span class="pos">'+inProgress.length+'</span></h3><div class="body'+(inProgress.length?" flush":"")+'">'+
+    (inProgress.length
+      ?'<div class="fixtures" style="padding:12px">'+inProgress.slice(0,4).map(fixtureCard).join("")+'</div>'
+      :'<p class="note">Nobody is currently entering a sheet.</p>')+
+    '</div></div>'+
+    '<div class="card"><h3>Just finished</h3><div class="body'+(finished.length?" flush":"")+'">'+
+    (finished.length
+      ?'<div class="fixtures" style="padding:12px">'+finished.slice(0,4).map(fixtureCard).join("")+'</div>'
+      :'<p class="note">No results recorded yet.</p>')+
+    '</div></div>'+
+  '</div>';
+
+  html+='<div class="grid2">'+
+    '<div class="card"><h3>Standings snapshot</h3><div class="body flush"><div class="tablewrap"><table><tbody>'+
+    DIVS.map(function(d){
+      var rows=standings(d).slice(0,3);
+      var out='<tr><td colspan="3" style="padding-top:10px"><span class="tag '+d+'">'+DIV_NAME[d]+'</span></td></tr>';
+      if(!rows.length)return out+'<tr><td colspan="3" class="note" style="padding:2px 0 10px">No games played yet.</td></tr>';
+      return out+rows.map(function(r,i){
+        return '<tr><td class="pos">'+(i+1)+'</td><td class="teamname"><span class="teamline">'+teamBadge(team(r.id),16)+'<span class="nm">'+esc(teamName(r.id))+'</span></span></td><td class="n"><b>'+r.pts+'</b></td></tr>';
+      }).join("");
+    }).join("")+
+    '</tbody></table></div>'+
+    '<div style="padding:10px 14px"><button class="linkbtn" data-tab="standings">Full standings</button></div>'+
+    '</div></div>'+
+    '<div class="card"><h3>Leading scorers</h3><div class="body flush">'+
+    (function(){
+      var scorers=leadingScorers(5);
+      if(!scorers.length)return '<p class="note" style="padding:14px">No agreed goals recorded yet.</p>';
+      return '<div class="tablewrap"><table><tbody>'+scorers.map(function(s,i){
+        return '<tr><td class="pos">'+(i+1)+'</td><td class="teamname"><span class="teamline">'+teamBadge(s.team,16)+'<span class="nm">'+esc(s.player.name)+'</span></span></td><td class="n"><b>'+s.goals+'</b></td></tr>';
+      }).join("")+'</tbody></table></div>';
+    })()+
+    '</div></div>'+
+  '</div>';
+
+  $("#p-now").innerHTML=html;
+}
+setInterval(function(){if(tab==="now")renderNow();},30000);
 
 /* ---------------------------------------------------------
    15. SCHEDULE
@@ -1780,6 +1880,7 @@ function renderAll(){
     renderTabs();renderBanner();renderMastStats();
     $("#who").textContent=ROLES[state.role].label;
     TABS.forEach(function(t){var el=$("#p-"+t.id);if(el)el.hidden=(t.id!==tab);});
+    if(tab==="now")renderNow();
     if(tab==="schedule")renderSchedule();
     if(tab==="standings")renderStandings();
     if(tab==="discipline")renderDiscipline();

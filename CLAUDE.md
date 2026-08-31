@@ -362,6 +362,33 @@ already the tournament's actual emergency-service-coded colours —
 weren't touched; they just read more clearly now that they're not
 competing with a warm neutral.
 
+**Batch four (31 Aug 2026)** — a "Now" landing tab, replacing Schedule
+as the default view. Gord's ask: the app opened straight onto the
+full schedule with no sense of what actually mattered at that moment,
+and a dashboard would give people a reason to check back rather than
+look once. It's a pure read of state that already exists elsewhere —
+`sheetStatus`, `result`, `agreedLines`, `standings` — nothing new is
+tracked:
+
+- **Up next**, with a countdown. This needed a real calendar
+  timestamp per game, which nothing had before — day/time were just
+  display strings ("Thu," "09:00"). Added `gameDate(g)`, anchored to
+  the actual 22–23 October 2026 dates, compared against the real
+  device clock. During the tournament this counts down correctly;
+  right now, pre-event, it correctly says "in 51 days" rather than
+  faking urgency — that's intended, not a bug to fix.
+- **In progress** and **just finished**, both reusing `fixtureCard`
+  directly rather than inventing new markup.
+- **Standings snapshot** — top 3 per division, linking to the full
+  Standings tab.
+- **Leading scorers** — new: nobody had aggregated goals across teams
+  before. Only counts games with an agreed result, same rule
+  `standings()` already uses for cards.
+
+Scoped to pool games only — the resolving playoff bracket already has
+its own view on Schedule, and folding it in felt like scope creep for
+a first pass.
+
 ### Design decisions worth preserving
 
 **The paste creates the player, not the waiver.** A captain pastes name
