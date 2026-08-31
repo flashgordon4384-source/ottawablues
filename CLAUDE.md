@@ -351,6 +351,17 @@ long team names on narrow screens wrap instead of truncating in table
 cells (not broken, just not tight); a full WCAG contrast/keyboard
 audit beyond what already existed.
 
+*Palette follow-up, same day:* Gord flagged the warm beige base as
+the one thing actively bothering him about the look, so `--oyster`/
+`--rule`/`--rule-soft` moved from a cream tone to a cool blue-grey —
+"subtle emergency colours," reading closer to a dispatch console than
+an editorial magazine. Everything that already used those tokens (the
+page background, chips, the field-label badge, the sign-in modal)
+picked it up automatically. Ink navy, alarm red and whistle amber —
+already the tournament's actual emergency-service-coded colours —
+weren't touched; they just read more clearly now that they're not
+competing with a warm neutral.
+
 ### Design decisions worth preserving
 
 **The paste creates the player, not the waiver.** A captain pastes name
