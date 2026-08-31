@@ -320,31 +320,35 @@ var RULES={
 };
 
 /* ---------------------------------------------------------
-   2. TEAMS — placeholders. Real names replace these.
-   20 registered: 5 competitive, 15 recreational.
+   2. TEAMS — real 2025 OBCC teams, pulled from the Ottawa Footy
+   Sevens league tables (divisionId=6188). 18 teams: 6 competitive,
+   12 recreational in four pools of three (A/B/C/D per the source).
+   These are last year's teams, not the 2026 registration list —
+   swap again once Devo settles the 2026 counts (see CLAUDE.md §4/§8).
    --------------------------------------------------------- */
 var TEAMS=[
-  {id:"c01",name:"Blue Line FC",         div:"comp"},
-  {id:"c02",name:"Engine 44",            div:"comp"},
-  {id:"c03",name:"Trauma Team FC",       div:"comp"},
-  {id:"c04",name:"Marine Unit",          div:"comp"},
-  {id:"c05",name:"Tactical FC",          div:"comp"},
+  {id:"c01",name:"Ottawa Blue Stars", div:"comp"},
+  {id:"c02",name:"Scrubs United",     div:"comp"},
+  {id:"c03",name:"Montreal CS",       div:"comp"},
+  {id:"c04",name:"NEMS",              div:"comp"},
+  {id:"c05",name:"RCMP Enforcers",    div:"comp"},
+  {id:"c06",name:"FC Magane",         div:"comp"},
 
-  {id:"r01",name:"Station 12 Strikers",  div:"rec"},
-  {id:"r02",name:"Dispatch United",      div:"rec"},
-  {id:"r03",name:"Bytown Medics",        div:"rec"},
-  {id:"r04",name:"Rideau Rescue",        div:"rec"},
-  {id:"r05",name:"Kanata Ladder Co.",    div:"rec"},
-  {id:"r06",name:"Comms Centre FC",      div:"rec"},
-  {id:"r07",name:"Carp Valley Crossers", div:"rec"},
-  {id:"r08",name:"Nepean Pumpers",       div:"rec"},
-  {id:"r09",name:"Corrections Athletic", div:"rec"},
-  {id:"r10",name:"K9 Squad",             div:"rec"},
-  {id:"r11",name:"Orleans Rescue",       div:"rec"},
-  {id:"r12",name:"Barrhaven Blues",      div:"rec"},
-  {id:"r13",name:"Air Ambulance FC",     div:"rec"},
-  {id:"r14",name:"Rideau River Patrol",  div:"rec"},
-  {id:"r15",name:"Stittsville Sirens",   div:"rec"}
+  {id:"r01",name:"Ottawa Blues FC",       div:"rec",pool:"A"},
+  {id:"r02",name:"Ottawa Fire",           div:"rec",pool:"A"},
+  {id:"r03",name:"RCMP Red Blues",        div:"rec",pool:"A"},
+
+  {id:"r04",name:"DPTR",                  div:"rec",pool:"B"},
+  {id:"r05",name:"CBSA Ottawa",           div:"rec",pool:"B"},
+  {id:"r06",name:"Paramedic Blues",       div:"rec",pool:"B"},
+
+  {id:"r07",name:"Pacemakers",            div:"rec",pool:"C"},
+  {id:"r08",name:"OCDC",                  div:"rec",pool:"C"},
+  {id:"r09",name:"The RCMP Sensitives",   div:"rec",pool:"C"},
+
+  {id:"r10",name:"All Stars FC",          div:"rec",pool:"D"},
+  {id:"r11",name:"Ott Internationals",    div:"rec",pool:"D"},
+  {id:"r12",name:"Granby United",         div:"rec",pool:"D"}
 ];
 var DIV_NAME={comp:"Competitive",rec:"Recreational"};
 var DIVS=["comp","rec"];
