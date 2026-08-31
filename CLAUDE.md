@@ -3,7 +3,7 @@
 Read this before touching anything. It carries the decisions that are
 not visible in the code, and the reasons behind them.
 
-Maintained by Gord Perolli. Last updated 30 August 2026.
+Maintained by Gord Perolli. Last updated 31 August 2026.
 
 ---
 
@@ -458,7 +458,7 @@ maintenance-free.
 - [ ] Penalty entry for semis and finals
 - [ ] Real 2026 teams, divisions and pools loaded
 - [ ] Rosters entered and waivers signed
-- [ ] Cloudflare dashboard configuration captured somewhere off-laptop
+- [x] Cloudflare dashboard configuration captured somewhere off-laptop — §2, 31 Aug 2026
 - [ ] Rollback practised once
 - [ ] **Rehearsal** with Gord, Sable and Babak on their own phones,
       entering a full fake game end to end — about a week out
