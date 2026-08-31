@@ -265,7 +265,7 @@ iVBORw0KGgoAAAANSUhEUgAAALkAAADcCAYAAAAslAC1AAAQAElEQVR4AexdBYBVRff/nbkvtntp6e5U
 " alt="Ottawa Blues FC crest">
       <div>
         <h1>Ottawa Blues Charity Classic</h1>
-        <div class="sub">Thursday 22 &amp; Friday 23 October 2026 · Ben Franklin Superdome · 3 fields</div>
+        <div class="sub">Thursday 22 &amp; Friday 23 October 2026 · Ben Franklin Superdome · 3 fields · <span id="buildStampMast" class="mono"></span></div>
       </div>
     </div>
     <div class="whoami">Signed in as <b id="who">Public</b> <button class="btn ghost sm" id="signbtn" style="border-color:#3A4A63;color:#fff">Change</button></div>
@@ -293,6 +293,7 @@ iVBORw0KGgoAAAANSUhEUgAAALkAAADcCAYAAAAslAC1AAAQAElEQVR4AexdBYBVRff/nbkvtntp6e5U
   <p>Team names are the real 2025 OBCC field, not 2026 registration — see the note above. Player rosters are still generated placeholders; no real roster has been loaded.</p>
   <p style="margin-top:6px">Rules applied from <b>OBCC Tournament Rules, Revised 2026</b>. Game sheet fields from the 2025 sheet. Field marshal duties from the 2026 role document.</p>
   <p style="margin-top:6px">Everything you enter is held in this browser tab only. Use <b>Data</b> to save a file before you close it.</p>
+  <p style="margin-top:6px" class="mono">Build <span id="buildStampFoot"></span></p>
 </footer>
 
 <input type="file" id="loadfile" accept="application/json" style="display:none">
@@ -313,6 +314,17 @@ function crash(e){
   if(e && e.stack) console.error(e);
 }
 window.onerror=function(m,s,l,c,e){crash(e||m);};
+
+/* ---------------------------------------------------------
+   0. BUILD STAMP — bump this on every change (CLAUDE.md §2).
+   Format: YYYY-MM-DD · bN, N resetting to 1 on a new date.
+   Shown in the masthead and the footer so anyone can confirm
+   which build they're looking at — a stale stamp on a phone
+   means a caching problem, not a code problem.
+   --------------------------------------------------------- */
+var BUILD_STAMP="2026-08-31 · b1";
+document.getElementById("buildStampMast").textContent=BUILD_STAMP;
+document.getElementById("buildStampFoot").textContent=BUILD_STAMP;
 
 /* ---------------------------------------------------------
    1. RULES — every constant here traces to the 2026 rules.
