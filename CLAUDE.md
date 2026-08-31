@@ -45,6 +45,14 @@ tournament tool ships and nothing else.
 - **Host:** Cloudflare, project `ottawablues`. Deploys automatically
   on push to `main`.
 
+The masthead logo is the real OBCC 2026 crest, supplied by Devo
+31 August 2026 (a phone photo, background removed and cropped). It
+replaced an earlier estimated reconstruction of the Ottawa Blues FC
+club logo pulled off Facebook — that estimate is gone from the live
+page; it's still in git history (commit `2662758`) if it's ever
+useful as a reference for the club logo specifically, which this
+crest doesn't replace, since it's the tournament's own mark.
+
 ### Rules for this repo
 
 **Keep it a single file.** The whole app is one HTML file with inline
