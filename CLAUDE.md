@@ -459,6 +459,73 @@ whoever's on cameras a **No photos** list on the Rosters tab
 human to recognize a face, so anonymizing it would defeat it). Same
 draft-not-policy caveat as name privacy above.
 
+**Batch six (31 Aug 2026)** — a design-critique follow-through: Gord
+asked for an honest design assessment (strengths/weaknesses, visual
+only), then worked through the findings point by point and asked for
+all of it built in one pass, plus a few fresh asks that came in mid-build.
+
+*Masthead rebuilt as a grid*, not a flex row, specifically so "Signed
+in as" lines up with the venue/address line instead of floating
+between the title and subtitle the way it used to. Subtitle is now
+two lines — date, then the real venue and address (Superdome at Ben
+Franklin Park, 191 Knoxdale Rd, Ottawa — confirmed against the City of
+Ottawa's own page, not guessed). "3 fields" dropped from the subtitle
+(it's already a stat pill) and the build stamp moved out entirely —
+footer-only now. Title bumped up a size. Spacing normalized to 14px
+between title block / stat pills / tab bar, so the rhythm reads as
+one deliberate spacing scale instead of tight-then-loose.
+
+*Slot grid now lives in two places* — Structure (the full breakdown)
+and Now (the at-a-glance version Gord asked for) — both calling the
+same `renderSlotGridCard()` so there's one source of truth, not two
+copies to keep in sync. Worth knowing: it only ever shows Thursday
+(`day==="thu"` is hardcoded in the underlying query) — a pre-existing
+limit, not something this pass touched. Worth fixing whenever Friday's
+playoff slots need the same treatment.
+
+*Structure's headline moved to the top*, styled as a hero box (`.msg.hero`) —
+whichever applies, "the day is short," "counts are odd," or "the day
+works," now leads the page instead of sitting between two data tables.
+Gord's own caveat holds: this becomes moot the moment Devo's counts
+settle into something legal, but the tab should lead with its
+conclusion regardless of what that conclusion currently is.
+
+*How To — new tab*, second from the left. Pick a role (Public, Field
+marshal, Head referee, Team captain, Organizer), get a numbered,
+click-by-click walkthrough of exactly what that role does on this
+tool and what it gets back. Written against what the code actually
+lets each role do — not aspirational copy. Gord's framing: nobody,
+including him, should have to guess how to use this.
+
+*Fixture cards redesigned as a matchup*, not a stacked list — bigger
+badges (40px, doubled from 20px, after Gord flagged them as too small
+to read), a "vs" divider between the two sides, bigger score type. A
+team's pool letter (A–D, real data already on the team record) shows
+under its name when it has one, as an honest way to fill the space
+rather than inventing fields the app doesn't track. **City and team
+captain name were asked for and deliberately left out** — this app
+has no data for either today, and fabricating placeholder values on
+a real charity site's schedule would be actively wrong, not just
+incomplete. Real fields for both are a reasonable follow-up if
+wanted, editable the same way the logo is.
+
+*Fields got their own colours* — three new tokens (`--f1` violet,
+`--f2` teal, `--f3` rust) distinct from every existing semantic
+colour (ink/pitch/whistle/alarm/comp/rec), so "Field 2" never reads
+as a status or a division. The small inline badges elsewhere
+(Standings, Teams, Leading scorers) went from 16–18px to 20px —
+noticeably more legible without blowing out table row height the way
+literally doubling them would have.
+
+*Two suggestions from the critique, both implemented*: on mobile, a
+modal (game sheet, roster editor, waiver) now goes full-bleed instead
+of floating as a dialog over a dimmed backdrop — the idea being it's
+where the work happens, not a popup to dismiss. And cards whose main
+content is something to *do* (Team logo, Add players, Master list in
+the roster editor; Save and load on Data) get a `.card.action`
+treatment — amber top border, small "ACTION" label — so they're
+visually distinct from cards that are just reference.
+
 ### Design decisions worth preserving
 
 **The paste creates the player, not the waiver.** A captain pastes name
