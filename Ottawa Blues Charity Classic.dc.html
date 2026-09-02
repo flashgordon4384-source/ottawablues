@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="crossorigin" />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Public+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: #0A1424; font-family: 'Public Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  * { box-sizing: border-box; }
+  a { color: #2E6BFF; text-decoration: none; }
+  a:hover { color: #6E9BFF; }
+  ::selection { background: #2E6BFF; color: #fff; }
+  @keyframes obccFade { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+</style>
+</helmet>
+
+<div style="background: #F6F4F1; color: #0A1424; overflow-x: hidden;">
+
+  <header style="position: sticky; top: 0; z-index: 60; background: rgba(10,20,36,0.94); backdrop-filter: blur(14px); border-bottom: 1px solid rgba(255,255,255,0.09);">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 0 32px; height: 74px; display: flex; align-items: center; gap: 40px;">
+      <a href="#top" style="display: flex; align-items: center; gap: 12px; color: #fff;">
+        <div style="width: 38px; height: 38px; border-radius: 9px; background: linear-gradient(150deg, #2E6BFF, #0B3AAE); display: grid; place-items: center; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 15px; letter-spacing: -0.04em; color: #fff;">NC</div>
+        <div style="display: flex; flex-direction: column; line-height: 1.05;">
+          <span style="font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 14.5px; letter-spacing: -0.01em; color: #fff;">Ottawa Blues Charity Classic</span>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.48); margin-top: 3px;">National Capital Blues Foundation</span>
+        </div>
+      </a>
+      <nav style="margin-left: auto; display: flex; align-items: center; gap: 30px;">
+        <a href="#about" style="font-size: 13.5px; font-weight: 500; color: rgba(255,255,255,0.72);" style-hover="color:#fff">Tournament</a>
+        <a href="#details" style="font-size: 13.5px; font-weight: 500; color: rgba(255,255,255,0.72);" style-hover="color:#fff">Details</a>
+        <a href="#register" style="font-size: 13.5px; font-weight: 500; color: rgba(255,255,255,0.72);" style-hover="color:#fff">Register</a>
+        <a href="#impact" style="font-size: 13.5px; font-weight: 500; color: rgba(255,255,255,0.72);" style-hover="color:#fff">Impact</a>
+        <a href="#sponsors" style="font-size: 13.5px; font-weight: 500; color: rgba(255,255,255,0.72);" style-hover="color:#fff">Sponsors</a>
+        <a href="#faq" style="font-size: 13.5px; font-weight: 500; color: rgba(255,255,255,0.72);" style-hover="color:#fff">FAQ</a>
+        <a href="#register" style="margin-left: 6px; background: #2E6BFF; color: #fff; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: 0.01em; padding: 11px 20px; border-radius: 8px;" style-hover="background:#1B52DC">Register a Team</a>
+      </nav>
+    </div>
+  </header>
+
+  <section id="top" style="position: relative; background: #0A1424; color: #fff; min-height: 640px; display: flex; align-items: flex-end; overflow: hidden;">
+    <img src="https://ncbluesfoundation.org/wp-content/uploads/2026/04/IMG_4498-1024x682.jpeg" alt="Players at the Ottawa Blues Charity Classic" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.42; filter: saturate(0.85) contrast(1.05);" />
+    <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,20,36,0.86) 0%, rgba(10,20,36,0.55) 42%, rgba(10,20,36,0.97) 100%);"></div>
+    <div style="position: absolute; inset: 0; background: radial-gradient(1100px 520px at 12% 92%, rgba(46,107,255,0.30), transparent 70%);"></div>
+
+    <div style="position: relative; max-width: 1280px; margin: 0 auto; padding: 132px 32px 56px; width: 100%; animation: obccFade 0.7s ease both;">
+      <div style="display: inline-flex; align-items: center; gap: 10px; border: 1px solid rgba(255,255,255,0.22); border-radius: 999px; padding: 7px 15px 7px 11px; margin-bottom: 30px;">
+        <span style="width: 7px; height: 7px; border-radius: 50%; background: #4ADE80; box-shadow: 0 0 0 4px rgba(74,222,128,0.18);"></span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.82);">14th Annual · October 22–23, 2026</span>
+      </div>
+
+      <h1 style="font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 92px; line-height: 0.92; letter-spacing: -0.035em; margin: 0 0 26px; max-width: 15ch; text-wrap: balance;">Frontline <span style="color: #6E9BFF;">soccer.</span><br />Real impact.</h1>
+
+      <p style="font-size: 19px; line-height: 1.6; color: rgba(255,255,255,0.76); max-width: 60ch; margin: 0 0 40px; text-wrap: pretty;">A two-day indoor 7v7 co-ed tournament for Ottawa's emergency service professionals, their families and supporters — funding youth mentorship, literacy and sport across the National Capital Region.</p>
+
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-bottom: 56px;">
+        <a href="#register" style="display: inline-flex; align-items: center; gap: 10px; background: #2E6BFF; color: #fff; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 15px; padding: 16px 28px; border-radius: 10px; box-shadow: 0 14px 40px -12px rgba(46,107,255,0.7);" style-hover="background:#1B52DC">Register a Team →</a>
+        <a href="#sponsors" style="display: inline-flex; align-items: center; gap: 10px; border: 1px solid rgba(255,255,255,0.26); color: #fff; font-family: 'Archivo', sans-serif; font-weight: 600; font-size: 15px; padding: 16px 26px; border-radius: 10px;" style-hover="background:rgba(255,255,255,0.08)">Become a Sponsor</a>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 14px; border-top: 1px solid rgba(255,255,255,0.14); padding-top: 30px;">
+        <sc-for list="{{ countdown }}" as="unit" hint-placeholder-count="4">
+          <div style="min-width: 118px; background: rgba(255,255,255,0.055); border: 1px solid rgba(255,255,255,0.11); border-radius: 12px; padding: 16px 20px;">
+            <div style="font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 40px; line-height: 1; letter-spacing: -0.03em; color: #fff;">{{ unit.value }}</div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-top: 9px;">{{ unit.label }}</div>
+          </div>
+        </sc-for>
+        <div style="flex: 1; min-width: 240px; display: flex; flex-direction: column; justify-content: center; padding-left: 12px;">
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.4);">Ben Franklin Superdome</div>
+          <div style="font-size: 15px; color: rgba(255,255,255,0.82); margin-top: 7px;">191 Knoxdale Rd, Ottawa · 8:00 AM – 5:00 PM daily</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="background: #0A1424; border-top: 1px solid rgba(255,255,255,0.08); color: #fff;">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 0 32px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));">
+      <sc-for list="{{ stats }}" as="s" hint-placeholder-count="4">
+        <div style="padding: 44px 26px 48px; border-left: 1px solid rgba(255,255,255,0.08);">
+          <div style="font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 52px; line-height: 1; letter-spacing: -0.04em; color: #6E9BFF;">{{ s.value }}</div>
+          <div style="font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 14px; margin-top: 14px; color: #fff;">{{ s.label }}</div>
+          <div style="font-size: 13.5px; line-height: 1.55; color: rgba(255,255,255,0.48); margin-top: 6px;">{{ s.note }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="about" style="position: relative; background: #F6F4F1; padding: 118px 32px; border-top: 3px solid #0A1424; background-image: repeating-linear-gradient(90deg, rgba(10,20,36,0.045) 0 1px, transparent 1px 104px), radial-gradient(900px 500px at 88% 4%, rgba(46,107,255,0.07), transparent 70%);">
+    <div style="max-width: 1280px; margin: 0 auto; position: relative;">
+      <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 24px;">
+        <span style="width: 40px; height: 3px; background: #2E6BFF; flex: none;"></span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: #2E6BFF;">01 / The Tournament</span>
+      </div>
+      <h2 style="font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 78px; line-height: 0.94; letter-spacing: -0.042em; margin: 0 0 30px; max-width: 24ch; text-wrap: balance;">Fourteen years of first responders on the pitch.</h2>
+      <div style="display: grid; grid-template-columns: 1.05fr 1fr; gap: 88px; align-items: center;">
+      <div>
+        <p style="font-size: 17.5px; line-height: 1.68; color: #3D4757; margin: 0 0 20px; max-width: 56ch; text-wrap: pretty;">The Ottawa Blues Charity Classic brings police, fire, paramedic, corrections and military personnel together for two days of indoor 7v7 — recreational and competitive divisions, round robin into playoffs, all under one roof.</p>
+        <p style="font-size: 17.5px; line-height: 1.68; color: #3D4757; margin: 0 0 36px; max-width: 56ch; text-wrap: pretty;">Every dollar of proceeds goes to the National Capital Blues Foundation, funding mentorship, literacy and sport access for youth who need it most. To date the Classic has raised more than <strong style="color:#0A1424;">$90,000</strong>.</p>
+        <div style="display: flex; gap: 40px; border-top: 1px solid rgba(10,20,36,0.12); padding-top: 28px;">
+          <div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: #7C8798;">Format</div>
+            <div style="font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 16px; margin-top: 7px;">7v7 co-ed indoor</div>
+          </div>
+          <div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: #7C8798;">Divisions</div>
+            <div style="font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 16px; margin-top: 7px;">Rec &amp; Competitive</div>
+          </div>
+          <div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: #7C8798;">Eligibility</div>
+            <div style="font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 16px; margin-top: 7px;">Emergency services</div>
+          </div>
+        </div>
+      </div>
+      <div style="position: relative;">
+        <div style="border-radius: 18px; overflow: hidden; background: #0A1424; aspect-ratio: 4/5; box-shadow: 0 40px 80px -40px rgba(10,20,36,0.5);">
+          <img src="https://ncbluesfoundation.org/wp-content/uploads/2026/04/IMG_4526.jpeg" alt="Tournament play" style="width: 100%; height: 100%; object-fit: cover;" />
+        </div>
+        <div style="position: absolute; bottom: -26px; left: -26px; background: #0A1424; color: #fff; border-radius: 14px; padding: 22px 26px; box-shadow: 0 24px 50px -20px rgba(10,20,36,0.55);">
+          <div style="font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 34px; letter-spacing: -0.03em; line-height: 1;">$90K+</div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-top: 8px;">Raised for youth programs</div>
+        </div>
+      </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="details" style="position: relative; background: #fff; padding: 118px 32px; border-top: 1px solid rgba(10,20,36,0.14); background-image: radial-gradient(rgba(10,20,36,0.09) 1.1px, transparent 1.1px); background-size: 28px 28px;">
+    <div style="max-width: 1280px; margin: 0 auto;">
+      <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 24px;">
+        <span style="width: 40px; height: 3px; background: #2E6BFF; flex: none;"></span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: #2E6BFF;">02 / Logistics</span>
+      </div>
+      <h2 style="font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 78px; line-height: 0.94; letter-spacing: -0.042em; margin: 0 0 30px; max-width: 20ch; text-wrap: balance;">Everything you need to know</h2>
+      <div style="margin-bottom: 44px;"><a href="#faq" style="font-family: 'Archivo', sans-serif; font-weight: 600; font-size: 15px; color: #2E6BFF;">Read the full FAQ →</a></div>
+
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin-bottom: 20px;">
+        <sc-for list="{{ details }}" as="d" hint-placeholder-count="3">
+          <div style="background: #F6F4F1; border: 1px solid rgba(10,20,36,0.07); border-radius: 16px; padding: 32px;">
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: #7C8798;">{{ d.kicker }}</div>
+            <div style="font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 25px; letter-spacing: -0.02em; margin: 16px 0 10px; line-height: 1.15;">{{ d.title }}</div>
+            <div style="font-size: 15.5px; line-height: 1.6; color: #4C5665;">{{ d.body }}</div>
+            <div style="font-size: 14px; line-height: 1.6; color: #7C8798; margin-top: 12px;">{{ d.meta }}</div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px;">
+        <div style="background: #0A1424; border-radius: 16px; padding: 38px 40px; color: #fff; display: flex; flex-direction: column; justify-content: space-between; min-height: 240px;">
+          <div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.45);">Tournament documents</div>
+            <div style="font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 26px; letter-spacing: -0.02em; margin-top: 14px;">Rules &amp; forms</div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 1px; margin-top: 26px;">
+            <sc-for list="{{ documents }}" as="doc" hint-placeholder-count="2">
+              <a href="{{ doc.href }}" style="display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 15px 0; border-top: 1px solid rgba(255,255,255,0.12); color: #fff;" style-hover="color:#6E9BFF">
+                <span style="font-family: 'Archivo', sans-serif; font-weight: 600; font-size: 15.5px;">{{ doc.name }}</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.12em; color: rgba(255,255,255,0.5);">{{ doc.kind }}</span>
+              </a>
+            </sc-for>
+          </div>
+        </div>
+        <div style="border-radius: 16px; overflow: hidden; position: relative; background: #14243D; min-height: 240px;">
+          <img src="https://ncbluesfoundation.org/wp-content/uploads/2026/05/Hard-Rock.avif" alt="Hard Rock Hotel &amp; Casino Ottawa" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.55;" />
+          <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,20,36,0.25), rgba(10,20,36,0.92));"></div>
+          <div style="position: relative; padding: 32px; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; color: #fff;">
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.55);">Host hotel</div>
+            <div style="font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 22px; letter-spacing: -0.02em; margin: 12px 0 14px;">Hard Rock Hotel &amp; Casino</div>
+            <a href="https://ottawa.reservations.hardrock.com" style="font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 14px; color: #fff; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; padding: 11px 18px; align-self: flex-start;" style-hover="background:rgba(255,255,255,0.12)">Group rate reservations →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="register" style="position: relative; background: #F6F4F1; padding: 118px 32px; border-top: 1px solid rgba(10,20,36,0.14); background-image: repeating-linear-gradient(-45deg, rgba(10,20,36,0.035) 0 1.5px, transparent 1.5px 14px);">
+    <div style="max-width: 1280px; margin: 0 auto;">
+      <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 24px;">
+        <span style="width: 40px; height: 3px; background: #2E6BFF; flex: none;"></span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: #2E6BFF;">03 / Registration</span>
+      </div>
+      <h2 style="font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 78px; line-height: 0.94; letter-spacing: -0.042em; margin: 0 0 30px; max-width: 20ch; text-wrap: balance;">{{ regHeadline }}</h2>
+      <p style="font-size: 18px; line-height: 1.65; color: #4C5665; margin: 0 0 48px; max-width: 62ch; text-wrap: pretty;">{{ regSub }}</p>
+
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; align-items: start;">
+        <sc-for list="{{ tiers }}" as="t" hint-placeholder-count="3">
+          <div style="background: #fff; border: 1px solid rgba(10,20,36,0.08); border-radius: 18px; padding: 34px; display: flex; flex-direction: column; min-height: 420px; box-shadow: 0 24px 50px -40px rgba(10,20,36,0.45);">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: #7C8798;">{{ t.window }}</div>
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; padding: 5px 10px; border-radius: 999px; background: {{ t.statusBg }}; color: {{ t.statusFg }};">{{ t.status }}</div>
+            </div>
+            <div style="font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 24px; letter-spacing: -0.02em; margin: 20px 0 4px;">{{ t.name }}</div>
+            <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 24px;">
+              <span style="font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 46px; letter-spacing: -0.04em;">{{ t.price }}</span>
+              <span style="font-size: 14px; color: #7C8798;">per team</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 11px; margin-bottom: 28px;">
+              <sc-for list="{{ t.features }}" as="f" hint-placeholder-count="4">
+                <div style="display: flex; gap: 11px; align-items: flex-start; font-size: 15px; color: #3D4757; line-height: 1.5;">
+                  <span style="width: 6px; height: 6px; border-radius: 50%; background: #2E6BFF; margin-top: 7px; flex: none;"></span>
+                  <span>{{ f }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <a href="{{ t.href }}" style="margin-top: auto; text-align: center; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 15px; padding: 15px; border-radius: 10px; background: {{ t.btnBg }}; color: {{ t.btnFg }}; border: 1px solid {{ t.btnBorder }};" style-hover="opacity:0.88">{{ t.cta }}</a>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="margin-top: 22px; background: #fff; border: 1px dashed rgba(10,20,36,0.18); border-radius: 14px; padding: 22px 28px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap;">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: #7C8798;">Questions</span>
+        <span style="font-size: 15.5px; color: #3D4757;">Team eligibility, rosters, invoicing — email <a href="mailto:Sable.Top@ottawa.ca" style="font-weight: 600;">Sable.Top@ottawa.ca</a></span>
+      </div>
+    </div>
+  </section>
+
+  <section id="impact" style="position: relative; background: #0A1424; color: #fff; padding: 124px 32px; background-image: repeating-radial-gradient(circle at 50% 46%, transparent 0 236px, rgba(110,155,255,0.13) 236px 238px, transparent 238px 470px), linear-gradient(90deg, transparent calc(50% - 1px), rgba(110,155,255,0.08) calc(50% - 1px), rgba(110,155,255,0.08) 50%, transparent 50%), radial-gradient(700px 380px at 8% 100%, rgba(46,107,255,0.16), transparent 70%);">
+    <div style="max-width: 1280px; margin: 0 auto;">
+      <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 24px;">
+        <span style="width: 40px; height: 3px; background: #6E9BFF; flex: none;"></span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: #6E9BFF;">04 / Where the money goes</span>
+      </div>
+      <h2 style="font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 78px; line-height: 0.94; letter-spacing: -0.042em; margin: 0 0 30px; max-width: 20ch; text-wrap: balance;">Two days of soccer.<br />A year of programs.</h2>
+      <p style="font-size: 18px; line-height: 1.68; color: rgba(255,255,255,0.66); margin: 0 0 52px; max-width: 60ch; text-wrap: pretty;">Registration fees and sponsorship flow directly into three National Capital Blues Foundation programs serving youth across Ottawa — mentorship, literacy and access to organized sport.</p>
+
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px;">
+        <sc-for list="{{ programs }}" as="p" hint-placeholder-count="3">
+          <div style="background: rgba(255,255,255,0.045); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 34px; min-height: 250px; display: flex; flex-direction: column;">
+            <div style="font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 13px; letter-spacing: 0.06em; color: #6E9BFF;">{{ p.num }}</div>
+            <div style="font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 25px; letter-spacing: -0.02em; margin: 18px 0 12px;">{{ p.name }}</div>
+            <div style="font-size: 15.5px; line-height: 1.62; color: rgba(255,255,255,0.62);">{{ p.body }}</div>
+            <div style="margin-top: auto; padding-top: 24px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.4);">{{ p.tag }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <section id="sponsors" style="position: relative; background: #fff; padding: 118px 32px; border-top: 1px solid rgba(10,20,36,0.14); background-image: repeating-linear-gradient(0deg, rgba(10,20,36,0.04) 0 1px, transparent 1px 72px);">
+    <div style="max-width: 1280px; margin: 0 auto;">
+      <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 24px;">
+        <span style="width: 40px; height: 3px; background: #2E6BFF; flex: none;"></span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: #2E6BFF;">05 / Partners</span>
+      </div>
+      <h2 style="font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 78px; line-height: 0.94; letter-spacing: -0.042em; margin: 0 0 30px; max-width: 20ch; text-wrap: balance;">Made possible by</h2>
+      <p style="font-size: 18px; line-height: 1.65; color: #4C5665; margin: 0 0 48px; max-width: 60ch;">The organizations standing behind Ottawa's frontline and its youth.</p>
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: rgba(10,20,36,0.09); border: 1px solid rgba(10,20,36,0.09); border-radius: 16px; overflow: hidden;">
+        <sc-for list="{{ sponsors }}" as="sp">
+          <div style="background: #fff; aspect-ratio: 16/9; display: grid; place-items: center; padding: 34px;">
+            <div title="{{ sp.name }}" style="width: 100%; height: 74px; min-width: 0; background-image: {{ sp.bg }}; background-size: contain; background-repeat: no-repeat; background-position: center; filter: grayscale(1); opacity: 0.62;" style-hover="filter:none;opacity:1"></div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="margin-top: 34px; display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap;">
+        <span style="font-size: 16.5px; color: #3D4757;">Want your brand in front of 400+ frontline personnel and families?</span>
+        <a href="mailto:Sable.Top@ottawa.ca" style="font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 14px; background: #0A1424; color: #fff; padding: 12px 20px; border-radius: 9px;" style-hover="background:#14243D">Sponsorship package →</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq" style="position: relative; background: #F6F4F1; padding: 118px 32px; border-top: 1px solid rgba(10,20,36,0.14); background-image: radial-gradient(rgba(10,20,36,0.075) 1.1px, transparent 1.1px); background-size: 34px 34px;">
+    <div style="max-width: 1040px; margin: 0 auto;">
+      <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 24px;">
+        <span style="width: 40px; height: 3px; background: #2E6BFF; flex: none;"></span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: #2E6BFF;">06 / FAQ</span>
+      </div>
+      <h2 style="font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 78px; line-height: 0.94; letter-spacing: -0.042em; margin: 0 0 30px; max-width: 20ch; text-wrap: balance;">Common questions</h2>
+      <div style="background: #fff; border: 1px solid rgba(10,20,36,0.08); border-radius: 16px; overflow: hidden;">
+        <sc-for list="{{ faqs }}" as="q" hint-placeholder-count="6">
+          <div style="border-top: 1px solid rgba(10,20,36,0.07);">
+            <div onClick="{{ q.toggle }}" style="display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 26px 32px; cursor: pointer;" style-hover="background:#FAF9F7">
+              <span style="font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 18px; letter-spacing: -0.01em;">{{ q.question }}</span>
+              <span style="font-family: 'Archivo', sans-serif; font-weight: 400; font-size: 26px; color: #2E6BFF; line-height: 1; flex: none;">{{ q.sign }}</span>
+            </div>
+            <sc-if value="{{ q.open }}" hint-placeholder-val="{{ false }}">
+              <div style="padding: 0 32px 28px; font-size: 16.5px; line-height: 1.7; color: #4C5665; max-width: 74ch;">{{ q.answer }}</div>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <section style="position: relative; background: #0A1424; color: #fff; padding: 120px 32px; overflow: hidden;">
+    <img src="https://ncbluesfoundation.org/wp-content/uploads/2026/04/blues-silver-1024x512.webp" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.18;" />
+    <div style="position: absolute; inset: 0; background: radial-gradient(800px 400px at 80% 20%, rgba(46,107,255,0.35), transparent 70%);"></div>
+    <div style="position: relative; max-width: 900px; margin: 0 auto; text-align: center;">
+      <h2 style="font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 62px; line-height: 1; letter-spacing: -0.035em; margin: 0 0 22px; text-wrap: balance;">Ready to play for a cause?</h2>
+      <p style="font-size: 19px; line-height: 1.6; color: rgba(255,255,255,0.7); margin: 0 auto 38px; max-width: 54ch;">Get your team on the roster and help fund mentorship, literacy and sport for youth in Ottawa.</p>
+      <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSdv95oXsupx2V-6TcLqkajRV3LLDJXu8EG4pbxzJsF-gMH41Q/viewform" style="background: #2E6BFF; color: #fff; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 16px; padding: 17px 32px; border-radius: 10px; box-shadow: 0 14px 40px -12px rgba(46,107,255,0.7);" style-hover="background:#1B52DC">Register a Team</a>
+        <a href="mailto:Sable.Top@ottawa.ca" style="border: 1px solid rgba(255,255,255,0.26); color: #fff; font-family: 'Archivo', sans-serif; font-weight: 600; font-size: 16px; padding: 17px 30px; border-radius: 10px;" style-hover="background:rgba(255,255,255,0.08)">Email the organizers</a>
+      </div>
+    </div>
+  </section>
+
+  <footer style="background: #060E1A; color: #fff; padding: 72px 32px 36px;">
+    <div style="max-width: 1280px; margin: 0 auto;">
+      <div style="display: grid; grid-template-columns: 1.4fr 1fr 1fr 1.2fr; gap: 48px; padding-bottom: 52px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+        <div>
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 18px;">
+            <div style="width: 36px; height: 36px; border-radius: 9px; background: linear-gradient(150deg, #2E6BFF, #0B3AAE); display: grid; place-items: center; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 14px; color: #fff;">NC</div>
+            <span style="font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 15px;">National Capital Blues Foundation</span>
+          </div>
+          <p style="font-size: 14.5px; line-height: 1.65; color: rgba(255,255,255,0.5); margin: 0 0 16px; max-width: 40ch;">Supporting youth mentorship, literacy and sport in Ottawa through the service of frontline professionals.</p>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.1em; color: rgba(255,255,255,0.35);">Charitable Reg. No. 77069 6883 RR0001</div>
+        </div>
+        <div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 18px;">Tournament</div>
+          <div style="display: flex; flex-direction: column; gap: 11px;">
+            <a href="#about" style="font-size: 14.5px; color: rgba(255,255,255,0.72);" style-hover="color:#fff">About</a>
+            <a href="#details" style="font-size: 14.5px; color: rgba(255,255,255,0.72);" style-hover="color:#fff">Details</a>
+            <a href="#register" style="font-size: 14.5px; color: rgba(255,255,255,0.72);" style-hover="color:#fff">Registration</a>
+            <a href="#faq" style="font-size: 14.5px; color: rgba(255,255,255,0.72);" style-hover="color:#fff">FAQ</a>
+          </div>
+        </div>
+        <div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 18px;">Foundation</div>
+          <div style="display: flex; flex-direction: column; gap: 11px;">
+            <a href="https://ncbluesfoundation.org/programs" style="font-size: 14.5px; color: rgba(255,255,255,0.72);" style-hover="color:#fff">Programs</a>
+            <a href="https://ncbluesfoundation.org/rising-star-awards-gala" style="font-size: 14.5px; color: rgba(255,255,255,0.72);" style-hover="color:#fff">Rising Stars Gala</a>
+            <a href="https://ncbluesfoundation.org/get-involved" style="font-size: 14.5px; color: rgba(255,255,255,0.72);" style-hover="color:#fff">Get Involved</a>
+            <a href="https://ncbluesfoundation.org/donate" style="font-size: 14.5px; color: rgba(255,255,255,0.72);" style-hover="color:#fff">Donate</a>
+          </div>
+        </div>
+        <div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 18px;">Tournament updates</div>
+          <p style="font-size: 14.5px; line-height: 1.6; color: rgba(255,255,255,0.5); margin: 0 0 16px;">Schedules, draws and next year's dates.</p>
+          <div style="display: flex; gap: 8px;">
+            <input type="email" placeholder="you@service.ca" style="flex: 1; min-width: 0; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.16); border-radius: 8px; padding: 12px 14px; color: #fff; font-family: 'Public Sans', sans-serif; font-size: 14px;" />
+            <button style="background: #2E6BFF; color: #fff; border: none; border-radius: 8px; padding: 12px 18px; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 14px; cursor: pointer;">Join</button>
+          </div>
+        </div>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 24px; padding-top: 28px; flex-wrap: wrap;">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.1em; color: rgba(255,255,255,0.32);">© 2026 National Capital Blues Foundation · Ottawa, ON</div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.1em; color: rgba(255,255,255,0.32);">Concept redesign — draft</div>
+      </div>
+    </div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;registrationOpen&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Tournament state&quot;}}">
+class Component extends DCLogic {
+  state = { openFaq: 0, now: Date.now() };
+
+  componentDidMount() {
+    this.t = setInterval(() => this.setState({ now: Date.now() }), 1000);
+  }
+  componentWillUnmount() { clearInterval(this.t); }
+
+  renderVals() {
+    const open = this.props.registrationOpen ?? false;
+    const target = new Date('2026-10-22T08:00:00-04:00').getTime();
+    const diff = Math.max(0, target - this.state.now);
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor(diff / 3600000) % 24;
+    const m = Math.floor(diff / 60000) % 60;
+    const s = Math.floor(diff / 1000) % 60;
+    const pad = n => String(n).padStart(2, '0');
+
+    const faqSrc = [
+      ['Who can register a team?', 'Teams are open to emergency service members — police, fire, paramedic, corrections and military — along with their colleagues and supporters. Rosters are verified at check-in.'],
+      ['Is the tournament co-ed?', 'Yes. Every division is 7v7 co-ed, with both recreational and competitive brackets so teams are matched against similar levels of play.'],
+      ['What are the dates and times?', 'Thursday and Friday, October 22–23, 2026, running 8:00 AM to 5:00 PM each day at the Ben Franklin Superdome.'],
+      ['How much are team fees?', 'Earlybird registration is $525 per team (May 1 – July 31). Late registration is $575 per team. Registration closes August 14.'],
+      ['What does my fee support?', 'All proceeds go to the National Capital Blues Foundation to fund the Resilience Lab, Grow A Writer and Junior Blues Sports programs for Ottawa youth.'],
+      ['Is there a host hotel?', 'Yes — a group rate is held at the Hard Rock Hotel & Casino Ottawa for October 21–23. Book through the group reservation link in the Details section.']
+    ];
+
+    return {
+      countdown: [
+        { label: 'Days', value: pad(d) },
+        { label: 'Hours', value: pad(h) },
+        { label: 'Minutes', value: pad(m) },
+        { label: 'Seconds', value: pad(s) }
+      ],
+      stats: [
+        { value: '14th', label: 'Annual edition', note: 'Running since 2012' },
+        { value: '$90K+', label: 'Raised to date', note: 'Every dollar to youth programs' },
+        { value: '2', label: 'Days of play', note: 'Round robin into playoffs' },
+        { value: '7v7', label: 'Co-ed indoor', note: 'Rec & competitive divisions' }
+      ],
+      details: [
+        { kicker: 'Dates & times', title: 'Oct 22–23, 2026', body: 'Thursday and Friday, 8:00 AM – 5:00 PM each day.', meta: 'Draws posted one week prior.' },
+        { kicker: 'Venue', title: 'Ben Franklin Superdome', body: '191 Knoxdale Rd, Ottawa, ON', meta: 'Free on-site parking · Licensed spectator area.' },
+        { kicker: 'Format & eligibility', title: '7v7 co-ed, two tiers', body: 'Round robin into playoffs, recreational and competitive divisions.', meta: 'Open to emergency service members.' }
+      ],
+      documents: [
+        { name: 'OBCC Tournament Rules (EN)', kind: 'PDF · 2026', href: 'https://ncbluesfoundation.org/wp-content/uploads/2026/04/OBCC-tounrnament-rules-2026.pdf' },
+        { name: 'Règlement du Tournoi OBCC (FR)', kind: 'PDF · 2026', href: 'https://ncbluesfoundation.org/wp-content/uploads/2026/05/Reglement-Tournoi-OBCC-2026-FR.pdf' },
+        { name: 'Roster & waiver form', kind: 'PDF · Coming soon', href: '#register' }
+      ],
+      regHeadline: open ? 'Registration is open' : 'Registration is closed for 2026',
+      regSub: open
+        ? 'Spots are filled first-come, first-served. Fees are per team and include both days of play.'
+        : 'The 2026 field is full. Join the list below and you will be first to hear when 2027 registration opens.',
+      tiers: [
+        {
+          window: 'May 1 – July 31', name: 'Earlybird', price: '$525', status: open ? 'Closed' : 'Closed',
+          statusBg: 'rgba(10,20,36,0.06)', statusFg: '#7C8798',
+          features: ['7v7 co-ed, rec or competitive', 'Round robin + playoffs', 'Indoor venue, both days', 'Supports NCBF youth programs'],
+          cta: 'Window closed', href: '#register',
+          btnBg: '#F6F4F1', btnFg: '#7C8798', btnBorder: 'rgba(10,20,36,0.1)'
+        },
+        {
+          window: 'Aug 1 – Aug 14', name: 'Late registration', price: '$575', status: open ? 'Open' : 'Closed',
+          statusBg: open ? 'rgba(74,222,128,0.16)' : 'rgba(10,20,36,0.06)', statusFg: open ? '#15803D' : '#7C8798',
+          features: ['7v7 co-ed, rec or competitive', 'Round robin + playoffs', 'Indoor venue, both days', 'Supports NCBF youth programs'],
+          cta: open ? 'Register a team →' : 'Window closed', href: 'https://docs.google.com/forms/d/e/1FAIpQLSdv95oXsupx2V-6TcLqkajRV3LLDJXu8EG4pbxzJsF-gMH41Q/viewform',
+          btnBg: open ? '#2E6BFF' : '#F6F4F1', btnFg: open ? '#fff' : '#7C8798', btnBorder: open ? '#2E6BFF' : 'rgba(10,20,36,0.1)'
+        },
+        {
+          window: 'Anytime', name: 'Sponsor a team', price: '$750', status: 'Available',
+          statusBg: 'rgba(46,107,255,0.12)', statusFg: '#1B52DC',
+          features: ['Covers entry for a service team', 'Logo on tournament signage', 'Named in the program & site', 'Fully tax-receiptable'],
+          cta: 'Talk to us →', href: 'mailto:Sable.Top@ottawa.ca',
+          btnBg: '#0A1424', btnFg: '#fff', btnBorder: '#0A1424'
+        }
+      ],
+      programs: [
+        { num: '01', name: 'Resilience Lab', body: 'Mental-health literacy and coping skills delivered to youth by the people who respond to crisis for a living.', tag: 'Mentorship' },
+        { num: '02', name: 'Grow A Writer', body: 'Writing workshops, journals and published anthologies that give young Ottawa writers an audience.', tag: 'Literacy' },
+        { num: '03', name: 'Junior Blues Sports', body: 'Equipment, registration fees and coaching so cost is never the reason a kid sits out the season.', tag: 'Sport access' }
+      ],
+      sponsors: [
+
+        { name: 'TMSI', src: 'https://ncbluesfoundation.org/wp-content/uploads/2026/05/TMSI-logo-300x161.png' },
+        { name: 'Ottawa Police Service', src: 'https://ncbluesfoundation.org/wp-content/uploads/2026/03/Ottawa-Police-2021_RGB-w-transparency-300x153.png' },
+        { name: 'Footey Sevens', src: 'https://ncbluesfoundation.org/wp-content/uploads/2026/03/Footey-Sevens-150x150.jpg' },
+        { name: 'Ottawa Police Association', src: 'https://ncbluesfoundation.org/wp-content/uploads/2026/03/opa_logo.jpg-2014-300x133.jpg' },
+        { name: 'National Capital Blues Foundation', src: 'https://ncbluesfoundation.org/wp-content/uploads/2026/03/Ncap-Blues-Fnd-Logo-150x150.png' },
+        { name: 'Nobility Performance', src: 'https://ncbluesfoundation.org/wp-content/uploads/2026/05/NobilityPerformanceLogo-BLACK-300x122.jpg' },
+        { name: 'BFP', src: 'https://ncbluesfoundation.org/wp-content/uploads/2026/05/bfp-Logo--300x65.png' },
+        { name: 'Baico', src: 'https://ncbluesfoundation.org/wp-content/uploads/2026/05/baico-logo--300x294.jpg' }
+      ].map(sp => ({ ...sp, bg: 'url("' + sp.src + '")' })),
+      faqs: faqSrc.map((f, i) => ({
+        question: f[0],
+        answer: f[1],
+        open: this.state.openFaq === i,
+        sign: this.state.openFaq === i ? '−' : '+',
+        toggle: () => this.setState(s => ({ openFaq: s.openFaq === i ? -1 : i }))
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>
