@@ -526,6 +526,22 @@ the roster editor; Save and load on Data) get a `.card.action`
 treatment — amber top border, small "ACTION" label — so they're
 visually distinct from cards that are just reference.
 
+**Batch seven (2 Sept 2026)** — the public event page, first build.
+
+A design handoff (`design_handoff_obcc_site/README.md` + a `.dc.html` prototype) had been
+uploaded to this repo's root via GitHub's web uploader, which clobbered `README.md` (replacing
+the actual project readme with the handoff doc) and left the prototype file sitting loose with a
+space in its name. Fixed: moved both into `design_handoff_obcc_site/`, restored the original
+`README.md`, renamed the prototype to `ottawa-blues-charity-classic.dc.html`.
+
+Built the redesign at `obcc-site/index.html` — single self-contained HTML file, no build step,
+matching the same convention `public/index.html` already uses, per §11's decision to keep the
+public site and the tournament tool as separate Cloudflare projects even though they share this
+repo. See `obcc-site/README.md` for what's implemented and what's still open (mainly: images are
+still hot-linked from the live WordPress site and need to become self-hosted assets, and EN/FR
+isn't built yet even though content is centralized for it). Not deployed anywhere yet — it's a
+file you can open directly in a browser.
+
 ### Design decisions worth preserving
 
 **The paste creates the player, not the waiver.** A captain pastes name

@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ottawa Blues Charity Classic — Oct 22–23, 2026</title>
+<meta name="description" content="A two-day indoor 7v7 co-ed soccer tournament for Ottawa's emergency service professionals. Proceeds fund National Capital Blues Foundation youth programs — mentorship, literacy and sport access.">
+<link rel="canonical" href="https://ncbluesfoundation.org/ottawa-blues-charity-classic/">
+
+<!-- Open Graph / Twitter -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Ottawa Blues Charity Classic — Oct 22–23, 2026">
+<meta property="og:description" content="A two-day indoor 7v7 co-ed soccer tournament for Ottawa's emergency service professionals. Proceeds fund NCBF youth programs.">
+<meta property="og:url" content="https://ncbluesfoundation.org/ottawa-blues-charity-classic/">
+<meta property="og:image" content="https://ncbluesfoundation.org/wp-content/uploads/2026/04/IMG_4498-1024x682.jpeg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Ottawa Blues Charity Classic — Oct 22–23, 2026">
+<meta name="twitter:description" content="A two-day indoor 7v7 co-ed soccer tournament for Ottawa's emergency service professionals. Proceeds fund NCBF youth programs.">
+<meta name="twitter:image" content="https://ncbluesfoundation.org/wp-content/uploads/2026/04/IMG_4498-1024x682.jpeg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Public+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SportsEvent",
+  "name": "Ottawa Blues Charity Classic 2026",
+  "description": "A two-day indoor 7v7 co-ed soccer tournament for Ottawa's emergency service professionals. Proceeds fund National Capital Blues Foundation youth programs.",
+  "startDate": "2026-10-22T08:00:00-04:00",
+  "endDate": "2026-10-23T17:00:00-04:00",
+  "eventStatus": "https://schema.org/EventScheduled",
+  "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+  "location": {
+    "@type": "Place",
+    "name": "Ben Franklin Superdome",
+    "address": { "@type": "PostalAddress", "streetAddress": "191 Knoxdale Rd", "addressLocality": "Ottawa", "addressRegion": "ON", "addressCountry": "CA" }
+  },
+  "organizer": { "@type": "Organization", "name": "National Capital Blues Foundation", "url": "https://ncbluesfoundation.org" },
+  "offers": [
+    { "@type": "Offer", "name": "Late registration", "price": "575", "priceCurrency": "CAD", "availability": "https://schema.org/SoldOut", "url": "https://ncbluesfoundation.org/ottawa-blues-charity-classic/" }
+  ]
+}
+</script>
+
+<style>
+/* ============================================================
+   OBCC 2026 — public event page
+   Built from design_handoff_obcc_site/README.md + the .dc.html
+   prototype. Content lives in CONTENT at the bottom of this file
+   — that's the one place to touch for next year's dates, fees,
+   registration state, documents and sponsor logos. Everything
+   else on the page reads from it.
+   ============================================================ */
+:root{
+  --navy-900:#060E1A;
+  --navy-800:#0A1424;
+  --navy-700:#14243D;
+  --blue-600:#1B52DC;
+  --blue-500:#2E6BFF;
+  --blue-400:#6E9BFF;
+  --blue-800:#0B3AAE;
+  --paper:#F6F4F1;
+  --white:#FFFFFF;
+  --paper-hover:#FAF9F7;
+  --ink-900:#0A1424;
+  --ink-700:#3D4757;
+  --ink-600:#4C5665;
+  --ink-400:#7C8798;
+  --green-400:#4ADE80;
+  --green-700:#15803D;
+  --max:1280px;
+  --max-narrow:1040px;
+  --gutter:32px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--navy-800);color:var(--ink-900);
+  font-family:'Public Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+img{max-width:100%;display:block}
+a{color:var(--blue-500);text-decoration:none}
+::selection{background:var(--blue-500);color:#fff}
+:focus-visible{outline:2.5px solid var(--blue-400);outline-offset:2px;border-radius:3px}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:none;padding:0}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.disp{font-family:'Archivo',sans-serif}
+@media (prefers-reduced-motion:reduce){*{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition:none!important;scroll-behavior:auto!important}}
+
+.wrap{max-width:var(--max);margin:0 auto;padding:0 var(--gutter)}
+.wrap-narrow{max-width:var(--max-narrow);margin:0 auto;padding:0 var(--gutter)}
+
+/* section header — identical, left-aligned, in every section */
+.section-head .eyebrow{display:flex;align-items:center;gap:14px;margin-bottom:24px}
+.section-head .eyebrow .bar{width:40px;height:3px;background:var(--blue-500);flex:none}
+.section-head .eyebrow span.label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:var(--blue-500)}
+.section-head.on-dark .eyebrow .bar{background:var(--blue-400)}
+.section-head.on-dark .eyebrow span.label{color:var(--blue-400)}
+.section-head h2{
+  font-family:'Archivo',sans-serif;font-weight:900;font-size:78px;line-height:0.94;
+  letter-spacing:-0.042em;margin:0 0 30px;max-width:24ch;text-wrap:balance;
+}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:10px;font-family:'Archivo',sans-serif;font-weight:700;font-size:15px;
+  padding:16px 28px;border-radius:10px;border:1px solid transparent;transition:background 150ms,opacity 150ms,color 150ms;
+  min-height:44px}
+.btn-primary{background:var(--blue-500);color:#fff;box-shadow:0 14px 40px -12px rgba(46,107,255,0.7)}
+.btn-primary:hover{background:var(--blue-600);color:#fff}
+.btn-outline-dark{border-color:rgba(255,255,255,0.26);color:#fff}
+.btn-outline-dark:hover{background:rgba(255,255,255,0.08);color:#fff}
+.btn-dark{background:var(--navy-800);color:#fff}
+.btn-dark:hover{background:var(--navy-700);color:#fff}
+
+/* =============== header =============== */
+/* Blur lives on a ::before, not on .site-header itself — backdrop-filter
+   on an ancestor makes it the containing block for position:fixed
+   descendants, which broke the mobile nav drawer (#mainNav) sizing
+   itself against the 74px header instead of the viewport. */
+.site-header{position:sticky;top:0;z-index:60;border-bottom:1px solid rgba(255,255,255,0.09)}
+.site-header::before{content:'';position:absolute;inset:0;z-index:-1;background:rgba(10,20,36,0.94);backdrop-filter:blur(14px)}
+.site-header .bar{max-width:var(--max);margin:0 auto;padding:0 var(--gutter);height:74px;display:flex;align-items:center;gap:40px}
+.brand{display:flex;align-items:center;gap:12px;color:#fff}
+.brand .mark{width:38px;height:38px;border-radius:9px;background:linear-gradient(150deg,var(--blue-500),var(--blue-800));display:grid;place-items:center;font-family:'Archivo',sans-serif;font-weight:900;font-size:15px;letter-spacing:-0.04em;color:#fff;flex:none}
+.brand .lines{display:flex;flex-direction:column;line-height:1.05}
+.brand .lines .t1{font-family:'Archivo',sans-serif;font-weight:800;font-size:14.5px;letter-spacing:-0.01em;color:#fff}
+.brand .lines .t2{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.48);margin-top:3px}
+.main-nav{margin-left:auto;display:flex;align-items:center;gap:30px}
+.main-nav a.nav-link{font-size:13.5px;font-weight:500;color:rgba(255,255,255,0.72);padding:4px 0}
+.main-nav a.nav-link:hover,.main-nav a.nav-link.active{color:#fff}
+.main-nav .btn-primary{margin-left:6px;padding:11px 20px;font-size:13px;box-shadow:none}
+.nav-toggle{display:none;margin-left:auto;width:40px;height:40px;border-radius:8px;color:#fff;align-items:center;justify-content:center}
+.nav-toggle:hover{background:rgba(255,255,255,0.08)}
+.mobile-menu{display:none}
+
+/* =============== hero =============== */
+.hero{position:relative;background:var(--navy-800);color:#fff;min-height:640px;display:flex;align-items:flex-end;overflow:hidden;scroll-margin-top:74px}
+.hero img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.42;filter:saturate(0.85) contrast(1.05)}
+.hero .grad1{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,20,36,0.86) 0%,rgba(10,20,36,0.55) 42%,rgba(10,20,36,0.97) 100%)}
+.hero .grad2{position:absolute;inset:0;background:radial-gradient(1100px 520px at 12% 92%,rgba(46,107,255,0.30),transparent 70%)}
+.hero .content{position:relative;max-width:var(--max);margin:0 auto;padding:132px var(--gutter) 56px;width:100%;
+  animation:obccFade 0.7s ease both}
+@keyframes obccFade{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.status-pill{display:inline-flex;align-items:center;gap:10px;border:1px solid rgba(255,255,255,0.22);border-radius:999px;padding:7px 15px 7px 11px;margin-bottom:30px}
+.status-pill .dot{width:7px;height:7px;border-radius:50%;background:var(--green-400);box-shadow:0 0 0 4px rgba(74,222,128,0.18)}
+.status-pill span.txt{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.82)}
+.hero h1{font-family:'Archivo',sans-serif;font-weight:900;font-size:92px;line-height:0.92;letter-spacing:-0.035em;margin:0 0 26px;max-width:15ch;text-wrap:balance}
+.hero h1 .accent{color:var(--blue-400)}
+.hero .lede{font-size:19px;line-height:1.6;color:rgba(255,255,255,0.76);max-width:60ch;margin:0 0 40px;text-wrap:pretty}
+.hero .ctas{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-bottom:56px}
+.countdown-row{display:flex;flex-wrap:wrap;gap:14px;border-top:1px solid rgba(255,255,255,0.14);padding-top:30px}
+.countdown-tile{min-width:118px;background:rgba(255,255,255,0.055);border:1px solid rgba(255,255,255,0.11);border-radius:12px;padding:16px 20px}
+.countdown-tile .val{font-family:'Archivo',sans-serif;font-weight:800;font-size:40px;line-height:1;letter-spacing:-0.03em;color:#fff;font-variant-numeric:tabular-nums}
+.countdown-tile .lbl{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-top:9px}
+.venue-line{flex:1;min-width:240px;display:flex;flex-direction:column;justify-content:center;padding-left:12px}
+.venue-line .k{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.4)}
+.venue-line .v{font-size:15px;color:rgba(255,255,255,0.82);margin-top:7px}
+.countdown-done{font-size:15px;color:rgba(255,255,255,0.82)}
+
+/* =============== stat band =============== */
+.stat-band{background:var(--navy-800);border-top:1px solid rgba(255,255,255,0.08);color:#fff}
+.stat-band .grid{max-width:var(--max);margin:0 auto;padding:0 var(--gutter);display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+.stat-band .cell{padding:44px 26px 48px;border-left:1px solid rgba(255,255,255,0.08)}
+.stat-band .cell .val{font-family:'Archivo',sans-serif;font-weight:900;font-size:52px;line-height:1;letter-spacing:-0.04em;color:var(--blue-400)}
+.stat-band .cell .lbl{font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;margin-top:14px;color:#fff}
+.stat-band .cell .note{font-size:13.5px;line-height:1.55;color:rgba(255,255,255,0.48);margin-top:6px}
+
+/* =============== about =============== */
+.about{position:relative;background:var(--paper);padding:118px var(--gutter);border-top:3px solid var(--navy-800);
+  background-image:repeating-linear-gradient(90deg,rgba(10,20,36,0.045) 0 1px,transparent 1px 104px),radial-gradient(900px 500px at 88% 4%,rgba(46,107,255,0.07),transparent 70%)}
+.about .grid{display:grid;grid-template-columns:1.05fr 1fr;gap:88px;align-items:center}
+.about p{font-size:17.5px;line-height:1.68;color:var(--ink-700);margin:0 0 20px;max-width:56ch;text-wrap:pretty}
+.about p strong{color:var(--ink-900)}
+.about .specs{display:flex;gap:40px;border-top:1px solid rgba(10,20,36,0.12);padding-top:28px;flex-wrap:wrap}
+.about .specs .k{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-400)}
+.about .specs .v{font-family:'Archivo',sans-serif;font-weight:700;font-size:16px;margin-top:7px}
+.about .photo-wrap{position:relative}
+.about .photo{border-radius:18px;overflow:hidden;background:var(--navy-800);aspect-ratio:4/5;box-shadow:0 40px 80px -40px rgba(10,20,36,0.5)}
+.about .photo img{width:100%;height:100%;object-fit:cover}
+.about .chip{position:absolute;bottom:-26px;left:-26px;background:var(--navy-800);color:#fff;border-radius:14px;padding:22px 26px;box-shadow:0 24px 50px -20px rgba(10,20,36,0.55)}
+.about .chip .val{font-family:'Archivo',sans-serif;font-weight:900;font-size:34px;letter-spacing:-0.03em;line-height:1}
+.about .chip .cap{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.55);margin-top:8px}
+
+/* =============== details =============== */
+.details{position:relative;background:var(--white);padding:118px var(--gutter);border-top:1px solid rgba(10,20,36,0.14);
+  background-image:radial-gradient(rgba(10,20,36,0.09) 1.1px,transparent 1.1px);background-size:28px 28px}
+.details .faq-link{margin-bottom:44px}
+.details .faq-link a{font-family:'Archivo',sans-serif;font-weight:600;font-size:15px}
+.detail-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-bottom:20px}
+.detail-card{background:var(--paper);border:1px solid rgba(10,20,36,0.07);border-radius:16px;padding:32px}
+.detail-card .kicker{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-400)}
+.detail-card .title{font-family:'Archivo',sans-serif;font-weight:800;font-size:25px;letter-spacing:-0.02em;margin:16px 0 10px;line-height:1.15}
+.detail-card .body{font-size:15.5px;line-height:1.6;color:var(--ink-600)}
+.detail-card .meta{font-size:14px;line-height:1.6;color:var(--ink-400);margin-top:12px}
+.details-row-b{display:grid;grid-template-columns:1.4fr 1fr;gap:20px}
+.docs-card{background:var(--navy-800);border-radius:16px;padding:38px 40px;color:#fff;display:flex;flex-direction:column;justify-content:space-between;min-height:240px}
+.docs-card .eyebrow{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.45)}
+.docs-card .title{font-family:'Archivo',sans-serif;font-weight:800;font-size:26px;letter-spacing:-0.02em;margin-top:14px}
+.docs-list{display:flex;flex-direction:column;gap:1px;margin-top:26px}
+.docs-list a{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:15px 0;border-top:1px solid rgba(255,255,255,0.12);color:#fff}
+.docs-list a:hover{color:var(--blue-400)}
+.docs-list a .name{font-family:'Archivo',sans-serif;font-weight:600;font-size:15.5px}
+.docs-list a .kind{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.12em;color:rgba(255,255,255,0.5);white-space:nowrap}
+.hotel-card{border-radius:16px;overflow:hidden;position:relative;background:var(--navy-700);min-height:240px}
+.hotel-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.55}
+.hotel-card .grad{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,20,36,0.25),rgba(10,20,36,0.92))}
+.hotel-card .content{position:relative;padding:32px;height:100%;display:flex;flex-direction:column;justify-content:flex-end;color:#fff}
+.hotel-card .eyebrow{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.55)}
+.hotel-card .title{font-family:'Archivo',sans-serif;font-weight:800;font-size:22px;letter-spacing:-0.02em;margin:12px 0 14px}
+.hotel-card .btn{font-size:14px;padding:11px 18px;border:1px solid rgba(255,255,255,0.3);color:#fff;align-self:flex-start}
+.hotel-card .btn:hover{background:rgba(255,255,255,0.12)}
+
+/* =============== register =============== */
+.register{position:relative;background:var(--paper);padding:118px var(--gutter);border-top:1px solid rgba(10,20,36,0.14);
+  background-image:repeating-linear-gradient(-45deg,rgba(10,20,36,0.035) 0 1.5px,transparent 1.5px 14px)}
+.register .sub{font-size:18px;line-height:1.65;color:var(--ink-600);margin:0 0 48px;max-width:62ch;text-wrap:pretty}
+.tiers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:start}
+.tier{background:var(--white);border:1px solid rgba(10,20,36,0.08);border-radius:18px;padding:34px;display:flex;flex-direction:column;min-height:420px;box-shadow:0 24px 50px -40px rgba(10,20,36,0.45)}
+.tier .top-row{display:flex;align-items:center;justify-content:space-between}
+.tier .window{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-400)}
+.tier .status{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.12em;text-transform:uppercase;padding:5px 10px;border-radius:999px}
+.tier .name{font-family:'Archivo',sans-serif;font-weight:800;font-size:24px;letter-spacing:-0.02em;margin:20px 0 4px}
+.tier .price-row{display:flex;align-items:baseline;gap:8px;margin-bottom:24px}
+.tier .price{font-family:'Archivo',sans-serif;font-weight:900;font-size:46px;letter-spacing:-0.04em}
+.tier .per{font-size:14px;color:var(--ink-400)}
+.tier .features{display:flex;flex-direction:column;gap:11px;margin-bottom:28px;list-style:none;padding:0;margin-top:0}
+.tier .features li{display:flex;gap:11px;align-items:flex-start;font-size:15px;color:var(--ink-700);line-height:1.5}
+.tier .features li .dot{width:6px;height:6px;border-radius:50%;background:var(--blue-500);margin-top:7px;flex:none}
+.tier .cta{margin-top:auto;text-align:center;font-family:'Archivo',sans-serif;font-weight:700;font-size:15px;padding:15px;border-radius:10px;border:1px solid transparent;display:block}
+.tier .cta:hover{opacity:0.88}
+.contact-strip{margin-top:22px;background:var(--white);border:1px dashed rgba(10,20,36,0.18);border-radius:14px;padding:22px 28px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.contact-strip .k{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-400)}
+.contact-strip .v{font-size:15.5px;color:var(--ink-700)}
+.contact-strip .v a{font-weight:600}
+
+/* =============== impact =============== */
+.impact{position:relative;background:var(--navy-800);color:#fff;padding:124px var(--gutter);
+  background-image:repeating-radial-gradient(circle at 50% 46%,transparent 0 236px,rgba(110,155,255,0.13) 236px 238px,transparent 238px 470px),
+    linear-gradient(90deg,transparent calc(50% - 1px),rgba(110,155,255,0.08) calc(50% - 1px),rgba(110,155,255,0.08) 50%,transparent 50%),
+    radial-gradient(700px 380px at 8% 100%,rgba(46,107,255,0.16),transparent 70%)}
+.impact .intro{font-size:18px;line-height:1.68;color:rgba(255,255,255,0.66);margin:0 0 52px;max-width:60ch;text-wrap:pretty}
+.programs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.program-card{background:rgba(255,255,255,0.045);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:34px;min-height:250px;display:flex;flex-direction:column}
+.program-card .num{font-family:'Archivo',sans-serif;font-weight:900;font-size:13px;letter-spacing:0.06em;color:var(--blue-400)}
+.program-card .name{font-family:'Archivo',sans-serif;font-weight:800;font-size:25px;letter-spacing:-0.02em;margin:18px 0 12px}
+.program-card .body{font-size:15.5px;line-height:1.62;color:rgba(255,255,255,0.62)}
+.program-card .tag{margin-top:auto;padding-top:24px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.4)}
+
+/* =============== sponsors =============== */
+.sponsors{position:relative;background:var(--white);padding:118px var(--gutter);border-top:1px solid rgba(10,20,36,0.14);
+  background-image:repeating-linear-gradient(0deg,rgba(10,20,36,0.04) 0 1px,transparent 1px 72px)}
+.sponsors .intro{font-size:18px;line-height:1.65;color:var(--ink-600);margin:0 0 48px;max-width:60ch}
+.logo-wall{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:rgba(10,20,36,0.09);border:1px solid rgba(10,20,36,0.09);border-radius:16px;overflow:hidden}
+.logo-cell{background:#fff;aspect-ratio:16/9;display:grid;place-items:center;padding:34px}
+.logo-cell .logo{width:100%;height:74px;min-width:0;background-size:contain;background-repeat:no-repeat;background-position:center;filter:grayscale(1);opacity:0.62;transition:filter 150ms,opacity 150ms}
+.logo-cell:hover .logo{filter:none;opacity:1}
+.sponsor-cta{margin-top:34px;display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;text-align:center}
+.sponsor-cta .txt{font-size:16.5px;color:var(--ink-700)}
+.sponsor-cta .btn{font-size:14px;padding:12px 20px;border-radius:9px}
+
+/* =============== faq =============== */
+.faq-section{position:relative;background:var(--paper);padding:118px var(--gutter);border-top:1px solid rgba(10,20,36,0.14);
+  background-image:radial-gradient(rgba(10,20,36,0.075) 1.1px,transparent 1.1px);background-size:34px 34px}
+.faq-list{background:var(--white);border:1px solid rgba(10,20,36,0.08);border-radius:16px;overflow:hidden}
+.faq-item{border-top:1px solid rgba(10,20,36,0.07)}
+.faq-item:first-child{border-top:none}
+.faq-item button.q{width:100%;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:26px 32px;text-align:left;min-height:44px}
+.faq-item button.q:hover{background:var(--paper-hover)}
+.faq-item .question{font-family:'Archivo',sans-serif;font-weight:700;font-size:18px;letter-spacing:-0.01em}
+.faq-item .sign{font-family:'Archivo',sans-serif;font-weight:400;font-size:26px;color:var(--blue-500);line-height:1;flex:none}
+.faq-item .answer{padding:0 32px 28px;font-size:16.5px;line-height:1.7;color:var(--ink-600);max-width:74ch}
+.faq-item .answer[hidden]{display:none}
+
+/* =============== closing cta =============== */
+.closing-cta{position:relative;background:var(--navy-800);color:#fff;padding:120px var(--gutter);overflow:hidden;text-align:center}
+.closing-cta img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.18}
+.closing-cta .grad{position:absolute;inset:0;background:radial-gradient(800px 400px at 80% 20%,rgba(46,107,255,0.35),transparent 70%)}
+.closing-cta .content{position:relative;max-width:900px;margin:0 auto}
+.closing-cta h2{font-family:'Archivo',sans-serif;font-weight:900;font-size:62px;line-height:1;letter-spacing:-0.035em;margin:0 0 22px;text-wrap:balance}
+.closing-cta p{font-size:19px;line-height:1.6;color:rgba(255,255,255,0.7);margin:0 auto 38px;max-width:54ch}
+.closing-cta .ctas{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+
+/* =============== footer =============== */
+.site-footer{background:var(--navy-900);color:#fff;padding:72px var(--gutter) 36px}
+.footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1.2fr;gap:48px;padding-bottom:52px;border-bottom:1px solid rgba(255,255,255,0.1)}
+.footer-brand{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.footer-brand .mark{width:36px;height:36px;border-radius:9px;background:linear-gradient(150deg,var(--blue-500),var(--blue-800));display:grid;place-items:center;font-family:'Archivo',sans-serif;font-weight:900;font-size:14px;color:#fff}
+.footer-brand .name{font-family:'Archivo',sans-serif;font-weight:800;font-size:15px}
+.site-footer .desc{font-size:14.5px;line-height:1.65;color:rgba(255,255,255,0.5);margin:0 0 16px;max-width:40ch}
+.site-footer .charity{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.1em;color:rgba(255,255,255,0.35)}
+.footer-col .head{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:18px}
+.footer-links{display:flex;flex-direction:column;gap:11px}
+.footer-links a{font-size:14.5px;color:rgba(255,255,255,0.72)}
+.footer-links a:hover{color:#fff}
+.footer-col p{font-size:14.5px;line-height:1.6;color:rgba(255,255,255,0.5);margin:0 0 16px}
+.newsletter-form{display:flex;gap:8px}
+.newsletter-form input{flex:1;min-width:0;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.16);border-radius:8px;padding:12px 14px;color:#fff;font-family:'Public Sans',sans-serif;font-size:14px}
+.newsletter-form input::placeholder{color:rgba(255,255,255,0.4)}
+.newsletter-form button{background:var(--blue-500);color:#fff;border-radius:8px;padding:12px 18px;font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;min-height:44px}
+.newsletter-form button:hover{background:var(--blue-600)}
+.newsletter-note{font-size:12.5px;color:rgba(255,255,255,0.4);margin-top:10px}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;gap:24px;padding-top:28px;flex-wrap:wrap}
+.footer-bottom .mono{font-size:10.5px;letter-spacing:0.1em;color:rgba(255,255,255,0.32)}
+.footer-crosslinks{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.footer-crosslinks a{font-size:10.5px;letter-spacing:0.1em;color:rgba(255,255,255,0.55)}
+.footer-crosslinks a:hover{color:var(--blue-400)}
+
+/* =============== responsive =============== */
+@media (max-width:1023px){
+  .section-head h2{font-size:52px}
+  .hero h1{font-size:60px}
+  .about .grid{grid-template-columns:1fr;gap:56px}
+  .detail-cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .details-row-b{grid-template-columns:1fr}
+  .tiers{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .programs{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .logo-wall{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stat-band .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stat-band .cell:nth-child(odd){border-left:none}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:36px 32px}
+  .closing-cta h2{font-size:46px}
+}
+@media (max-width:767px){
+  :root{--gutter:20px}
+  .main-nav{position:fixed;inset:74px 0 0 0;top:74px;background:var(--navy-900);flex-direction:column;align-items:stretch;
+    gap:0;padding:12px 20px 28px;transform:translateY(-8px);opacity:0;pointer-events:none;transition:opacity 150ms,transform 150ms;
+    max-height:calc(100vh - 74px);overflow-y:auto}
+  .main-nav.open{opacity:1;pointer-events:auto;transform:none}
+  .main-nav a.nav-link{padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.08);font-size:16px}
+  .main-nav .btn-primary{margin:16px 0 0;text-align:center;justify-content:center}
+  .nav-toggle{display:flex}
+  .hero{min-height:auto}
+  .hero .content{padding:96px var(--gutter) 48px}
+  .hero h1{font-size:44px}
+  .hero .lede{font-size:17px}
+  .countdown-row{gap:10px}
+  .countdown-tile{min-width:0;flex:1 1 calc(50% - 5px);padding:14px 16px}
+  .venue-line{padding-left:0;width:100%}
+  .section-head h2{font-size:38px}
+  .about .grid{gap:44px}
+  .about .chip{position:static;margin-top:-40px;margin-left:16px;display:inline-block}
+  .detail-cards{grid-template-columns:1fr}
+  .tiers{grid-template-columns:1fr}
+  .programs{grid-template-columns:1fr}
+  .logo-wall{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stat-band .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stat-band .cell{padding:32px 18px 34px}
+  .stat-band .cell .val{font-size:38px}
+  .footer-grid{grid-template-columns:1fr;gap:32px}
+  .closing-cta{padding:80px var(--gutter)}
+  .closing-cta h2{font-size:36px}
+  .about,.details,.register,.impact,.sponsors,.faq-section{padding:72px var(--gutter)}
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="bar">
+    <a href="#top" class="brand">
+      <div class="mark" aria-hidden="true">NC</div>
+      <div class="lines">
+        <span class="t1">Ottawa Blues Charity Classic</span>
+        <span class="t2">National Capital Blues Foundation</span>
+      </div>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="mainNav" aria-label="Toggle menu">
+      <svg width="20" height="14" viewBox="0 0 20 14" fill="none" aria-hidden="true"><path d="M0 1h20M0 7h20M0 13h20" stroke="currentColor" stroke-width="2"/></svg>
+    </button>
+    <nav class="main-nav" id="mainNav">
+      <a href="#about" class="nav-link">Tournament</a>
+      <a href="#details" class="nav-link">Details</a>
+      <a href="#register" class="nav-link">Register</a>
+      <a href="#impact" class="nav-link">Impact</a>
+      <a href="#sponsors" class="nav-link">Sponsors</a>
+      <a href="#faq" class="nav-link">FAQ</a>
+      <a href="#register" class="btn btn-primary">Register a Team</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section id="top" class="hero">
+    <img class="bg" src="https://ncbluesfoundation.org/wp-content/uploads/2026/04/IMG_4498-1024x682.jpeg" alt="Players competing at the Ottawa Blues Charity Classic" loading="eager" width="1024" height="682">
+    <div class="grad1" aria-hidden="true"></div>
+    <div class="grad2" aria-hidden="true"></div>
+    <div class="content">
+      <div class="status-pill">
+        <span class="dot" aria-hidden="true"></span>
+        <span class="txt" id="heroEyebrow">14th Annual · October 22–23, 2026</span>
+      </div>
+      <h1>Frontline <span class="accent">soccer.</span><br>Real impact.</h1>
+      <p class="lede">A two-day indoor 7v7 co-ed tournament for Ottawa's emergency service professionals, their families and supporters — funding youth mentorship, literacy and sport across the National Capital Region.</p>
+      <div class="ctas">
+        <a href="#register" class="btn btn-primary">Register a Team →</a>
+        <a href="#sponsors" class="btn btn-outline-dark">Become a Sponsor</a>
+      </div>
+      <div class="countdown-row" id="countdownRow" aria-live="off">
+        <!-- filled by script -->
+        <div class="venue-line">
+          <div class="k">Ben Franklin Superdome</div>
+          <div class="v">191 Knoxdale Rd, Ottawa · 8:00 AM – 5:00 PM daily</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stat-band" aria-label="Tournament at a glance">
+    <div class="grid" id="statGrid"><!-- filled by script --></div>
+  </section>
+
+  <section id="about" class="about">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow"><span class="bar" aria-hidden="true"></span><span class="label">01 / The Tournament</span></div>
+        <h2>Fourteen years of first responders on the pitch.</h2>
+      </div>
+      <div class="grid">
+        <div>
+          <p>The Ottawa Blues Charity Classic brings police, fire, paramedic, corrections and military personnel together for two days of indoor 7v7 — recreational and competitive divisions, round robin into playoffs, all under one roof.</p>
+          <p>Every dollar of proceeds goes to the National Capital Blues Foundation, funding mentorship, literacy and sport access for youth who need it most. To date the Classic has raised more than <strong>$90,000</strong>.</p>
+          <div class="specs">
+            <div><div class="k">Format</div><div class="v">7v7 co-ed indoor</div></div>
+            <div><div class="k">Divisions</div><div class="v">Rec &amp; Competitive</div></div>
+            <div><div class="k">Eligibility</div><div class="v">Emergency services</div></div>
+          </div>
+        </div>
+        <div class="photo-wrap">
+          <div class="photo"><img src="https://ncbluesfoundation.org/wp-content/uploads/2026/04/IMG_4526.jpeg" alt="Tournament play on the indoor pitch" loading="lazy" width="800" height="1000"></div>
+          <div class="chip">
+            <div class="val">$90K+</div>
+            <div class="cap">Raised for youth programs</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="details" class="details">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow"><span class="bar" aria-hidden="true"></span><span class="label">02 / Logistics</span></div>
+        <h2>Everything you need to know</h2>
+      </div>
+      <div class="faq-link"><a href="#faq">Read the full FAQ →</a></div>
+
+      <div class="detail-cards" id="detailCards"><!-- filled by script --></div>
+
+      <div class="details-row-b">
+        <div class="docs-card">
+          <div>
+            <div class="eyebrow">Tournament documents</div>
+            <div class="title">Rules &amp; forms</div>
+          </div>
+          <div class="docs-list" id="docsList"><!-- filled by script --></div>
+        </div>
+        <div class="hotel-card">
+          <img src="https://ncbluesfoundation.org/wp-content/uploads/2026/05/Hard-Rock.avif" alt="Hard Rock Hotel &amp; Casino Ottawa" loading="lazy" width="600" height="400">
+          <div class="grad" aria-hidden="true"></div>
+          <div class="content">
+            <div class="eyebrow">Host hotel</div>
+            <div class="title">Hard Rock Hotel &amp; Casino</div>
+            <a href="https://ottawa.reservations.hardrock.com" class="btn btn-outline-dark">Group rate reservations →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="register" class="register">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow"><span class="bar" aria-hidden="true"></span><span class="label">03 / Registration</span></div>
+        <h2 id="regHeadline"><!-- filled by script --></h2>
+      </div>
+      <p class="sub" id="regSub"><!-- filled by script --></p>
+
+      <div class="tiers" id="tiersGrid"><!-- filled by script --></div>
+
+      <div class="contact-strip">
+        <span class="k">Questions</span>
+        <span class="v">Team eligibility, rosters, invoicing — email <a href="mailto:Sable.Top@ottawa.ca">Sable.Top@ottawa.ca</a></span>
+      </div>
+    </div>
+  </section>
+
+  <section id="impact" class="impact">
+    <div class="wrap">
+      <div class="section-head on-dark">
+        <div class="eyebrow"><span class="bar" aria-hidden="true"></span><span class="label">04 / Where the money goes</span></div>
+        <h2>Two days of soccer.<br>A year of programs.</h2>
+      </div>
+      <p class="intro">Registration fees and sponsorship flow directly into three National Capital Blues Foundation programs serving youth across Ottawa — mentorship, literacy and access to organized sport.</p>
+      <div class="programs" id="programsGrid"><!-- filled by script --></div>
+    </div>
+  </section>
+
+  <section id="sponsors" class="sponsors">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow"><span class="bar" aria-hidden="true"></span><span class="label">05 / Partners</span></div>
+        <h2>Made possible by</h2>
+      </div>
+      <p class="intro">The organizations standing behind Ottawa's frontline and its youth.</p>
+      <div class="logo-wall" id="logoWall"><!-- filled by script --></div>
+      <div class="sponsor-cta">
+        <span class="txt">Want your brand in front of 400+ frontline personnel and families?</span>
+        <a href="mailto:Sable.Top@ottawa.ca" class="btn btn-dark">Sponsorship package →</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq" class="faq-section">
+    <div class="wrap-narrow">
+      <div class="section-head">
+        <div class="eyebrow"><span class="bar" aria-hidden="true"></span><span class="label">06 / FAQ</span></div>
+        <h2>Common questions</h2>
+      </div>
+      <div class="faq-list" id="faqList"><!-- filled by script --></div>
+    </div>
+  </section>
+
+  <section class="closing-cta">
+    <img src="https://ncbluesfoundation.org/wp-content/uploads/2026/04/blues-silver-1024x512.webp" alt="" loading="lazy" width="1024" height="512">
+    <div class="grad" aria-hidden="true"></div>
+    <div class="content">
+      <h2>Ready to play for a cause?</h2>
+      <p>Get your team on the roster and help fund mentorship, literacy and sport for youth in Ottawa.</p>
+      <div class="ctas">
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSdv95oXsupx2V-6TcLqkajRV3LLDJXu8EG4pbxzJsF-gMH41Q/viewform" class="btn btn-primary">Register a Team</a>
+        <a href="mailto:Sable.Top@ottawa.ca" class="btn btn-outline-dark">Email the organizers</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">
+          <div class="mark" aria-hidden="true">NC</div>
+          <span class="name">National Capital Blues Foundation</span>
+        </div>
+        <p class="desc">Supporting youth mentorship, literacy and sport in Ottawa through the service of frontline professionals.</p>
+        <div class="charity">Charitable Reg. No. 77069 6883 RR0001</div>
+      </div>
+      <div class="footer-col">
+        <div class="head">Tournament</div>
+        <div class="footer-links">
+          <a href="#about">About</a>
+          <a href="#details">Details</a>
+          <a href="#register">Registration</a>
+          <a href="#faq">FAQ</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <div class="head">Foundation</div>
+        <div class="footer-links">
+          <a href="https://ncbluesfoundation.org/programs">Programs</a>
+          <a href="https://ncbluesfoundation.org/rising-star-awards-gala">Rising Stars Gala</a>
+          <a href="https://ncbluesfoundation.org/get-involved">Get Involved</a>
+          <a href="https://ncbluesfoundation.org/donate">Donate</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <div class="head">Tournament updates</div>
+        <p>Schedules, draws and next year's dates.</p>
+        <form class="newsletter-form" id="newsletterForm" novalidate>
+          <label class="sr-only" for="newsletterEmail" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Email address</label>
+          <input type="email" id="newsletterEmail" name="email" placeholder="you@service.ca" required autocomplete="email">
+          <button type="submit">Join</button>
+        </form>
+        <div class="newsletter-note" id="newsletterNote"></div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="mono">© 2026 National Capital Blues Foundation · Ottawa, ON</div>
+      <div class="mono footer-crosslinks">
+        <span>Concept redesign — draft</span>
+        <a href="https://ncbluesfoundation.org/ottawa-blues-charity-classic/">Current live page →</a>
+        <a href="https://ottawablues.gordon-perolli.workers.dev/">Tournament tool →</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   CONTENT — the one place to edit for next year.
+   Flip REGISTRATION.isOpen to switch the registration headline,
+   subhead, every tier's status pill, and every button label/style
+   at once. Everything else below reads from this object.
+   ============================================================ */
+const EVENT = {
+  edition: '14th',
+  dateLabel: 'October 22–23, 2026',
+  startISO: '2026-10-22T08:00:00-04:00',
+  endISO: '2026-10-23T17:00:00-04:00',
+  dailyHours: '8:00 AM – 5:00 PM daily',
+  venueName: 'Ben Franklin Superdome',
+  venueAddress: '191 Knoxdale Rd, Ottawa'
+};
+
+const REGISTRATION = {
+  isOpen: false,          // <- flip this when late registration opens next year
+  closeDate: 'August 14, 2026'
+};
+
+const STATS = [
+  { value: '14th', label: 'Annual edition', note: 'Running since 2012' },
+  { value: '$90K+', label: 'Raised to date', note: 'Every dollar to youth programs' },
+  { value: '2', label: 'Days of play', note: 'Round robin into playoffs' },
+  { value: '7v7', label: 'Co-ed indoor', note: 'Rec & competitive divisions' }
+];
+
+const DETAIL_CARDS = [
+  { kicker: 'Dates & times', title: 'Oct 22–23, 2026', body: 'Thursday and Friday, 8:00 AM – 5:00 PM each day.', meta: 'Draws posted one week prior.' },
+  { kicker: 'Venue', title: 'Ben Franklin Superdome', body: '191 Knoxdale Rd, Ottawa, ON', meta: 'Free on-site parking · Licensed spectator area.' },
+  { kicker: 'Format & eligibility', title: '7v7 co-ed, two tiers', body: 'Round robin into playoffs, recreational and competitive divisions.', meta: 'Open to emergency service members.' }
+];
+
+const DOCUMENTS = [
+  { name: 'OBCC Tournament Rules (EN)', kind: 'PDF · 2026', href: 'https://ncbluesfoundation.org/wp-content/uploads/2026/04/OBCC-tounrnament-rules-2026.pdf' },
+  { name: 'Règlement du Tournoi OBCC (FR)', kind: 'PDF · 2026', href: 'https://ncbluesfoundation.org/wp-content/uploads/2026/05/Reglement-Tournoi-OBCC-2026-FR.pdf' },
+  { name: 'Roster & waiver form', kind: 'PDF · Coming soon', href: '#register' }
+];
+
+const TIERS = [
+  {
+    window: 'May 1 – July 31', name: 'Earlybird', price: '$525', status: 'Closed',
+    statusBg: 'rgba(10,20,36,0.06)', statusFg: '#7C8798',
+    features: ['7v7 co-ed, rec or competitive', 'Round robin + playoffs', 'Indoor venue, both days', 'Supports NCBF youth programs'],
+    cta: 'Window closed', href: '#register',
+    btnBg: '#F6F4F1', btnFg: '#7C8798', btnBorder: 'rgba(10,20,36,0.1)'
+  },
+  {
+    window: 'Aug 1 – Aug 14', name: 'Late registration', price: '$575',
+    status: REGISTRATION.isOpen ? 'Open' : 'Closed',
+    statusBg: REGISTRATION.isOpen ? 'rgba(74,222,128,0.16)' : 'rgba(10,20,36,0.06)',
+    statusFg: REGISTRATION.isOpen ? '#15803D' : '#7C8798',
+    features: ['7v7 co-ed, rec or competitive', 'Round robin + playoffs', 'Indoor venue, both days', 'Supports NCBF youth programs'],
+    cta: REGISTRATION.isOpen ? 'Register a team →' : 'Window closed',
+    href: 'https://docs.google.com/forms/d/e/1FAIpQLSdv95oXsupx2V-6TcLqkajRV3LLDJXu8EG4pbxzJsF-gMH41Q/viewform',
+    btnBg: REGISTRATION.isOpen ? '#2E6BFF' : '#F6F4F1',
+    btnFg: REGISTRATION.isOpen ? '#fff' : '#7C8798',
+    btnBorder: REGISTRATION.isOpen ? '#2E6BFF' : 'rgba(10,20,36,0.1)'
+  },
+  {
+    window: 'Anytime', name: 'Sponsor a team', price: '$750', status: 'Available',
+    statusBg: 'rgba(46,107,255,0.12)', statusFg: '#1B52DC',
+    features: ['Covers entry for a service team', 'Logo on tournament signage', 'Named in the program & site', 'Fully tax-receiptable'],
+    cta: 'Talk to us →', href: 'mailto:Sable.Top@ottawa.ca',
+    btnBg: '#0A1424', btnFg: '#fff', btnBorder: '#0A1424'
+  }
+];
+
+const PROGRAMS = [
+  { num: '01', name: 'Resilience Lab', body: 'Mental-health literacy and coping skills delivered to youth by the people who respond to crisis for a living.', tag: 'Mentorship' },
+  { num: '02', name: 'Grow A Writer', body: 'Writing workshops, journals and published anthologies that give young Ottawa writers an audience.', tag: 'Literacy' },
+  { num: '03', name: 'Junior Blues Sports', body: 'Equipment, registration fees and coaching so cost is never the reason a kid sits out the season.', tag: 'Sport access' }
+];
+
+/* Hot-linked from the live WordPress media library — replace with
+   self-hosted, optimized assets (SVG where obtainable) before launch. */
+const SPONSORS = [
+  { name: 'TMSI', src: 'https://ncbluesfoundation.org/wp-content/uploads/2026/05/TMSI-logo-300x161.png' },
+  { name: 'Ottawa Police Service', src: 'https://ncbluesfoundation.org/wp-content/uploads/2026/03/Ottawa-Police-2021_RGB-w-transparency-300x153.png' },
+  { name: 'Footey Sevens', src: 'https://ncbluesfoundation.org/wp-content/uploads/2026/03/Footey-Sevens-150x150.jpg' },
+  { name: 'Ottawa Police Association', src: 'https://ncbluesfoundation.org/wp-content/uploads/2026/03/opa_logo.jpg-2014-300x133.jpg' },
+  { name: 'National Capital Blues Foundation', src: 'https://ncbluesfoundation.org/wp-content/uploads/2026/03/Ncap-Blues-Fnd-Logo-150x150.png' },
+  { name: 'Nobility Performance', src: 'https://ncbluesfoundation.org/wp-content/uploads/2026/05/NobilityPerformanceLogo-BLACK-300x122.jpg' },
+  { name: 'BFP', src: 'https://ncbluesfoundation.org/wp-content/uploads/2026/05/bfp-Logo--300x65.png' },
+  { name: 'Baico', src: 'https://ncbluesfoundation.org/wp-content/uploads/2026/05/baico-logo--300x294.jpg' }
+];
+
+const FAQS = [
+  ['Who can register a team?', 'Teams are open to emergency service members — police, fire, paramedic, corrections and military — along with their colleagues and supporters. Rosters are verified at check-in.'],
+  ['Is the tournament co-ed?', 'Yes. Every division is 7v7 co-ed, with both recreational and competitive brackets so teams are matched against similar levels of play.'],
+  ['What are the dates and times?', 'Thursday and Friday, October 22–23, 2026, running 8:00 AM to 5:00 PM each day at the Ben Franklin Superdome.'],
+  ['How much are team fees?', 'Earlybird registration is $525 per team (May 1 – July 31). Late registration is $575 per team. Registration closes August 14.'],
+  ['What does my fee support?', 'All proceeds go to the National Capital Blues Foundation to fund the Resilience Lab, Grow A Writer and Junior Blues Sports programs for Ottawa youth.'],
+  ['Is there a host hotel?', 'Yes — a group rate is held at the Hard Rock Hotel & Casino Ottawa for October 21–23. Book through the group reservation link in the Details section.']
+];
+
+/* ============================================================
+   Render
+   ============================================================ */
+function el(html){ const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; }
+
+function renderStats(){
+  const grid = document.getElementById('statGrid');
+  grid.innerHTML = STATS.map(s => `
+    <div class="cell">
+      <div class="val">${s.value}</div>
+      <div class="lbl">${s.label}</div>
+      <div class="note">${s.note}</div>
+    </div>`).join('');
+}
+
+function renderDetailCards(){
+  document.getElementById('detailCards').innerHTML = DETAIL_CARDS.map(d => `
+    <div class="detail-card">
+      <div class="kicker">${d.kicker}</div>
+      <div class="title">${d.title}</div>
+      <div class="body">${d.body}</div>
+      <div class="meta">${d.meta}</div>
+    </div>`).join('');
+}
+
+function renderDocs(){
+  document.getElementById('docsList').innerHTML = DOCUMENTS.map(doc => `
+    <a href="${doc.href}">
+      <span class="name">${doc.name}</span>
+      <span class="kind">${doc.kind}</span>
+    </a>`).join('');
+}
+
+function renderRegistration(){
+  document.getElementById('regHeadline').textContent = REGISTRATION.isOpen
+    ? 'Registration is open'
+    : 'Registration is closed for 2026';
+  document.getElementById('regSub').textContent = REGISTRATION.isOpen
+    ? 'Spots are filled first-come, first-served. Fees are per team and include both days of play.'
+    : 'The 2026 field is full. Join the list below and you will be first to hear when 2027 registration opens.';
+
+  document.getElementById('tiersGrid').innerHTML = TIERS.map(t => `
+    <div class="tier">
+      <div class="top-row">
+        <div class="window">${t.window}</div>
+        <div class="status" style="background:${t.statusBg};color:${t.statusFg}">${t.status}</div>
+      </div>
+      <div class="name">${t.name}</div>
+      <div class="price-row"><span class="price">${t.price}</span><span class="per">per team</span></div>
+      <ul class="features">${t.features.map(f => `<li><span class="dot" aria-hidden="true"></span><span>${f}</span></li>`).join('')}</ul>
+      <a class="cta" href="${t.href}" style="background:${t.btnBg};color:${t.btnFg};border-color:${t.btnBorder}">${t.cta}</a>
+    </div>`).join('');
+}
+
+function renderPrograms(){
+  document.getElementById('programsGrid').innerHTML = PROGRAMS.map(p => `
+    <div class="program-card">
+      <div class="num">${p.num}</div>
+      <div class="name">${p.name}</div>
+      <div class="body">${p.body}</div>
+      <div class="tag">${p.tag}</div>
+    </div>`).join('');
+}
+
+function renderSponsors(){
+  document.getElementById('logoWall').innerHTML = SPONSORS.map(sp => `
+    <div class="logo-cell">
+      <div class="logo" role="img" aria-label="${sp.name}" title="${sp.name}" style="background-image:url('${sp.src}')"></div>
+    </div>`).join('');
+}
+
+let openFaq = 0;
+function renderFaqs(){
+  const list = document.getElementById('faqList');
+  list.innerHTML = FAQS.map((f, i) => `
+    <div class="faq-item">
+      <h3 style="margin:0">
+        <button class="q" id="faq-btn-${i}" aria-expanded="${i === openFaq}" aria-controls="faq-panel-${i}" data-idx="${i}">
+          <span class="question">${f[0]}</span>
+          <span class="sign" aria-hidden="true">${i === openFaq ? '−' : '+'}</span>
+        </button>
+      </h3>
+      <div class="answer" id="faq-panel-${i}" role="region" aria-labelledby="faq-btn-${i}" ${i === openFaq ? '' : 'hidden'}>${f[1]}</div>
+    </div>`).join('');
+  list.querySelectorAll('button.q').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = Number(btn.dataset.idx);
+      openFaq = openFaq === idx ? -1 : idx;
+      renderFaqs();
+    });
+  });
+}
+
+/* Countdown — ticks toward EVENT.startISO in the visitor's local
+   time from a fixed instant, so it's correct in any timezone.
+   Switches to a simple "underway" line once the clock runs out. */
+function renderCountdown(){
+  const row = document.getElementById('countdownRow');
+  const venue = row.querySelector('.venue-line');
+  const target = new Date(EVENT.startISO).getTime();
+  const end = new Date(EVENT.endISO).getTime();
+
+  function tick(){
+    const now = Date.now();
+    if (now > end){
+      row.querySelectorAll('.countdown-tile').forEach(n => n.remove());
+      if (!row.querySelector('.countdown-done')){
+        row.insertBefore(el(`<div class="countdown-done">See you again in 2027 — thanks for a great ${EVENT.edition} edition.</div>`), venue);
+      }
+      return;
+    }
+    const diff = Math.max(0, target - now);
+    const pad = n => String(n).padStart(2, '0');
+    const units = [
+      { label: 'Days', value: pad(Math.floor(diff / 86400000)) },
+      { label: 'Hours', value: pad(Math.floor(diff / 3600000) % 24) },
+      { label: 'Minutes', value: pad(Math.floor(diff / 60000) % 60) },
+      { label: 'Seconds', value: pad(Math.floor(diff / 1000) % 60) }
+    ];
+    row.querySelectorAll('.countdown-tile').forEach(n => n.remove());
+    units.reverse().forEach(u => {
+      row.insertBefore(el(`<div class="countdown-tile"><div class="val">${u.value}</div><div class="lbl">${u.label}</div></div>`), row.firstChild);
+    });
+  }
+  tick();
+  const timer = setInterval(tick, 1000);
+  window.addEventListener('pagehide', () => clearInterval(timer));
+}
+
+/* Mobile nav drawer */
+function initNav(){
+  const toggle = document.getElementById('navToggle');
+  const nav = document.getElementById('mainNav');
+  toggle.addEventListener('click', () => {
+    const open = nav.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', String(open));
+  });
+  nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    nav.classList.remove('open');
+    toggle.setAttribute('aria-expanded', 'false');
+  }));
+}
+
+/* Scroll-spy for the nav links */
+function initScrollSpy(){
+  const ids = ['about', 'details', 'register', 'impact', 'sponsors', 'faq'];
+  const links = {};
+  ids.forEach(id => { links[id] = document.querySelector(`.nav-link[href="#${id}"]`); });
+  const sections = ids.map(id => document.getElementById(id)).filter(Boolean);
+  if (!('IntersectionObserver' in window) || !sections.length) return;
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const link = links[entry.target.id];
+      if (!link) return;
+      if (entry.isIntersecting) {
+        Object.values(links).forEach(l => l && l.classList.remove('active'));
+        link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
+  sections.forEach(s => obs.observe(s));
+}
+
+/* Newsletter — not wired to a mail provider yet. Connect this to
+   the foundation's mail provider before relying on it; for now it
+   confirms locally so the form isn't a dead end. */
+function initNewsletter(){
+  const form = document.getElementById('newsletterForm');
+  const note = document.getElementById('newsletterNote');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const input = document.getElementById('newsletterEmail');
+    if (!input.checkValidity()){
+      note.textContent = 'Enter a valid email address.';
+      note.style.color = '#FCA5A5';
+      return;
+    }
+    note.textContent = 'Thanks — we’ll be in touch. (Not yet connected to a mailing list.)';
+    note.style.color = 'rgba(255,255,255,0.6)';
+    form.reset();
+  });
+}
+
+renderStats();
+renderDetailCards();
+renderDocs();
+renderRegistration();
+renderPrograms();
+renderSponsors();
+renderFaqs();
+renderCountdown();
+initNav();
+initScrollSpy();
+initNewsletter();
+</script>
+</body>
+</html>
