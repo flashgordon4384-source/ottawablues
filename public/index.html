@@ -380,7 +380,7 @@ iVBORw0KGgoAAAANSUhEUgAAAIQAAACgCAYAAADNecSHAAAQAElEQVR4Aey9BaBeRZI2/FT3ee26xd2N
   <section class="panel" id="p-discipline" hidden></section>
   <section class="panel" id="p-teams" hidden></section>
   <section class="panel" id="p-rosters" hidden></section>
-  <section class="panel" id="p-refs" hidden></section>
+  <section class="panel" id="p-officials" hidden></section>
   <section class="panel" id="p-structure" hidden></section>
   <section class="panel" id="p-data" hidden></section>
 </main>
@@ -707,7 +707,7 @@ var refSeq=0;
 function newRef(name){
   return {id:"ref"+(++refSeq)+"-"+slug(name),name:name};
 }
-function parseRefNames(text){
+function parseNameList(text){
   var out=[],seen={};
   text.split(/\r?\n/).forEach(function(raw){
     var name=raw.trim().replace(/[,;]+$/,"");
@@ -742,6 +742,37 @@ function postProtest(protest){
   fetch("/api/protest",{
     method:"POST",headers:{"content-type":"application/json"},
     body:JSON.stringify({protest:protest})
+  }).catch(function(){/* offline or no server yet -- local copy still holds */});
+}
+
+/* ---------------------------------------------------------
+   9c. FIELD MARSHALS — same idea as 9b, one assigned per game
+   from a master list, shared via /api/marshals and
+   /api/assignmarshal. Unlike referees there's no separate "head
+   marshal" role to also assign from -- the organizer role already
+   carries that label -- so only the organizer manages this.
+   --------------------------------------------------------- */
+var marshalSeq=0;
+function newMarshal(name){
+  return {id:"mar"+(++marshalSeq)+"-"+slug(name),name:name};
+}
+function marshalById(id){
+  return state.marshals.filter(function(m){return m.id===id;})[0]||null;
+}
+function marshalName(id){
+  var m=id?marshalById(id):null;
+  return m?m.name:"";
+}
+function postMarshals(){
+  fetch("/api/marshals",{
+    method:"POST",headers:{"content-type":"application/json"},
+    body:JSON.stringify({marshals:state.marshals})
+  }).catch(function(){/* offline or no server yet -- local copy still holds */});
+}
+function postAssignmentMarshal(gameId,marshalId){
+  fetch("/api/assignmarshal",{
+    method:"POST",headers:{"content-type":"application/json"},
+    body:JSON.stringify({gameId:gameId,marshalId:marshalId||null})
   }).catch(function(){/* offline or no server yet -- local copy still holds */});
 }
 
@@ -1042,6 +1073,8 @@ var state={
   bins:[],                 // live sin-bin timers
   refs:[],                 // master referee list, {id, name} -- synced via /api/refs
   refAssignments:{},       // gameId -> refId, one referee per game -- synced via /api/assign
+  marshals:[],             // master field-marshal list, {id, name} -- synced via /api/marshals
+  marshalAssignments:{},   // gameId -> marshalId -- synced via /api/assignmarshal
   protests:[]              // append-only log, captain-filed -- synced via /api/protest
 };
 
@@ -1290,6 +1323,8 @@ function can(what){
   if(what==="roster")return r==="admin"||r==="captain";
   if(what==="refAssign")return r==="admin"||r==="headref";
   if(what==="refListEdit")return r==="admin";
+  if(what==="marshalAssign")return r==="admin";
+  if(what==="marshalListEdit")return r==="admin";
   if(what==="fileProtest")return r==="captain";
   if(what==="seeProtests")return r==="admin"||r==="headref";
   return false;
@@ -1318,7 +1353,7 @@ var TABS=[
   {id:"discipline",label:"Cards"},
   {id:"teams",     label:"Teams"},
   {id:"rosters",   label:"Rosters"},
-  {id:"refs",      label:"Referees"},
+  {id:"officials", label:"Officials"},
   {id:"structure", label:"Structure"},
   {id:"data",      label:"Data"}
 ];
@@ -1514,7 +1549,7 @@ var HOWTO={
       "Open the same game sheet a marshal would, and enter your own record the same way — kickoff, goals, cards.",
       "Once both sides are submitted, use the <b>Marshal</b> / <b>Referee</b> toggle on the sheet to compare them.",
       "If they agree, the score publishes on its own. If they don't, you'll see <b>Records disagree</b> — pick which one publishes.",
-      "Separately, use <b>Referees</b> to assign one referee to each game from the organizer's master list — that's who's actually officiating, and it shows up on Schedule.",
+      "Separately, use <b>Officials</b> to assign one referee to each game from the organizer's master list — that's who's actually officiating, and it shows up on Schedule.",
       "Captain-filed card protests show up on <b>Cards</b>, at the bottom, once one's been submitted."
     ]
   },
@@ -1543,7 +1578,7 @@ var HOWTO={
       "Each team's captain code is visible only to you, in the <b>Rosters</b> check-in table — that's what you hand out.",
       "Check the <b>No photos</b> list on Rosters before anyone posts photos or video from the day.",
       "Captain-filed card protests show up on <b>Cards</b>, at the bottom — the captain still has to find you in person within 15 minutes with the $50 fee, but the details are already written down by the time they do.",
-      "Build the referee master list on <b>Referees</b> — paste names, one a line. The head referee assigns them to games from the same tab, ahead of the tournament.",
+      "Build the referee and field-marshal master lists on <b>Officials</b> — paste names, one a line, for each. The head referee can also assign referees from that tab; field-marshal assignment is yours alone.",
       "Use <b>Structure</b> to check the schedule math with Abdel — teams, games, fields, whether the day actually holds it all.",
       "Use <b>Data</b> to save a backup file regularly, and to find the access codes.",
       "Unsure what another role should be doing? Check their tab on this page — it's exactly what they're seeing."
@@ -1648,6 +1683,8 @@ function fixtureCard(g){
   if(g.stage!=="pool")tags+='<span class="tag">'+stageName(g.stage)+'</span>';
   var assignedRef=refName(state.refAssignments[g.id]);
   if(assignedRef)tags+='<span class="tag">Ref: '+esc(assignedRef)+'</span>';
+  var assignedMarshal=marshalName(state.marshalAssignments[g.id]);
+  if(assignedMarshal)tags+='<span class="tag">Marshal: '+esc(assignedMarshal)+'</span>';
 
   var open=known?'<button class="linkbtn" data-sheet="'+g.id+'">'+
       (can("marshalEntry")||can("refEntry")?"Open game sheet":"View sheet")+'</button>':'';
@@ -2039,62 +2076,88 @@ function renderWaiver(){
 }
 
 /* ---------------------------------------------------------
-   18c. REFEREES — one assigned per game. The organizer maintains
-   the master list; the organizer and head referee assign from it.
-   Everyone else gets a read-only pointer to Schedule, where the
-   assignment actually shows up (fixtureCard).
+   18c. OFFICIALS — one referee and one field marshal assigned per
+   game, each from its own master list. The organizer maintains
+   both lists; the organizer and head referee assign referees, but
+   only the organizer assigns marshals (there's no separate "head
+   marshal" role to split that off to — the organizer role already
+   carries that label). Everyone else gets a read-only pointer to
+   Schedule, where both assignments actually show up (fixtureCard).
    --------------------------------------------------------- */
-function renderRefs(){
-  var isAdmin=can("refListEdit"),canAssign=can("refAssign");
-  var html='<div class="sechead"><h2>Referees</h2>'+
-    '<p class="note">One referee assigned per game, from the master list. '+
-    (isAdmin?"Paste names to build the list, then assign them to games below."
-      :canAssign?"Assign referees to games below. Only the organizer can edit the master list."
-      :"Assignments are set by the organizer and head referee — they also show on each game in Schedule.")+
-    '</p></div>';
+function officialSubhead(text){
+  return '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:20px;font-weight:700;'+
+    'text-transform:uppercase;letter-spacing:.02em;margin:28px 0 4px">'+text+'</div>';
+}
+function officialListCard(list,taId,addBtnId,msgId,delAttr){
+  return '<div class="card"><h3>Master list <span class="pos">'+list.length+'</span></h3><div class="body">'+
+    '<p class="note" style="margin-bottom:8px">One name per line.</p>'+
+    '<textarea id="'+taId+'" placeholder="Alex Nguyen&#10;Priya Shah&#10;Marc Dubois"></textarea>'+
+    '<div class="btnrow" style="margin-top:8px"><button class="btn" id="'+addBtnId+'">Add</button></div>'+
+    '<div id="'+msgId+'" class="note" style="margin-top:6px"></div>'+
+    (list.length?'<div style="margin-top:14px">'+
+      list.map(function(x){
+        return '<div class="refrow"><span>'+esc(x.name)+'</span>'+
+          '<button class="btn ghost sm" data-'+delAttr+'="'+x.id+'">Remove</button></div>';
+      }).join("")+'</div>':'')+
+  '</div></div>';
+}
+function officialAssignTable(colLabel,list,assignMap,assignAttr){
+  var html='<div class="card"><h3>Assignments</h3><div class="body flush"><div class="tablewrap"><table>'+
+    '<thead><tr><th>Day</th><th>Time</th><th>Field</th><th>Game</th><th>'+esc(colLabel)+'</th></tr></thead><tbody>';
+  chronological().forEach(function(g){
+    var label=g.stage==="pool"?(teamName(g.home)+" v "+teamName(g.away)):gameLabel(g);
+    var current=assignMap[g.id]||"";
+    html+='<tr><td>'+dayName(g.day)+'</td><td class="n">'+g.time+'</td><td>Field '+g.field+'</td>'+
+      '<td>'+esc(label)+'</td><td><select data-'+assignAttr+'="'+g.id+'">'+
+      '<option value="">— Unassigned —</option>'+
+      list.map(function(x){
+        return '<option value="'+x.id+'"'+(current===x.id?" selected":"")+'>'+esc(x.name)+'</option>';
+      }).join("")+
+      '</select></td></tr>';
+  });
+  html+='</tbody></table></div></div></div>';
+  return html;
+}
+function officialReadOnlyCard(label,assignMap){
+  var n=Object.keys(assignMap).filter(function(k){return assignMap[k];}).length;
+  return '<div class="card"><h3>'+esc(label)+' assigned so far <span class="pos">'+n+'</span></h3><div class="body">'+
+    '<p class="note">See <button class="linkbtn" data-tab="schedule">Schedule</button> — each game shows its assigned '+
+    esc(label.toLowerCase())+' once one is set.</p></div></div>';
+}
+function renderOfficials(){
+  var refAdmin=can("refListEdit"),refAssignOk=can("refAssign");
+  var marAdmin=can("marshalListEdit"),marAssignOk=can("marshalAssign");
+  var html='<div class="sechead"><h2>Officials</h2>'+
+    '<p class="note">One referee and one field marshal assigned per game, each from their own master list. Assignments show on each game in Schedule.</p></div>';
 
-  if(isAdmin){
-    html+='<div class="card"><h3>Master list <span class="pos">'+state.refs.length+'</span></h3><div class="body">'+
-      '<p class="note" style="margin-bottom:8px">One name per line.</p>'+
-      '<textarea id="pasterefs" placeholder="Alex Nguyen&#10;Priya Shah&#10;Marc Dubois"></textarea>'+
-      '<div class="btnrow" style="margin-top:8px"><button class="btn" id="doaddrefs">Add</button></div>'+
-      '<div id="refaddmsg" class="note" style="margin-top:6px"></div>'+
-      (state.refs.length?'<div style="margin-top:14px">'+
-        state.refs.map(function(r){
-          return '<div class="refrow"><span>'+esc(r.name)+'</span>'+
-            '<button class="btn ghost sm" data-delref="'+r.id+'">Remove</button></div>';
-        }).join("")+'</div>':'')+
-    '</div></div>';
+  html+=officialSubhead("Referees");
+  html+='<p class="note" style="margin-bottom:14px">'+
+    (refAdmin?"Paste names to build the list, then assign them to games below."
+      :refAssignOk?"Assign referees to games below. Only the organizer can edit the master list."
+      :"Assignments are set by the organizer and head referee.")+'</p>';
+  if(refAdmin)html+=officialListCard(state.refs,"pasterefs","doaddrefs","refaddmsg","delref");
+  if(refAssignOk){
+    html+=state.refs.length
+      ?officialAssignTable("Referee",state.refs,state.refAssignments,"assign")
+      :'<div class="msg warn">No referees on the master list yet'+(refAdmin?" — add some above.":" — ask the organizer to add the master list.")+'</div>';
+  } else if(!refAdmin){
+    html+=officialReadOnlyCard("Referee",state.refAssignments);
   }
 
-  if(canAssign){
-    if(!state.refs.length){
-      html+='<div class="msg warn">No referees on the master list yet'+
-        (isAdmin?" — add some above.":" — ask the organizer to add the master list.")+'</div>';
-    } else {
-      html+='<div class="card"><h3>Assignments</h3><div class="body flush"><div class="tablewrap"><table>'+
-        '<thead><tr><th>Day</th><th>Time</th><th>Field</th><th>Game</th><th>Referee</th></tr></thead><tbody>';
-      chronological().forEach(function(g){
-        var label=g.stage==="pool"?(teamName(g.home)+" v "+teamName(g.away)):gameLabel(g);
-        var current=state.refAssignments[g.id]||"";
-        html+='<tr><td>'+dayName(g.day)+'</td><td class="n">'+g.time+'</td><td>Field '+g.field+'</td>'+
-          '<td>'+esc(label)+'</td><td><select data-assign="'+g.id+'">'+
-          '<option value="">— Unassigned —</option>'+
-          state.refs.map(function(r){
-            return '<option value="'+r.id+'"'+(current===r.id?" selected":"")+'>'+esc(r.name)+'</option>';
-          }).join("")+
-          '</select></td></tr>';
-      });
-      html+='</tbody></table></div></div></div>';
-    }
-  } else if(!isAdmin){
-    var assignedCount=Object.keys(state.refAssignments).filter(function(k){return state.refAssignments[k];}).length;
-    html+='<div class="card"><h3>Assigned so far <span class="pos">'+assignedCount+'</span></h3><div class="body">'+
-      '<p class="note">See <button class="linkbtn" data-tab="schedule">Schedule</button> — each game shows its assigned referee once one is set.</p>'+
-    '</div></div>';
+  html+=officialSubhead("Field marshals");
+  html+='<p class="note" style="margin-bottom:14px">'+
+    (marAdmin?"Paste names to build the list, then assign them to games below."
+      :"Assignments are set by the organizer.")+'</p>';
+  if(marAdmin){
+    html+=officialListCard(state.marshals,"pastemarshals","doaddmarshals","marshaladdmsg","delmarshal");
+    html+=state.marshals.length
+      ?officialAssignTable("Marshal",state.marshals,state.marshalAssignments,"assignmarshal")
+      :'<div class="msg warn">No field marshals on the master list yet — add some above.</div>';
+  } else {
+    html+=officialReadOnlyCard("Marshal",state.marshalAssignments);
   }
 
-  $("#p-refs").innerHTML=html;
+  $("#p-officials").innerHTML=html;
 }
 
 /* ---------------------------------------------------------
@@ -2165,7 +2228,7 @@ function renderStructure(){
    --------------------------------------------------------- */
 function renderData(){
   var html='<div class="sechead"><h2>Data</h2>'+
-    '<p class="note">This build keeps everything in the browser tab. Nothing is shared between phones yet — that needs the shared database, which is batch two. Save a file before you close the tab.</p></div>'+
+    '<p class="note">Game sheets, referee/marshal assignments and card protests sync across every phone now (see CLAUDE.md section 2). Everything else — rosters, waivers, check-in, team logos — still lives only in this browser tab. Save a file before you close it.</p></div>'+
     '<div class="card action"><h3>Save and load</h3><div class="body"><div class="btnrow">'+
     '<button class="btn" id="save">Save a file</button>'+
     '<button class="btn ghost" id="loadbtn">Load a file</button>'+
@@ -2370,7 +2433,7 @@ function renderAll(){
     if(tab==="discipline")renderDiscipline();
     if(tab==="teams")renderTeams();
     if(tab==="rosters")renderRosters();
-    if(tab==="refs")renderRefs();
+    if(tab==="officials")renderOfficials();
     if(tab==="structure")renderStructure();
     if(tab==="data")renderData();
     if(openGame)renderSheet();
@@ -2469,7 +2532,7 @@ document.addEventListener("click",function(ev){
     }
     if(t.id==="doaddrefs"){
       var taR=document.getElementById("pasterefs");
-      var names=parseRefNames(taR.value);
+      var names=parseNameList(taR.value);
       var addedR=0;
       names.forEach(function(nm){
         if(state.refs.some(function(r){return r.name.toLowerCase()===nm.toLowerCase();}))return;
@@ -2477,7 +2540,7 @@ document.addEventListener("click",function(ev){
       });
       postRefs();
       var skippedR=names.length-addedR;
-      renderRefs();
+      renderOfficials();
       var msgR=document.getElementById("refaddmsg");
       if(msgR)msgR.textContent=addedR+" added."+(skippedR?" "+skippedR+" already on the list.":"");
       return;
@@ -2489,7 +2552,31 @@ document.addEventListener("click",function(ev){
         if(state.refAssignments[gid]===delId){delete state.refAssignments[gid];postAssignment(gid,null);}
       });
       postRefs();
-      renderRefs();return;
+      renderOfficials();return;
+    }
+    if(t.id==="doaddmarshals"){
+      var taM=document.getElementById("pastemarshals");
+      var namesM=parseNameList(taM.value);
+      var addedM=0;
+      namesM.forEach(function(nm){
+        if(state.marshals.some(function(m){return m.name.toLowerCase()===nm.toLowerCase();}))return;
+        state.marshals.push(newMarshal(nm));addedM++;
+      });
+      postMarshals();
+      var skippedM=namesM.length-addedM;
+      renderOfficials();
+      var msgM=document.getElementById("marshaladdmsg");
+      if(msgM)msgM.textContent=addedM+" added."+(skippedM?" "+skippedM+" already on the list.":"");
+      return;
+    }
+    if(t.dataset.delmarshal){
+      var delIdM=t.dataset.delmarshal;
+      state.marshals=state.marshals.filter(function(m){return m.id!==delIdM;});
+      Object.keys(state.marshalAssignments).forEach(function(gid){
+        if(state.marshalAssignments[gid]===delIdM){delete state.marshalAssignments[gid];postAssignmentMarshal(gid,null);}
+      });
+      postMarshals();
+      renderOfficials();return;
     }
     if(t.id==="doimport"){
       var ta=document.getElementById("pasteroster"),msg=document.getElementById("importmsg");
@@ -2564,6 +2651,12 @@ document.addEventListener("change",function(ev){
       var gidA=el.dataset.assign;
       if(el.value)state.refAssignments[gidA]=el.value;else delete state.refAssignments[gidA];
       postAssignment(gidA,el.value||null);
+      return;
+    }
+    if(el.dataset.assignmarshal){
+      var gidAM=el.dataset.assignmarshal;
+      if(el.value)state.marshalAssignments[gidAM]=el.value;else delete state.marshalAssignments[gidAM];
+      postAssignmentMarshal(gidAM,el.value||null);
       return;
     }
     if(el.id==="loadfile"){loadFrom(el.files&&el.files[0]);el.value="";return;}
@@ -2818,6 +2911,8 @@ function syncFromServer(){
     });
     if(d.refs&&JSON.stringify(d.refs)!==JSON.stringify(state.refs)){state.refs=d.refs;changed=true;}
     if(d.refAssignments&&JSON.stringify(d.refAssignments)!==JSON.stringify(state.refAssignments)){state.refAssignments=d.refAssignments;changed=true;}
+    if(d.marshals&&JSON.stringify(d.marshals)!==JSON.stringify(state.marshals)){state.marshals=d.marshals;changed=true;}
+    if(d.marshalAssignments&&JSON.stringify(d.marshalAssignments)!==JSON.stringify(state.marshalAssignments)){state.marshalAssignments=d.marshalAssignments;changed=true;}
     if(d.protests&&d.protests.length!==state.protests.length){state.protests=d.protests;changed=true;}
     if(changed){rebuild();renderAll();}
   }).catch(function(){/* offline — keep showing the last known state */});

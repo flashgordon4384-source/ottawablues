@@ -26,6 +26,7 @@
 
      GET  /api/state
        -> { sheets: {...}, refs: [...], refAssignments: {...},
+            marshals: [...], marshalAssignments: {...},
             protests: [...] }
        Full read, used on page load and by the poll loop.
 
@@ -50,6 +51,23 @@
        per-game granularity as /api/sheet, added 5 Sept 2026 so the
        head referee can assign one referee per game ahead of the
        tournament and have it show up on everyone's schedule.
+
+     POST /api/marshals
+       body: { marshals: [{ id, name }, ...] }
+       Same as /api/refs, for the field-marshal master list —
+       organizer-only in the UI. Deliberately separate from the
+       existing "marshal" role (who's allowed to enter the marshal's
+       score record) for the same reason /api/assign is separate
+       from "headref": this is which specific person is staffing a
+       game, not a data-entry permission. Unlike referees, there's
+       no separate "head marshal" role to also assign from — the
+       organizer role already carries that label ("Head marshal /
+       organizer") — so only the organizer manages this one.
+
+     POST /api/assignmarshal
+       body: { gameId, marshalId }  (marshalId: string id from the
+       master list, or null to unassign)
+       Same shape as /api/assign, for field marshals.
 
      POST /api/protest
        body: { protest: {...} }
@@ -79,8 +97,14 @@ export class TournamentState {
       var sheets = (await this.storage.get("sheets")) || {};
       var refs = (await this.storage.get("refs")) || [];
       var refAssignments = (await this.storage.get("refAssignments")) || {};
+      var marshals = (await this.storage.get("marshals")) || [];
+      var marshalAssignments = (await this.storage.get("marshalAssignments")) || {};
       var protests = (await this.storage.get("protests")) || [];
-      return json({ sheets: sheets, refs: refs, refAssignments: refAssignments, protests: protests });
+      return json({
+        sheets: sheets, refs: refs, refAssignments: refAssignments,
+        marshals: marshals, marshalAssignments: marshalAssignments,
+        protests: protests
+      });
     }
 
     if (request.method === "POST" && url.pathname === "/sheet") {
@@ -135,6 +159,41 @@ export class TournamentState {
         delete refAssignments2[assignGameId];
       }
       await this.storage.put("refAssignments", refAssignments2);
+      return json({ ok: true });
+    }
+
+    if (request.method === "POST" && url.pathname === "/marshals") {
+      var marshalBody;
+      try {
+        marshalBody = await request.json();
+      } catch (e) {
+        return json({ error: "body must be JSON" }, 400);
+      }
+      if (!Array.isArray(marshalBody && marshalBody.marshals)) {
+        return json({ error: "expected { marshals: [{id, name}, ...] }" }, 400);
+      }
+      await this.storage.put("marshals", marshalBody.marshals);
+      return json({ ok: true });
+    }
+
+    if (request.method === "POST" && url.pathname === "/assignmarshal") {
+      var assignMarshalBody;
+      try {
+        assignMarshalBody = await request.json();
+      } catch (e) {
+        return json({ error: "body must be JSON" }, 400);
+      }
+      var assignMarshalGameId = assignMarshalBody && assignMarshalBody.gameId;
+      if (!assignMarshalGameId) {
+        return json({ error: "expected { gameId, marshalId }" }, 400);
+      }
+      var marshalAssignments2 = (await this.storage.get("marshalAssignments")) || {};
+      if (assignMarshalBody.marshalId) {
+        marshalAssignments2[assignMarshalGameId] = assignMarshalBody.marshalId;
+      } else {
+        delete marshalAssignments2[assignMarshalGameId];
+      }
+      await this.storage.put("marshalAssignments", marshalAssignments2);
       return json({ ok: true });
     }
 
