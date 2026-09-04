@@ -738,6 +738,12 @@ function postAssignment(gameId,refId){
     body:JSON.stringify({gameId:gameId,refId:refId||null})
   }).catch(function(){/* offline or no server yet -- local copy still holds */});
 }
+function postProtest(protest){
+  fetch("/api/protest",{
+    method:"POST",headers:{"content-type":"application/json"},
+    body:JSON.stringify({protest:protest})
+  }).catch(function(){/* offline or no server yet -- local copy still holds */});
+}
 
 /* Rule 3: master list in no less than 30 minutes before the
    team's first game. */
@@ -1035,7 +1041,8 @@ var state={
   tiebreak:{},             // "a|b" -> teamId ranked higher (coin toss, r8)
   bins:[],                 // live sin-bin timers
   refs:[],                 // master referee list, {id, name} -- synced via /api/refs
-  refAssignments:{}        // gameId -> refId, one referee per game -- synced via /api/assign
+  refAssignments:{},       // gameId -> refId, one referee per game -- synced via /api/assign
+  protests:[]              // append-only log, captain-filed -- synced via /api/protest
 };
 
 function blankEntry(){
@@ -1283,6 +1290,8 @@ function can(what){
   if(what==="roster")return r==="admin"||r==="captain";
   if(what==="refAssign")return r==="admin"||r==="headref";
   if(what==="refListEdit")return r==="admin";
+  if(what==="fileProtest")return r==="captain";
+  if(what==="seeProtests")return r==="admin"||r==="headref";
   return false;
 }
 
@@ -1505,7 +1514,8 @@ var HOWTO={
       "Open the same game sheet a marshal would, and enter your own record the same way — kickoff, goals, cards.",
       "Once both sides are submitted, use the <b>Marshal</b> / <b>Referee</b> toggle on the sheet to compare them.",
       "If they agree, the score publishes on its own. If they don't, you'll see <b>Records disagree</b> — pick which one publishes.",
-      "Separately, use <b>Referees</b> to assign one referee to each game from the organizer's master list — that's who's actually officiating, and it shows up on Schedule."
+      "Separately, use <b>Referees</b> to assign one referee to each game from the organizer's master list — that's who's actually officiating, and it shows up on Schedule.",
+      "Captain-filed card protests show up on <b>Cards</b>, at the bottom, once one's been submitted."
     ]
   },
   captain:{
@@ -1519,7 +1529,8 @@ var HOWTO={
       "Upload your team logo if you have one — it shows next to your name everywhere on the site.",
       "Get waivers signed: send each player their <b>Open waiver</b> link. It turns green once they sign.",
       "Anyone who needs their name kept private, or doesn't consent to photos, can tick that on their own waiver — or you can tick it for them in the roster.",
-      "Once your squad is set and signed, hit <b>Accept master list</b> — at least 30 minutes before your first game, per the rules."
+      "Once your squad is set and signed, hit <b>Accept master list</b> — at least 30 minutes before your first game, per the rules.",
+      "Need to protest a card? <b>Cards</b> has a <b>File a protest</b> form for your team. Submitting it records the details, but doesn't complete the protest by itself — go find the Head Marshal in person within 15 minutes, with the $50 fee."
     ]
   },
   admin:{
@@ -1531,6 +1542,7 @@ var HOWTO={
       "Manage every team's roster, waivers, check-in and logo from <b>Rosters</b> — the same editor a captain uses, without the one-team restriction.",
       "Each team's captain code is visible only to you, in the <b>Rosters</b> check-in table — that's what you hand out.",
       "Check the <b>No photos</b> list on Rosters before anyone posts photos or video from the day.",
+      "Captain-filed card protests show up on <b>Cards</b>, at the bottom — the captain still has to find you in person within 15 minutes with the $50 fee, but the details are already written down by the time they do.",
       "Build the referee master list on <b>Referees</b> — paste names, one a line. The head referee assigns them to games from the same tab, ahead of the tournament.",
       "Use <b>Structure</b> to check the schedule math with Abdel — teams, games, fields, whether the day actually holds it all.",
       "Use <b>Data</b> to save a backup file regularly, and to find the access codes.",
@@ -1687,6 +1699,7 @@ function renderStandings(){
 /* ---------------------------------------------------------
    17. DISCIPLINE
    --------------------------------------------------------- */
+var protestFormOpen=false,protestCard="yellow",protestJustSubmitted=false;
 function renderDiscipline(){
   var d=discipline(),ids=Object.keys(d);
   var carrying=ids.filter(function(p){return d[p].y>0||d[p].rTotal>0;});
@@ -1723,9 +1736,88 @@ function renderDiscipline(){
       '<div class="cards">'+pips(R.yTotal,"y")+pips(R.rTotal,"r")+'</div></div>';
   });
   html+='</div></div>';
+  html+=renderProtestSection();
   $("#p-discipline").innerHTML=html;
 }
 function pips(n,k){var s="";for(var i=0;i<n;i++)s+='<span class="pip '+k+'"></span>';return s;}
+
+/* Card protests — captain-filed, organizer/head-referee visible.
+   Digitizes the existing rule (CLAUDE.md section 3: written, within
+   15 minutes, $50 cash, refundable if upheld) as a shared record;
+   doesn't replace the in-person part of that rule, which is why the
+   confirmation sends them to find the Head Marshal rather than
+   treating the form itself as the protest. */
+function renderProtestSection(){
+  if(can("fileProtest")){
+    var teamId=state.captainTeam;
+    if(protestJustSubmitted){
+      return '<div class="card"><h3>Protest a card</h3><div class="body">'+
+        '<div class="msg ok"><b>Protest recorded.</b> Now go find the Head Marshal in person — a protest must be made in writing within 15 minutes of the final whistle, with a $50 cash fee, refundable if it’s upheld. Filing this form does not complete a protest on its own.</div>'+
+        '<div class="btnrow" style="margin-top:10px"><button class="btn ghost" id="protestagain">File another</button></div>'+
+      '</div></div>';
+    }
+    if(!protestFormOpen){
+      return '<div class="card"><h3>Protest a card</h3><div class="body">'+
+        '<p class="note">Filing on behalf of <b>'+esc(teamName(teamId))+'</b>.</p>'+
+        '<div class="btnrow"><button class="btn" id="openprotest">File a protest</button></div>'+
+      '</div></div>';
+    }
+    var myGames=chronological().filter(function(g){return homeId(g)===teamId||awayId(g)===teamId;});
+    var html='<div class="card"><h3>Protest a card</h3><div class="body">'+
+      '<p class="note" style="margin-bottom:10px">Filing on behalf of <b>'+esc(teamName(teamId))+'</b>.</p>'+
+      '<label style="display:block;margin-bottom:10px"><span class="eyebrow">Which game</span>'+
+      '<select class="plain" id="protestGame" style="width:100%;margin-top:5px">'+
+      (myGames.length?myGames.map(function(g){
+        var oppId=homeId(g)===teamId?awayId(g):homeId(g);
+        var opp=oppId?teamName(oppId):"TBD";
+        return '<option value="'+g.id+'">'+dayName(g.day)+' '+g.time+' — vs '+esc(opp)+'</option>';
+      }).join(""):'<option value="">No games scheduled yet</option>')+
+      '</select></label>'+
+      '<label style="display:block;margin-bottom:10px"><span class="eyebrow">Player</span>'+
+      '<input class="plain" id="protestPlayer" style="width:100%;margin-top:5px" placeholder="Full name"></label>'+
+      '<div style="margin-bottom:10px"><span class="eyebrow" style="display:block;margin-bottom:6px">Card</span>'+
+      '<div class="filters" style="margin:0">'+
+      '<button class="chip" data-protestcard="yellow" aria-pressed="'+(protestCard==="yellow")+'">Yellow</button>'+
+      '<button class="chip" data-protestcard="red" aria-pressed="'+(protestCard==="red")+'">Red</button>'+
+      '</div></div>'+
+      '<label style="display:block;margin-bottom:10px"><span class="eyebrow">What happened</span>'+
+      '<textarea id="protestNarrative" style="min-height:120px;margin-top:5px" placeholder="Describe what happened."></textarea></label>'+
+      '<div style="margin-bottom:6px"><span class="eyebrow" style="display:block;margin-bottom:6px">Already talked to</span>'+
+      [["ref","Referee"],["headref","Head referee"],["marshal","Marshal"],["headmarshal","Head marshal"]].map(function(p){
+        return '<label class="check"><input type="checkbox" id="talked_'+p[0]+'"><span>'+p[1]+'</span></label>';
+      }).join("")+
+      '<label class="check"><input type="checkbox" id="talked_other"><span>Other</span></label>'+
+      '<input class="plain" id="talked_other_text" style="width:calc(100% - 26px);margin:2px 0 0 26px" placeholder="Who?">'+
+      '</div>'+
+      '<div class="btnrow" style="margin-top:14px"><button class="btn" id="submitprotest">Submit</button>'+
+      '<button class="btn ghost" id="cancelprotest">Cancel</button></div>'+
+      '<div id="protestMsg" class="note" style="margin-top:8px"></div>'+
+    '</div></div>';
+    return html;
+  }
+  if(can("seeProtests")){
+    var list=state.protests.slice().reverse();
+    var out='<div class="card"><h3>Protests <span class="pos">'+list.length+'</span></h3><div class="body">';
+    if(!list.length){
+      out+='<p class="note">None filed.</p>';
+    } else {
+      list.forEach(function(pr){
+        var g=gameById(pr.gameId);
+        out+='<div class="discrow" style="align-items:flex-start;flex-direction:column;gap:6px">'+
+          '<div><b>'+esc(teamName(pr.teamId))+'</b> <span class="pos">'+(g?dayName(g.day)+" "+g.time:esc(pr.gameId))+'</span> '+
+          '<span class="tag '+(pr.card==="red"?"bad":"warn")+'">'+esc(pr.card)+'</span></div>'+
+          '<div class="note">Player: '+esc(pr.player)+'</div>'+
+          '<div style="font-size:14px">'+esc(pr.narrative)+'</div>'+
+          (pr.talkedTo&&pr.talkedTo.length?'<div class="note">Talked to: '+esc(pr.talkedTo.join(", "))+'</div>':'')+
+          '<div class="note">Filed by '+esc(pr.submittedBy)+' · '+esc(new Date(pr.submittedAt).toLocaleString())+'</div>'+
+        '</div>';
+      });
+    }
+    out+='</div></div>';
+    return out;
+  }
+  return "";
+}
 
 /* ---------------------------------------------------------
    18. TEAMS
@@ -2331,6 +2423,50 @@ document.addEventListener("click",function(ev){
                 version:WAIVER_VERSION,lang:waiverLang,token:p.token};
       renderWaiver();renderAll();return;
     }
+    if(t.id==="openprotest"){protestFormOpen=true;protestCard="yellow";renderDiscipline();return;}
+    if(t.id==="cancelprotest"){protestFormOpen=false;renderDiscipline();return;}
+    if(t.id==="protestagain"){protestJustSubmitted=false;protestFormOpen=true;protestCard="yellow";renderDiscipline();return;}
+    if(t.dataset.protestcard){
+      protestCard=t.dataset.protestcard;
+      // Toggle the two buttons directly rather than re-rendering --
+      // a full renderDiscipline() here would wipe out whatever the
+      // captain has already typed into the player/narrative fields.
+      document.querySelectorAll("[data-protestcard]").forEach(function(b){
+        b.setAttribute("aria-pressed",String(b.dataset.protestcard===protestCard));
+      });
+      return;
+    }
+    if(t.id==="submitprotest"){
+      var pGame=document.getElementById("protestGame").value;
+      var pPlayer=document.getElementById("protestPlayer").value.trim();
+      var pNarrative=document.getElementById("protestNarrative").value.trim();
+      var pMsg=document.getElementById("protestMsg");
+      if(!pGame||!pPlayer||!pNarrative){
+        if(pMsg){pMsg.textContent="Fill in the game, the player's name, and what happened.";pMsg.style.color="var(--alarm)";}
+        return;
+      }
+      var talkedTo=[];
+      [["talked_ref","Referee"],["talked_headref","Head referee"],["talked_marshal","Marshal"],["talked_headmarshal","Head marshal"]].forEach(function(p){
+        var cb=document.getElementById(p[0]);
+        if(cb&&cb.checked)talkedTo.push(p[1]);
+      });
+      var otherCb=document.getElementById("talked_other");
+      if(otherCb&&otherCb.checked){
+        var otherTxt=document.getElementById("talked_other_text").value.trim();
+        talkedTo.push(otherTxt?"Other — "+otherTxt:"Other");
+      }
+      var rec={
+        id:"pr"+Date.now()+"-"+Math.floor(Math.random()*1000),
+        teamId:state.captainTeam,gameId:pGame,player:pPlayer,card:protestCard,
+        narrative:pNarrative,talkedTo:talkedTo,
+        submittedBy:ROLES[state.role].label+" ("+teamName(state.captainTeam)+")",
+        submittedAt:new Date().toISOString()
+      };
+      state.protests.push(rec);
+      postProtest(rec);
+      protestFormOpen=false;protestJustSubmitted=true;
+      renderDiscipline();return;
+    }
     if(t.id==="doaddrefs"){
       var taR=document.getElementById("pasterefs");
       var names=parseRefNames(taR.value);
@@ -2682,6 +2818,7 @@ function syncFromServer(){
     });
     if(d.refs&&JSON.stringify(d.refs)!==JSON.stringify(state.refs)){state.refs=d.refs;changed=true;}
     if(d.refAssignments&&JSON.stringify(d.refAssignments)!==JSON.stringify(state.refAssignments)){state.refAssignments=d.refAssignments;changed=true;}
+    if(d.protests&&d.protests.length!==state.protests.length){state.protests=d.protests;changed=true;}
     if(changed){rebuild();renderAll();}
   }).catch(function(){/* offline — keep showing the last known state */});
 }

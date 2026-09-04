@@ -25,7 +25,8 @@
    one deployment, so no CORS to think about):
 
      GET  /api/state
-       -> { sheets: {...}, refs: [...], refAssignments: {...} }
+       -> { sheets: {...}, refs: [...], refAssignments: {...},
+            protests: [...] }
        Full read, used on page load and by the poll loop.
 
      POST /api/sheet
@@ -50,6 +51,16 @@
        head referee can assign one referee per game ahead of the
        tournament and have it show up on everyone's schedule.
 
+     POST /api/protest
+       body: { protest: {...} }
+       Appends one protest record to the shared log (captains file
+       these from the Cards tab). Append-only — nothing here ever
+       edits or removes a past protest; that's a human decision,
+       made in person with the Head Marshal, not a UI action. See
+       CLAUDE.md section 3's existing protest rule (written, within
+       15 minutes, $50 cash) — this digitizes the record, it doesn't
+       replace the rule.
+
    Anything that isn't /api/* falls through to the static site
    (env.ASSETS). In practice Cloudflare serves a matching static
    asset before this Worker's fetch() is even invoked, so that
@@ -68,7 +79,8 @@ export class TournamentState {
       var sheets = (await this.storage.get("sheets")) || {};
       var refs = (await this.storage.get("refs")) || [];
       var refAssignments = (await this.storage.get("refAssignments")) || {};
-      return json({ sheets: sheets, refs: refs, refAssignments: refAssignments });
+      var protests = (await this.storage.get("protests")) || [];
+      return json({ sheets: sheets, refs: refs, refAssignments: refAssignments, protests: protests });
     }
 
     if (request.method === "POST" && url.pathname === "/sheet") {
@@ -123,6 +135,23 @@ export class TournamentState {
         delete refAssignments2[assignGameId];
       }
       await this.storage.put("refAssignments", refAssignments2);
+      return json({ ok: true });
+    }
+
+    if (request.method === "POST" && url.pathname === "/protest") {
+      var protestBody;
+      try {
+        protestBody = await request.json();
+      } catch (e) {
+        return json({ error: "body must be JSON" }, 400);
+      }
+      var protest = protestBody && protestBody.protest;
+      if (!protest || typeof protest !== "object" || !protest.id) {
+        return json({ error: "expected { protest: {id, ...} }" }, 400);
+      }
+      var protests2 = (await this.storage.get("protests")) || [];
+      protests2.push(protest);
+      await this.storage.put("protests", protests2);
       return json({ ok: true });
     }
 
