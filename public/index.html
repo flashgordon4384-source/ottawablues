@@ -1316,26 +1316,13 @@ function renderNow(){
   }
 
   html+='<div class="grid2">'+
-    '<div class="card"><h3>In progress <span class="pos">'+inProgress.length+'</span></h3><div class="body'+(inProgress.length?" flush":"")+'">'+
-    (inProgress.length
-      ?'<div class="fixtures" style="padding:12px">'+inProgress.slice(0,4).map(fixtureCard).join("")+'</div>'
-      :'<p class="note">Nobody is currently entering a sheet.</p>')+
-    '</div></div>'+
-    '<div class="card"><h3>Just finished</h3><div class="body'+(finished.length?" flush":"")+'">'+
-    (finished.length
-      ?'<div class="fixtures" style="padding:12px">'+finished.slice(0,4).map(fixtureCard).join("")+'</div>'
-      :'<p class="note">No results recorded yet.</p>')+
-    '</div></div>'+
-  '</div>';
-
-  html+='<div class="grid2">'+
     '<div class="card"><h3>Standings snapshot</h3><div class="body flush"><div class="tablewrap"><table><tbody>'+
     DIVS.map(function(d){
       var rows=standings(d).slice(0,3);
       var out='<tr><td colspan="3" style="padding-top:10px"><span class="tag '+d+'">'+DIV_NAME[d]+'</span></td></tr>';
       if(!rows.length)return out+'<tr><td colspan="3" class="note" style="padding:2px 0 10px">No games played yet.</td></tr>';
       return out+rows.map(function(r,i){
-        return '<tr><td class="pos">'+(i+1)+'</td><td class="teamname"><span class="teamline">'+teamBadge(team(r.id),20)+'<span class="nm">'+esc(teamName(r.id))+'</span></span></td><td class="n"><b>'+r.pts+'</b></td></tr>';
+        return '<tr><td class="pos">'+(i+1)+'</td><td class="teamname"><span class="teamline">'+teamBadge(team(r.id),40)+'<span class="nm">'+esc(teamName(r.id))+'</span></span></td><td class="n"><b>'+r.pts+'</b></td></tr>';
       }).join("");
     }).join("")+
     '</tbody></table></div>'+
@@ -1346,9 +1333,22 @@ function renderNow(){
       var scorers=leadingScorers(5);
       if(!scorers.length)return '<p class="note" style="padding:14px">No agreed goals recorded yet.</p>';
       return '<div class="tablewrap"><table><tbody>'+scorers.map(function(s,i){
-        return '<tr><td class="pos">'+(i+1)+'</td><td class="teamname"><span class="teamline">'+teamBadge(s.team,20)+'<span class="nm">'+esc(displayName(s.player))+'</span></span></td><td class="n"><b>'+s.goals+'</b></td></tr>';
+        return '<tr><td class="pos">'+(i+1)+'</td><td class="teamname"><span class="teamline">'+teamBadge(s.team,40)+'<span class="nm">'+esc(displayName(s.player))+'</span></span></td><td class="n"><b>'+s.goals+'</b></td></tr>';
       }).join("")+'</tbody></table></div>';
     })()+
+    '</div></div>'+
+  '</div>';
+
+  html+='<div class="grid2">'+
+    '<div class="card"><h3>In progress <span class="pos">'+inProgress.length+'</span></h3><div class="body'+(inProgress.length?" flush":"")+'">'+
+    (inProgress.length
+      ?'<div class="fixtures" style="padding:12px">'+inProgress.slice(0,4).map(fixtureCard).join("")+'</div>'
+      :'<p class="note">Nobody is currently entering a sheet.</p>')+
+    '</div></div>'+
+    '<div class="card"><h3>Just finished</h3><div class="body'+(finished.length?" flush":"")+'">'+
+    (finished.length
+      ?'<div class="fixtures" style="padding:12px">'+finished.slice(0,4).map(fixtureCard).join("")+'</div>'
+      :'<p class="note">No results recorded yet.</p>')+
     '</div></div>'+
   '</div>';
 
@@ -1546,7 +1546,7 @@ function renderStandings(){
       '<thead><tr><th></th><th>Team</th><th class="n">P</th><th class="n">W</th><th class="n">D</th><th class="n">L</th>'+
       '<th class="n">GF</th><th class="n">GA</th><th class="n">GD</th><th class="n">Y</th><th class="n">R</th><th class="n">Pts</th></tr></thead><tbody>';
     rows.forEach(function(r,i){
-      html+='<tr><td class="pos">'+(i+1)+'</td><td class="teamname"><span class="teamline">'+teamBadge(team(r.id),20)+'<span class="nm">'+esc(teamName(r.id))+'</span></span>'+(r.coin?' <span class="tag bad">coin toss</span>':'')+'</td>'+
+      html+='<tr><td class="pos">'+(i+1)+'</td><td class="teamname"><span class="teamline">'+teamBadge(team(r.id),40)+'<span class="nm">'+esc(teamName(r.id))+'</span></span>'+(r.coin?' <span class="tag bad">coin toss</span>':'')+'</td>'+
         '<td class="n">'+r.p+'</td><td class="n">'+r.w+'</td><td class="n">'+r.d+'</td><td class="n">'+r.l+'</td>'+
         '<td class="n">'+r.gf+'</td><td class="n">'+r.ga+'</td><td class="n">'+(r.gf-r.ga>0?"+":"")+(r.gf-r.ga)+'</td>'+
         '<td class="n">'+r.y+'</td><td class="n">'+r.r+'</td><td class="n"><b>'+r.pts+'</b></td></tr>';
@@ -1614,7 +1614,7 @@ function renderTeams(){
       var sq=squad(t.id),w=sq.filter(function(p){return p.gender==="f";}).length;
       var gs=GAMES.filter(function(g){return homeId(g)===t.id||awayId(g)===t.id;}).length;
       var sgn=sq.filter(signed).length;
-      html+='<tr><td class="teamname"><span class="teamline">'+teamBadge(t,20)+'<span class="nm">'+esc(t.name)+'</span></span></td><td class="n">'+sq.length+'</td>'+
+      html+='<tr><td class="teamname"><span class="teamline">'+teamBadge(t,40)+'<span class="nm">'+esc(t.name)+'</span></span></td><td class="n">'+sq.length+'</td>'+
         '<td class="n"'+(w<2?' style="color:var(--alarm);font-weight:600"':'')+'>'+w+'</td>'+
         '<td class="n"'+(sgn<sq.length?' style="color:var(--alarm);font-weight:600"':'')+'>'+sgn+'/'+sq.length+'</td>'+
         '<td class="n">'+gs+'</td>'+
@@ -2340,7 +2340,7 @@ function showRoster(teamId){
     '<th class="n">GF</th><th class="n">GA</th><th class="n">GD</th><th class="n">Pts</th></tr></thead><tbody>';
   rows.forEach(function(r,i){
     html+='<tr'+(r.id===teamId?' style="background:var(--oyster)"':'')+'><td class="pos">'+(i+1)+'</td>'+
-      '<td class="teamname"><span class="teamline">'+teamBadge(team(r.id),20)+'<span class="nm">'+esc(teamName(r.id))+'</span></span></td>'+
+      '<td class="teamname"><span class="teamline">'+teamBadge(team(r.id),40)+'<span class="nm">'+esc(teamName(r.id))+'</span></span></td>'+
       '<td class="n">'+r.p+'</td><td class="n">'+r.w+'</td><td class="n">'+r.d+'</td><td class="n">'+r.l+'</td>'+
       '<td class="n">'+r.gf+'</td><td class="n">'+r.ga+'</td><td class="n">'+(r.gf-r.ga>0?"+":"")+(r.gf-r.ga)+'</td>'+
       '<td class="n"><b>'+r.pts+'</b></td></tr>';
