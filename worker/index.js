@@ -25,7 +25,7 @@
    one deployment, so no CORS to think about):
 
      GET  /api/state
-       -> { sheets: { [gameId]: { marshal, ref } } }
+       -> { sheets: {...}, refs: [...], refAssignments: {...} }
        Full read, used on page load and by the poll loop.
 
      POST /api/sheet
@@ -33,6 +33,22 @@
        Read-modify-write of just that one game's one side, done
        inside the Durable Object so it's naturally serialized —
        no lost-update race even if two requests land at once.
+
+     POST /api/refs
+       body: { refs: [{ id, name }, ...] }
+       Full replace of the master referee list. Organizer-only in
+       the client UI; not re-checked here, same demo-tier trust
+       model as everything else in this app (see CLAUDE.md section
+       5 on access codes). Low-frequency, single-editor in practice,
+       so a full replace is simpler than a diff and good enough.
+
+     POST /api/assign
+       body: { gameId, refId }  (refId: string id from the master
+       list, or null to unassign)
+       Read-modify-write of just that one game's assignment — same
+       per-game granularity as /api/sheet, added 5 Sept 2026 so the
+       head referee can assign one referee per game ahead of the
+       tournament and have it show up on everyone's schedule.
 
    Anything that isn't /api/* falls through to the static site
    (env.ASSETS). In practice Cloudflare serves a matching static
@@ -50,7 +66,9 @@ export class TournamentState {
 
     if (request.method === "GET" && url.pathname === "/state") {
       var sheets = (await this.storage.get("sheets")) || {};
-      return json({ sheets: sheets });
+      var refs = (await this.storage.get("refs")) || [];
+      var refAssignments = (await this.storage.get("refAssignments")) || {};
+      return json({ sheets: sheets, refs: refs, refAssignments: refAssignments });
     }
 
     if (request.method === "POST" && url.pathname === "/sheet") {
@@ -70,6 +88,41 @@ export class TournamentState {
       if (!sheets2[gameId]) sheets2[gameId] = { marshal: null, ref: null };
       sheets2[gameId][side] = entry;
       await this.storage.put("sheets", sheets2);
+      return json({ ok: true });
+    }
+
+    if (request.method === "POST" && url.pathname === "/refs") {
+      var refBody;
+      try {
+        refBody = await request.json();
+      } catch (e) {
+        return json({ error: "body must be JSON" }, 400);
+      }
+      if (!Array.isArray(refBody && refBody.refs)) {
+        return json({ error: "expected { refs: [{id, name}, ...] }" }, 400);
+      }
+      await this.storage.put("refs", refBody.refs);
+      return json({ ok: true });
+    }
+
+    if (request.method === "POST" && url.pathname === "/assign") {
+      var assignBody;
+      try {
+        assignBody = await request.json();
+      } catch (e) {
+        return json({ error: "body must be JSON" }, 400);
+      }
+      var assignGameId = assignBody && assignBody.gameId;
+      if (!assignGameId) {
+        return json({ error: "expected { gameId, refId }" }, 400);
+      }
+      var refAssignments2 = (await this.storage.get("refAssignments")) || {};
+      if (assignBody.refId) {
+        refAssignments2[assignGameId] = assignBody.refId;
+      } else {
+        delete refAssignments2[assignGameId];
+      }
+      await this.storage.put("refAssignments", refAssignments2);
       return json({ ok: true });
     }
 
