@@ -146,10 +146,12 @@ main{padding-top:20px}
 .fix.done{border-left:4px solid var(--pitch)}
 .fix.part{border-left:4px solid var(--whistle)}
 .fix .fixtop{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--slate);font-weight:600;margin-bottom:10px}
-.fix .fixtop .field{color:#fff;padding:2px 9px;border-radius:4px;font-weight:700;letter-spacing:.06em}
-.fix .fixtop .field-1{background:var(--f1)}
-.fix .fixtop .field-2{background:var(--f2)}
-.fix .fixtop .field-3{background:var(--f3)}
+/* Field colour chip -- self-contained (not scoped to .fixtop) so it
+   also works in the Officials assignments table. */
+.field{display:inline-block;color:#fff;padding:2px 9px;border-radius:4px;font-weight:700;font-size:11px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.field.field-1,.fieldhead.field-1{background:var(--f1)}
+.field.field-2,.fieldhead.field-2{background:var(--f2)}
+.field.field-3,.fieldhead.field-3{background:var(--f3)}
 .matchside{display:flex;align-items:center;gap:12px;padding:5px 0}
 .matchside .team-badge{flex:none}
 .matchnm{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
@@ -219,6 +221,10 @@ tr.qual td{background:var(--pitch-soft)}
 .rosterrow .pname .g{color:var(--slate);font-size:11px;margin-left:5px}
 .refrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--rule-soft);font-size:14px}
 .refrow:last-child{border-bottom:none}
+/* Officials assignments table -- shaded in bands per kick-off slot
+   (not per row) so a run of same-time games reads as one group. */
+.assign-table tbody tr.alt td{background:var(--oyster)}
+.assign-table select{max-width:100%}
 .rosterrow.out{opacity:.45}
 .counters{display:flex;gap:6px;align-items:center}
 .ctr{display:flex;align-items:center;border:1px solid var(--rule);border-radius:6px;overflow:hidden}
@@ -2116,12 +2122,8 @@ function renderWaiver(){
    carries that label). Everyone else gets a read-only pointer to
    Schedule, where both assignments actually show up (fixtureCard).
    --------------------------------------------------------- */
-function officialSubhead(text){
-  return '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:20px;font-weight:700;'+
-    'text-transform:uppercase;letter-spacing:.02em;margin:28px 0 4px">'+text+'</div>';
-}
-function officialListCard(list,taId,addBtnId,msgId,delAttr){
-  return '<div class="card"><h3>Master list <span class="pos">'+list.length+'</span></h3><div class="body">'+
+function officialListCard(list,title,taId,addBtnId,msgId,delAttr){
+  return '<div class="card"><h3>'+esc(title)+' <span class="pos">'+list.length+'</span></h3><div class="body">'+
     '<p class="note" style="margin-bottom:8px">One name per line.</p>'+
     '<textarea id="'+taId+'" placeholder="Alex Nguyen&#10;Priya Shah&#10;Marc Dubois"></textarea>'+
     '<div class="btnrow" style="margin-top:8px"><button class="btn" id="'+addBtnId+'">Add</button></div>'+
@@ -2133,28 +2135,40 @@ function officialListCard(list,taId,addBtnId,msgId,delAttr){
       }).join("")+'</div>':'')+
   '</div></div>';
 }
-function officialAssignTable(colLabel,list,assignMap,assignAttr){
-  var html='<div class="card"><h3>Assignments</h3><div class="body flush"><div class="tablewrap"><table>'+
-    '<thead><tr><th>Day</th><th>Time</th><th>Field</th><th>Game</th><th>'+esc(colLabel)+'</th></tr></thead><tbody>';
+/* One row per game, a column each for referee and marshal, instead
+   of the same 30-odd game rows listed twice. Whichever column a
+   viewer can't edit still shows the name (or "—"), read-only, for
+   context. Field gets the same colour chip as the schedule cards;
+   rows are shaded in bands per kick-off slot (not per row) so a
+   run of same-time games reads as one visual group. */
+function combinedAssignTable(refEditable,marEditable){
+  var html='<div class="card"><h3>Assignments</h3><div class="body flush"><div class="tablewrap"><table class="assign-table">'+
+    '<thead><tr><th>Day</th><th>Time</th><th>Field</th><th>Game</th><th>Referee</th><th>Marshal</th></tr></thead><tbody>';
+  var lastKey=null,groupIdx=-1;
   chronological().forEach(function(g){
+    var key=g.day+"|"+g.time;
+    if(key!==lastKey){groupIdx++;lastKey=key;}
     var label=g.stage==="pool"?(teamName(g.home)+" v "+teamName(g.away)):gameLabel(g);
-    var current=assignMap[g.id]||"";
-    html+='<tr><td>'+dayName(g.day)+'</td><td class="n">'+g.time+'</td><td>Field '+g.field+'</td>'+
-      '<td>'+esc(label)+'</td><td><select data-'+assignAttr+'="'+g.id+'">'+
-      '<option value="">— Unassigned —</option>'+
-      list.map(function(x){
-        return '<option value="'+x.id+'"'+(current===x.id?" selected":"")+'>'+esc(x.name)+'</option>';
-      }).join("")+
-      '</select></td></tr>';
+    var refCur=state.refAssignments[g.id]||"",marCur=state.marshalAssignments[g.id]||"";
+    html+='<tr'+(groupIdx%2?' class="alt"':'')+'>'+
+      '<td>'+dayName(g.day)+'</td><td class="n">'+g.time+'</td>'+
+      '<td><span class="field field-'+g.field+'">Field '+g.field+'</span></td>'+
+      '<td>'+esc(label)+'</td>'+
+      '<td>'+(refEditable
+        ?'<select data-assign="'+g.id+'"><option value="">— Unassigned —</option>'+
+          state.refs.map(function(r){return '<option value="'+r.id+'"'+(refCur===r.id?" selected":"")+'>'+esc(r.name)+'</option>';}).join("")+
+          '</select>'
+        :(esc(refName(refCur))||'<span class="pos">—</span>'))+
+      '</td>'+
+      '<td>'+(marEditable
+        ?'<select data-assignmarshal="'+g.id+'"><option value="">— Unassigned —</option>'+
+          state.marshals.map(function(m){return '<option value="'+m.id+'"'+(marCur===m.id?" selected":"")+'>'+esc(m.name)+'</option>';}).join("")+
+          '</select>'
+        :(esc(marshalName(marCur))||'<span class="pos">—</span>'))+
+      '</td></tr>';
   });
   html+='</tbody></table></div></div></div>';
   return html;
-}
-function officialReadOnlyCard(label,assignMap){
-  var n=Object.keys(assignMap).filter(function(k){return assignMap[k];}).length;
-  return '<div class="card"><h3>'+esc(label)+' assigned so far <span class="pos">'+n+'</span></h3><div class="body">'+
-    '<p class="note">See <button class="linkbtn" data-tab="schedule">Schedule</button> — each game shows its assigned '+
-    esc(label.toLowerCase())+' once one is set.</p></div></div>';
 }
 function renderOfficials(){
   var refAdmin=can("refListEdit"),refAssignOk=can("refAssign");
@@ -2162,31 +2176,26 @@ function renderOfficials(){
   var html='<div class="sechead"><h2>Officials</h2>'+
     '<p class="note">One referee and one field marshal assigned per game, each from their own master list. Assignments show on each game in Schedule.</p></div>';
 
-  html+=officialSubhead("Referees");
-  html+='<p class="note" style="margin-bottom:14px">'+
-    (refAdmin?"Paste names to build the list, then assign them to games below."
-      :refAssignOk?"Assign referees to games below. Only the organizer can edit the master list."
-      :"Assignments are set by the organizer and head referee.")+'</p>';
-  if(refAdmin)html+=officialListCard(state.refs,"pasterefs","doaddrefs","refaddmsg","delref");
-  if(refAssignOk){
-    html+=state.refs.length
-      ?officialAssignTable("Referee",state.refs,state.refAssignments,"assign")
-      :'<div class="msg warn">No referees on the master list yet'+(refAdmin?" — add some above.":" — ask the organizer to add the master list.")+'</div>';
-  } else if(!refAdmin){
-    html+=officialReadOnlyCard("Referee",state.refAssignments);
+  if(refAdmin||marAdmin){
+    html+='<div class="grid2">'+
+      (refAdmin?officialListCard(state.refs,"Referees","pasterefs","doaddrefs","refaddmsg","delref"):"")+
+      (marAdmin?officialListCard(state.marshals,"Field marshals","pastemarshals","doaddmarshals","marshaladdmsg","delmarshal"):"")+
+    '</div>';
   }
 
-  html+=officialSubhead("Field marshals");
-  html+='<p class="note" style="margin-bottom:14px">'+
-    (marAdmin?"Paste names to build the list, then assign them to games below."
-      :"Assignments are set by the organizer.")+'</p>';
-  if(marAdmin){
-    html+=officialListCard(state.marshals,"pastemarshals","doaddmarshals","marshaladdmsg","delmarshal");
-    html+=state.marshals.length
-      ?officialAssignTable("Marshal",state.marshals,state.marshalAssignments,"assignmarshal")
-      :'<div class="msg warn">No field marshals on the master list yet — add some above.</div>';
+  if(refAssignOk||marAssignOk){
+    var warnings=[];
+    if(refAssignOk&&!state.refs.length)warnings.push("No referees on the master list yet"+(refAdmin?" — add some above.":" — ask the organizer to add the master list."));
+    if(marAssignOk&&!state.marshals.length)warnings.push("No field marshals on the master list yet"+(marAdmin?" — add some above.":""));
+    if(warnings.length)html+='<div class="msg warn">'+warnings.join(" ")+'</div>';
+    html+=combinedAssignTable(refAssignOk,marAssignOk);
   } else {
-    html+=officialReadOnlyCard("Marshal",state.marshalAssignments);
+    var refCount=Object.keys(state.refAssignments).filter(function(k){return state.refAssignments[k];}).length;
+    var marCount=Object.keys(state.marshalAssignments).filter(function(k){return state.marshalAssignments[k];}).length;
+    html+='<div class="card"><h3>Assigned so far</h3><div class="body">'+
+      '<p class="note">'+refCount+' referee'+(refCount===1?"":"s")+' and '+marCount+' field marshal'+(marCount===1?"":"s")+
+      ' assigned so far. See <button class="linkbtn" data-tab="schedule">Schedule</button> — each game shows both once set.</p>'+
+    '</div></div>';
   }
 
   $("#p-officials").innerHTML=html;
