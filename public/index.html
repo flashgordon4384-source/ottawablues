@@ -1758,8 +1758,8 @@ function renderDiscipline(){
     var p=player(pid),R=d[pid];
     var reason=R.expelled?"Two red cards — out of the tournament":
       (R.miss.length?"Misses "+R.miss.map(function(m){return m.label;}).join(", "):"Suspension outstanding — no further game scheduled");
-    html+='<div class="discrow"><div><b>'+esc(displayName(p))+'</b> <span class="pos">#'+p.jersey+' · '+esc(teamName(p.teamId))+'</span>'+
-      '<div class="note" style="margin-top:2px">'+esc(reason)+'</div></div>'+
+    html+='<div class="discrow" style="align-items:flex-start"><div><b>'+esc(displayName(p))+'</b> <span class="pos">#'+p.jersey+' · '+esc(teamName(p.teamId))+'</span>'+
+      '<div class="note" style="margin-top:2px">'+esc(reason)+'</div>'+cardEventLines(R)+'</div>'+
       '<div class="cards">'+pips(R.yTotal,"y")+pips(R.rTotal,"r")+'</div></div>';
   });
   html+='</div></div>';
@@ -1769,7 +1769,7 @@ function renderDiscipline(){
   carrying.sort(function(a,b){return (d[b].yTotal+d[b].rTotal*3)-(d[a].yTotal+d[a].rTotal*3);}).forEach(function(pid){
     var p=player(pid),R=d[pid];
     var warn=R.y===RULES.yellowsToSuspend-1?'<span class="tag warn">One yellow from a suspension</span>':'';
-    html+='<div class="discrow"><div><b>'+esc(displayName(p))+'</b> <span class="pos">#'+p.jersey+' · '+esc(teamName(p.teamId))+'</span> '+warn+'</div>'+
+    html+='<div class="discrow" style="align-items:flex-start"><div><b>'+esc(displayName(p))+'</b> <span class="pos">#'+p.jersey+' · '+esc(teamName(p.teamId))+'</span> '+warn+cardEventLines(R)+'</div>'+
       '<div class="cards">'+pips(R.yTotal,"y")+pips(R.rTotal,"r")+'</div></div>';
   });
   html+='</div></div>';
@@ -1777,6 +1777,19 @@ function renderDiscipline(){
   $("#p-discipline").innerHTML=html;
 }
 function pips(n,k){var s="";for(var i=0;i<n;i++)s+='<span class="pip '+k+'"></span>';return s;}
+/* Which game(s) a player's cards came from, and who was reffing --
+   R.events already carries gameId per card (discipline()); this
+   just resolves it against the game list and the ref assignment
+   added alongside referees/marshals. */
+function cardEventLines(R){
+  return R.events.filter(function(e){return e.type==="y"||e.type==="r";}).map(function(ev){
+    var g=gameById(ev.gameId);
+    var where=g?(dayName(g.day)+' '+g.time+' — '+(g.stage==="pool"?teamName(g.home)+" v "+teamName(g.away):gameLabel(g))):ev.gameId;
+    var ref=g?refName(state.refAssignments[g.id]):"";
+    return '<div class="note" style="margin-top:2px">'+(ev.type==="y"?"Yellow":"Red")+' — '+esc(where)+
+      (ref?' · Ref: '+esc(ref):' · Ref: not yet assigned')+'</div>';
+  }).join("");
+}
 
 /* Card protests — captain-filed, organizer/head-referee visible.
    Digitizes the existing rule (CLAUDE.md section 3: written, within
