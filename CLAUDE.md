@@ -41,7 +41,7 @@ tournament tool ships and nothing else.
   build step, no framework, no package.json, no dependencies.
 - **Headers:** `public/_headers`
 - **Backend:** `worker/index.js` — a Durable Object holding shared
-  game-sheet entries. See "Shared state" below. Not live yet.
+  game-sheet entries. See "Shared state" below. **Live as of 4 Sept 2026.**
 - **Host:** Cloudflare, project `ottawablues`. Deploys automatically
   on push to `main`.
 
@@ -138,7 +138,7 @@ The old URLs are gone, not redirected — anyone with the old link
 better long-term answer (see §11) but wasn't done here — this was
 the free, five-minute fix.
 
-### Shared state — in progress, not deployed
+### Shared state — live since 4 Sept 2026
 
 `wrangler.toml` and `worker/index.js` were added 31 August 2026 to
 start on the database (§7's "actual blocker"). A Durable Object holds
@@ -154,16 +154,21 @@ why (schemaless Durable Object storage means extending it later, for
 penalty entry or forfeits or whatever comes next, is cheap; there was
 no reason to wait for the rest of §7 to settle before starting).
 
-**None of this is live.** `public/index.html` now calls `/api/state`
-and `/api/sheet`, but fails silently with no server behind those
-paths — confirmed the page still works normally with nothing
-deployed. To actually turn it on: create the Durable Object binding
-and change the dashboard's Deploy command from the explicit
-`--assets`/`--name` flags to plain `npx wrangler deploy` so it reads
-this `wrangler.toml` instead. That's a live, together, walk-through-it
-session — not something to do from a diff. Target: working and
-testable well before 20 September 2026 (Abdel's schedule is due the
-15th).
+**Turned on 4 September 2026.** The dashboard's Deploy command was
+changed from the explicit `--assets`/`--name` flags to plain
+`npx wrangler deploy`, which reads this `wrangler.toml` and provisions
+the Durable Object binding and migration. Verified live the same day
+with a real read/write/round-trip against `/api/state` and
+`/api/sheet` — a marshal or referee submitting a sheet on one phone
+now actually reaches every other phone within the ~7-second poll
+interval, not just the tab it was entered on. Target was well before
+20 September 2026 (Abdel's schedule is due the 15th) — this is done
+with room to spare.
+
+Still true and unchanged: standings, cards, rosters and tie-breakers
+are computed client-side exactly as before, reading whatever sheets
+have synced. The database only carries `state.sheets` — nothing else
+moved server-side.
 
 ---
 
@@ -594,15 +599,21 @@ player was injured and left the game. Nobody has ever aggregated it.
 
 ## 7. What is not built
 
-**The shared database. This is the blocker.** Every phone currently
-holds its own copy of the data. Three marshals on three phones produce
-three records that never meet. Until this is solved the tool demos
-well and **cannot be used live**. This is the next build and the one
-that matters.
+**The shared database — closed 4 Sept 2026.** Was the blocker: every
+phone held its own copy of the data, so three marshals on three
+phones produced three records that never met. A Durable Object now
+carries `state.sheets` (marshal and referee game-sheet entries)
+shared across every device — see "Shared state" in §2 for how it
+works and how it was verified live.
 
-It also means the waiver link only works in the same browser. A
-captain cannot send a player a link that reaches Gord's copy. Until
-then, waivers are done at a laptop.
+**Only game-sheet entries moved server-side. Everything else in
+`state` is still local to one browser tab** — rosters, waivers,
+check-in, team logos, shirt numbers. The waiver link still only
+works in the same browser a captain cannot send a player a link
+that reaches Gord's copy; waivers are still done at a laptop. This
+was deliberately scoped narrow (see §2) — the schemaless Durable
+Object storage makes extending it to the next piece cheap whenever
+that's the priority, but nothing beyond `sheets` has been done yet.
 
 Also outstanding:
 
@@ -611,7 +622,7 @@ Also outstanding:
   advanced.
 - **Crossover games** for pools of three.
 - **Shared team logos** — uploads via the roster editor are local to
-  that tab, same as the rest of §7's shared-state problem.
+  that tab; not part of the `sheets`-only database above.
 - **Access codes out of the page source.**
 - **Forfeit as a result type** (2:0, recorded, not a normal score).
 - **Real 2026 teams and rosters**, once Devo settles the counts.
@@ -735,7 +746,8 @@ maintenance-free.
 
 ## 13. Before the tournament
 
-- [ ] Shared database built and tested
+- [x] Shared database built and tested — §2, 4 Sept 2026: live, verified
+      read/write/round-trip against `/api/state` and `/api/sheet`
 - [ ] Access codes out of the page source
 - [ ] Penalty entry for semis and finals
 - [ ] Real 2026 teams, divisions and pools loaded
