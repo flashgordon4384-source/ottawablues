@@ -1,14 +1,20 @@
 /* ==========================================================
    OBCC 2026 — shared tournament state
    ==========================================================
-   A Durable Object holding one thing: game-sheet entries
-   (marshal + referee), per game. This is the actual blocker
-   named in CLAUDE.md section 7 — "three marshals on three
-   phones produce three records that never meet." Nothing else
-   moves server-side yet: standings, cards, tie-breakers, rosters
-   all stay computed client-side in public/index.html exactly as
-   they are today. This just makes state.sheets shared instead of
-   trapped in one browser tab.
+   A Durable Object holding one thing: game-sheet entries, per
+   game. This is the actual blocker named in CLAUDE.md section 7 —
+   "three marshals on three phones produce three records that
+   never meet." Nothing else moves server-side yet: standings,
+   cards, tie-breakers, rosters all stay computed client-side in
+   public/index.html exactly as they are today. This just makes
+   state.sheets shared instead of trapped in one browser tab.
+
+   Changed 5 Sept 2026: was two independent entries per game
+   ("marshal" and "ref", compared for agreement). Now there's one
+   ("marshal") plus a "precheck" record for the pre-game roster/
+   eligibility confirmation — see CLAUDE.md section 6 for why. The
+   "ref" side value is still accepted below for old data written
+   before this change; nothing writes it anymore.
 
    Deliberately narrow endpoints instead of one big state blob —
    each request touches only the one game/side it's about, so two
@@ -31,10 +37,11 @@
        Full read, used on page load and by the poll loop.
 
      POST /api/sheet
-       body: { gameId, side: "marshal" | "ref", entry }
+       body: { gameId, side: "marshal" | "precheck" | "ref", entry }
        Read-modify-write of just that one game's one side, done
        inside the Durable Object so it's naturally serialized —
        no lost-update race even if two requests land at once.
+       "ref" is accepted but unused going forward (see above).
 
      POST /api/refs
        body: { refs: [{ id, name }, ...] }
@@ -117,11 +124,11 @@ export class TournamentState {
       var gameId = body && body.gameId;
       var side = body && body.side;
       var entry = body && body.entry;
-      if (!gameId || (side !== "marshal" && side !== "ref") || typeof entry !== "object" || !entry) {
-        return json({ error: "expected { gameId, side: 'marshal'|'ref', entry }" }, 400);
+      if (!gameId || (side !== "marshal" && side !== "precheck" && side !== "ref") || typeof entry !== "object" || !entry) {
+        return json({ error: "expected { gameId, side: 'marshal'|'precheck', entry }" }, 400);
       }
       var sheets2 = (await this.storage.get("sheets")) || {};
-      if (!sheets2[gameId]) sheets2[gameId] = { marshal: null, ref: null };
+      if (!sheets2[gameId]) sheets2[gameId] = { marshal: null, precheck: null };
       sheets2[gameId][side] = entry;
       await this.storage.put("sheets", sheets2);
       return json({ ok: true });

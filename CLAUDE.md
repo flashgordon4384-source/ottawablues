@@ -295,15 +295,15 @@ is final.
 | Role | Can do | Demo code |
 |---|---|---|
 | Public | Schedule, scores, standings | — |
-| Field marshal | Enter the marshal record at their field. **Cannot see the referee record** | 1111 |
-| Head referee (Babak) | Enter the referee record. See both. Settle disagreements | 2222 |
-| Organizer (Gord, Sable) | Everything, including marshal notes and rosters | 3333 |
+| Field marshal | Run the pre-game check with each captain, then enter the one game sheet at their field, with the referee confirming at the end | 1111 |
+| Head referee (Babak) | No sheet entry — confirms what goes on the marshal's sheet at the end of each game, in person. Assigns referees on Officials, unlocks a submitted sheet to fix a mistake, sees filed protests | 2222 |
+| Organizer (Gord, Sable) | Everything, including marshal notes, rosters, and running a sheet themselves | 3333 |
 | Team captain | Their own team's roster, waivers, check-in and logo only — sees the check-in overview for every team but can only open their own | one code per team, derived from the team id (`captainCode()`), organizer looks it up on Rosters and hands it to the captain |
 
-**Referees deliberately have no access.** Referees report to the head
-referee; marshals report to Gord. The app preserves those existing
-reporting lines rather than inventing new ones. Babak enters the
-referee side because sheets already flow to him.
+**Roles and permissions are due a proper pass** (Gord, 5 Sept 2026) —
+the table above is "for now," reflecting only what the single-sheet
+change actually required. Don't take it as a settled, final
+permission model.
 
 **The codes are in the page source.** Acceptable for a demo,
 unacceptable once a code controls the official record. This must be
@@ -325,7 +325,57 @@ until that work ships. Right now this mainly helps in one browser at
 a time (e.g. handing a laptop to a captain at check-in), not "captains
 use this from home." Don't oversell it as more than that.
 
-### Why two records
+### One game sheet, entered together — changed 5 Sept 2026
+
+**This replaces "why two records" below**, which described the
+original design: a marshal entry and a referee entry, captured
+independently and blind to each other, compared for agreement, with
+an organizer settling any disagreement. That was never actually how
+it happened on the ground — see the "dual capture does not exist
+today" note preserved below, which said as much before this change
+landed. Gord's correction: the marshal carries the one phone, and
+only opens it at the **end** of the game, when they find the referee
+and the two of them fill in the single sheet together — the referee
+tells the marshal what to write, the marshal is the one who types.
+There was never a second device entering a second record, so
+building the app around comparing two records was solving a problem
+that didn't exist, at the cost of workflow no volunteer was actually
+going to follow.
+
+What changed in the code: `state.sheets[gameId]` now holds one
+`marshal` entry (the shared record) instead of `marshal` + `ref` +
+`resolved`-as-tiebreak. `result()`, `sheetStatus()` and
+`agreedLines()` all read that one entry — no more "agreed"/
+"disputed"/"part" states, no Marshal/Referee toggle on the sheet, no
+"records disagree, pick one" flow. `resolved` survives as a manual
+correction path (forfeits, fixing a mistake after the fact via
+**Unlock**), not for settling a disagreement that can't happen
+anymore. Old sheets already in the shared database (a real `g1`
+predates this) still read fine — `.marshal` was always the field
+that mattered, `.ref` just goes unused now.
+
+**New: the pre-game check.** Before the end-of-game sheet unlocks,
+the marshal confirms roster, jersey numbers and eligibility with
+each captain — two independent confirmations (`sheet(id).precheck.
+home` / `.away`), since they're two different captains. This is a
+new required step, not just the eligibility warnings the sheet
+already showed in passing — it creates an actual record that the
+check happened, synced the same way as everything else (`POST
+/api/sheet` with `side:"precheck"`). Skipped entirely for sheets
+that predate this feature (checked via whether the entry was *ever*
+submitted, not just currently locked, so reopening an old sheet with
+**Unlock** doesn't retroactively demand a pre-game check).
+
+**Roles, only adjusted as far as this required** — see the note under
+section 5's table. The referee still has no game-sheet typing
+access, same as before, but for a different reason: not "deliberately
+no access" as a reporting-line choice, but literally nothing to type,
+since there's one entry and the marshal is the one entering it. Babak
+(head referee) keeps the app open mainly for Officials (assigning
+referees) and Unlock (fixing a mistake) — Gord flagged that the full
+permission model needs a real pass, this is "for now."
+
+#### Why two records *(superseded above, kept for the record)*
 
 Each game has a marshal entry and a referee entry, entered
 independently and blind to each other. Where they agree, the score
@@ -563,6 +613,45 @@ still hot-linked from the live WordPress site and need to become self-hosted ass
 isn't built yet even though content is centralized for it). Not deployed anywhere yet — it's a
 file you can open directly in a browser.
 
+**Batch eight (5 Sept 2026)** — officials, protests, and the single-sheet redesign.
+
+Extended the shared database three more times, same pattern each time (a narrow `/api/*`
+endpoint, a master list and/or a per-game assignment): **referees** (master list + one assigned
+per game), **field marshals** (same, mirrored — no separate "head marshal" role exists to split
+assignment to, so it's organizer-only there, unlike referees where the head referee can also
+assign), and **card protests** (captains file one from Cards — team, game, player, yellow/red,
+narrative, who they've talked to, an "other" option; append-only log, visible to organizer/head
+referee; the confirmation message sends the captain to find the Head Marshal in person, since
+this digitizes CLAUDE.md's existing protest rule rather than replacing its in-person requirement).
+Both assignments show as a neutral tag on every fixture card ("Ref: Alex Nguyen" / "Marshal:
+Jamie Fox"). The Referees tab was renamed **Officials** and redesigned as two side-by-side
+master-list cards plus one combined assignments table (Referee and Marshal as adjacent columns
+per game, not the same game list shown twice), Field 1/2/3 coloured to match the schedule, rows
+shaded in bands per kick-off slot.
+
+Fixed a real bug found while adding referee assignments to the Cards tab (which now shows which
+game and which ref for every card): `suspendedFor()` had an unconditional "if expelled, suspended
+everywhere" check that flagged a player as unable to play the very game they got their second red
+in. Fixed by routing expulsion through the same pending-queue mechanism single-game suspensions
+already used correctly.
+
+**Then the bigger change: one game sheet instead of two.** See "One game sheet, entered
+together" in section 5 for the full reasoning — the short version is that the original
+dual-blind-capture design assumed two people would each open the app independently, which was
+never how it actually happened; the marshal carries the one phone and only opens it at the end of
+the game, with the referee right there consulting on what to write. Rebuilt `result()`,
+`sheetStatus()`, `agreedLines()` and the whole sheet UI around one shared entry, removed the
+Marshal/Referee toggle and the "records disagree" flow, and added a new required pre-game
+check (roster/numbers/eligibility, confirmed independently with each captain) that gates the
+sheet until both are done — except for a sheet that's *ever* been submitted, so re-opening an old
+one via Unlock doesn't retroactively demand a pre-game check that already happened for real.
+Verified against the real `g1` entry already sitting in the live database (predates this change)
+to confirm old data still reads correctly with no crash.
+
+**Roles are "for now," not settled.** Gord's own framing: a real permissions pass is coming later
+across every role, not just the two this change touched. Don't treat the roles table in section 5
+as final.
+
 ### Design decisions worth preserving
 
 **The paste creates the player, not the waiver.** A captain pastes name
@@ -758,5 +847,8 @@ maintenance-free.
       entering a full fake game end to end — about a week out
 - [ ] Code freeze after the rehearsal
 - [ ] **Paper game sheets printed anyway.** Year one runs alongside
-      paper, not instead of it. It costs nothing and it is how you
-      find out whether the two records agree.
+      paper, not instead of it. It costs nothing and it's the
+      fallback if a phone dies or the app misbehaves mid-tournament
+      — not, as originally written here, a way to cross-check two
+      digital records against each other; there's only one now (see
+      section 5, 5 Sept 2026).

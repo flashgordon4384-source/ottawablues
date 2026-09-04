@@ -1067,14 +1067,16 @@ function chronological(){
 }
 
 /* ---------------------------------------------------------
-   7. STATE — two independent records per game.
+   7. STATE — one shared record per game, entered once by the
+   marshal with the referee physically consulting (changed 5 Sept
+   2026 -- see the note above result(), and CLAUDE.md section 6).
    --------------------------------------------------------- */
 var state={
   role:"public",
   captainTeam:null,        // set when role==="captain" -- which team they can edit
   numbers:{},              // gameId -> playerId -> number worn that game
   checkin:{},              // teamId -> {at, by}           // public | marshal | headref | admin
-  sheets:{},               // gameId -> {marshal:{}, ref:{}, resolved:{}}
+  sheets:{},               // gameId -> {marshal:{}, precheck:{home,away}, resolved:{}|null}
   tiebreak:{},             // "a|b" -> teamId ranked higher (coin toss, r8)
   bins:[],                 // live sin-bin timers
   refs:[],                 // master referee list, {id, name} -- synced via /api/refs
@@ -1092,10 +1094,25 @@ function blankEntry(){
     submitted:false, by:"", at:""
   };
 }
+/* Pre-game check, added 5 Sept 2026: at kickoff, the marshal
+   confirms roster/jersey numbers/eligibility with each team's
+   captain before the game starts -- a real record that it
+   happened, separate from (and required before) the end-of-game
+   entry above. One per side, not one per game, since it's two
+   separate captains. */
+function blankPrecheck(){
+  return {confirmed:false,by:"",at:""};
+}
 function sheet(gameId){
   if(!state.sheets[gameId]){
-    state.sheets[gameId]={marshal:blankEntry(),ref:blankEntry(),resolved:null};
+    state.sheets[gameId]={marshal:blankEntry(),precheck:{home:blankPrecheck(),away:blankPrecheck()},resolved:null};
   }
+  var s=state.sheets[gameId];
+  // Backward-compatible with sheets saved under the old two-record
+  // shape (a real "g1" in the live database has this) -- .marshal
+  // is already the right data either way, .ref just goes unused.
+  if(!s.marshal)s.marshal=blankEntry();
+  if(!s.precheck)s.precheck={home:blankPrecheck(),away:blankPrecheck()};
   return state.sheets[gameId];
 }
 function numberIn(gameId,p){
@@ -1121,41 +1138,40 @@ function entryScore(g,entry,which){
   return tot;
 }
 
-/* The published result. Marshal and referee entries must
-   agree, or an admin resolves it. Forfeits bypass both. */
+/* The published result.
+   Changed 5 Sept 2026 -- was "marshal and referee entries must
+   agree, or an admin resolves it" (two blind records, compared).
+   That assumed two different people would each open the app
+   independently, which isn't how it actually happens: the marshal
+   carries the one phone, and only sits down to enter anything at
+   the end of the game, with the referee right there consulting on
+   what to write. So there's one entry now, not two to reconcile --
+   see CLAUDE.md section 6 for the full reasoning and what this
+   replaced. `resolved` is kept as an escape hatch for a manual
+   correction (forfeit, fixing a mistake after the fact), not for
+   settling a disagreement that can't happen anymore. */
 function result(g){
   var s=state.sheets[g.id];
   if(!s)return null;
   if(s.resolved)return s.resolved;
-  if(!s.marshal.submitted||!s.ref.submitted)return null;
-  var mh=entryScore(g,s.marshal,"home"), ma=entryScore(g,s.marshal,"away");
-  var rh=entryScore(g,s.ref,"home"),     ra=entryScore(g,s.ref,"away");
-  if(mh===rh&&ma===ra)return {home:mh,away:ma,source:"agreed",pens:null,forfeit:null};
-  return null;
-}
-function disputed(g){
-  var s=state.sheets[g.id];
-  if(!s||s.resolved)return false;
-  if(!s.marshal.submitted||!s.ref.submitted)return false;
-  return !result(g);
+  var m=s.marshal;
+  if(!m||!m.submitted)return null;
+  return {home:entryScore(g,m,"home"),away:entryScore(g,m,"away"),source:"marshal",pens:null,forfeit:null};
 }
 function sheetStatus(g){
   var s=state.sheets[g.id];
   if(result(g))return "final";
-  if(!s)return "empty";
-  if(disputed(g))return "disputed";
-  if(s.marshal.submitted||s.ref.submitted)return "part";
-  var any=Object.keys(s.marshal.lines).length||Object.keys(s.ref.lines).length||s.marshal.kickoff;
+  if(!s||!s.marshal)return "empty";
+  var any=Object.keys(s.marshal.lines).length||s.marshal.kickoff;
   return any?"started":"empty";
 }
 
-/* The card record is whatever both sides agreed, else the
-   marshal's. Cards are rarely the disputed part. */
+/* Cards come from the one entry now -- no more "whichever side
+   agreed, else the marshal's" fallback logic, since there's only
+   ever the one record to read. */
 function agreedLines(g){
   var s=state.sheets[g.id];
-  if(!s)return {};
-  if(s.marshal.submitted)return s.marshal.lines;
-  if(s.ref.submitted)return s.ref.lines;
+  if(!s||!s.marshal)return {};
   return s.marshal.lines;
 }
 
@@ -1470,7 +1486,7 @@ function leadingScorers(limit){
 function renderNow(){
   var pool=chronological().filter(function(g){return g.stage==="pool";});
   var upcoming=pool.filter(function(g){return !result(g)&&sheetStatus(g)==="empty";});
-  var inProgress=pool.filter(function(g){var st=sheetStatus(g);return st==="started"||st==="part"||st==="disputed";});
+  var inProgress=pool.filter(function(g){return sheetStatus(g)==="started";});
   var finished=pool.filter(function(g){return !!result(g);}).slice().reverse();
 
   var html='<div class="sechead"><h2>Now</h2>'+
@@ -1502,7 +1518,7 @@ function renderNow(){
     '<div class="card"><h3>Leading scorers</h3><div class="body flush">'+
     (function(){
       var scorers=leadingScorers(5);
-      if(!scorers.length)return '<p class="note" style="padding:14px">No agreed goals recorded yet.</p>';
+      if(!scorers.length)return '<p class="note" style="padding:14px">No goals recorded yet.</p>';
       return '<div class="tablewrap"><table><tbody>'+scorers.map(function(s,i){
         return '<tr><td class="pos">'+(i+1)+'</td><td class="teamname"><span class="teamline">'+teamBadge(s.team,40)+'<span class="nm">'+esc(displayName(s.player))+'</span></span></td><td class="n"><b>'+s.goals+'</b></td></tr>';
       }).join("")+'</tbody></table></div>';
@@ -1552,29 +1568,26 @@ var HOWTO={
   },
   marshal:{
     label:"Field marshal",
-    blurb:"You keep the official score and card record for your field. Enter what happens — you can't see the referee's version, on purpose.",
+    blurb:"You carry the phone for your field, and you're the one who types. One sheet per game, entered once, with the referee right there confirming what goes on it.",
     steps:[
       "Get your access code from the organizer.",
       "Tap <b>Change</b> (top right) &rarr; <b>Field marshal</b> &rarr; enter the code.",
-      "Find your game on <b>Now</b> or <b>Schedule</b> and tap <b>Open game sheet</b>.",
-      "Confirm the actual kick-off time. Tick <b>Game was shortened</b> and say why if it didn't run the full 50 minutes.",
-      "As the game happens, log each goal, yellow and red against the right player with the +/&minus; steppers.",
+      "At kickoff, find your game on <b>Now</b> or <b>Schedule</b> and tap <b>Open game sheet</b> — it opens on the <b>pre-game check</b> first.",
+      "Confirm roster, jersey numbers and eligibility with each team's captain, then tap <b>Confirm</b> for that side. Both sides confirmed unlocks the actual sheet.",
+      "At the end of the game — not during — find the referee, and fill in the sheet together: actual kick-off, goals, yellows and reds, who they're against. The referee tells you what to write; you're the one typing.",
       "A card starts a sin-bin timer automatically (2 minutes yellow, 5 red) — it shows at the bottom of every screen until it runs out.",
-      "If a player is injured and leaves, tick <b>Injury</b> and note who.",
-      "Hit <b>Submit</b> when the game ends. You still can't see the referee's record — if the two don't match, an organizer settles it, not you.",
+      "If a player was injured and left, tick <b>Injury</b> and note who.",
+      "Hit <b>Submit</b> once you and the referee both agree it's right. That's the one and only record for the game — there's no second sheet to compare it against.",
       "You won't see rosters or waivers, yours or anyone else's — that's the captain's and organizer's job."
     ]
   },
   headref:{
     label:"Head referee",
-    blurb:"Same kind of record as a marshal, but you can see both sides once they're in, and you're the one who settles it if they disagree.",
+    blurb:"You don't type anything into the app yourself — at the end of each game, you're the one the marshal finds to confirm what goes on the one shared sheet.",
     steps:[
-      "Get your access code from the organizer.",
-      "Tap <b>Change</b> &rarr; <b>Head referee</b> &rarr; enter the code.",
-      "Open the same game sheet a marshal would, and enter your own record the same way — kickoff, goals, cards.",
-      "Once both sides are submitted, use the <b>Marshal</b> / <b>Referee</b> toggle on the sheet to compare them.",
-      "If they agree, the score publishes on its own. If they don't, you'll see <b>Records disagree</b> — pick which one publishes.",
-      "Separately, use <b>Officials</b> to assign one referee to each game from the organizer's master list — that's who's actually officiating, and it shows up on Schedule.",
+      "Get your access code from the organizer if you want to sign in — mainly useful for the two things below, not for entering a sheet.",
+      "At the end of a game, the marshal will find you. Tell them what happened — kickoff, goals, cards, who they're against — while they enter it. Nothing gets typed until you're both there.",
+      "Use <b>Officials</b> to assign one referee to each game from the organizer's master list — that's who's actually officiating, and it shows up on Schedule.",
       "Captain-filed card protests show up on <b>Cards</b>, at the bottom, once one's been submitted."
     ]
   },
@@ -1598,7 +1611,7 @@ var HOWTO={
     blurb:"You can see and do everything. Structure and Data are your two check-in points before the event.",
     steps:[
       "Sign in with the organizer code.",
-      "Enter or resolve any game sheet, for any team, at any time.",
+      "You can run the pre-game check and enter a game sheet yourself, same as a marshal — and <b>Unlock</b> a submitted one to fix a mistake, which only you and the head referee can do.",
       "Manage every team's roster, waivers, check-in and logo from <b>Rosters</b> — the same editor a captain uses, without the one-team restriction.",
       "Each team's captain code is visible only to you, in the <b>Rosters</b> check-in table — that's what you hand out.",
       "Check the <b>No photos</b> list on Rosters before anyone posts photos or video from the day.",
@@ -1692,7 +1705,7 @@ function renderSchedule(){
 
 function fixtureCard(g){
   var res=result(g),st=sheetStatus(g);
-  var cls=st==="final"?"fix done":(st==="part"||st==="started"||st==="disputed"?"fix part":"fix");
+  var cls=st==="final"?"fix done":(st==="started"?"fix part":"fix");
   var hTeam=team(homeId(g)),aTeam=team(awayId(g));
   var h=esc(g.stage==="pool"?teamName(g.home):sideLabel(g,"home"));
   var a=esc(g.stage==="pool"?teamName(g.away):sideLabel(g,"away"));
@@ -1702,8 +1715,6 @@ function fixtureCard(g){
 
   var tags="";
   if(st==="final")tags+='<span class="tag ok">Final</span>';
-  if(st==="disputed")tags+='<span class="tag bad">Records disagree</span>';
-  if(st==="part")tags+='<span class="tag warn">One record in</span>';
   if(st==="started")tags+='<span class="tag warn">In progress</span>';
   if(g.stage!=="pool")tags+='<span class="tag">'+stageName(g.stage)+'</span>';
   var assignedRef=refName(state.refAssignments[g.id]);
@@ -1712,7 +1723,7 @@ function fixtureCard(g){
   if(assignedMarshal)tags+='<span class="tag">Marshal: '+esc(assignedMarshal)+'</span>';
 
   var open=known?'<button class="linkbtn" data-sheet="'+g.id+'">'+
-      (can("marshalEntry")||can("refEntry")?"Open game sheet":"View sheet")+'</button>':'';
+      (can("marshalEntry")?"Open game sheet":"View sheet")+'</button>':'';
 
   function matchSide(t,name,score,win,lose){
     var pool=t&&t.pool?'<span class="poolnote">Pool '+esc(t.pool)+'</span>':"";
@@ -2290,18 +2301,15 @@ function renderData(){
 }
 
 /* ---------------------------------------------------------
-   21. GAME SHEET
+   21. GAME SHEET — one shared entry, filled once by the marshal
+   with the referee consulting in person (5 Sept 2026, see the
+   note above result()). Gated behind a pre-game check with both
+   captains, which is its own required step now, not just an
+   eligibility warning shown in passing.
    --------------------------------------------------------- */
-var openGame=null,openSide="marshal";
-function whichEntry(){
-  if(state.role==="marshal")return "marshal";
-  if(state.role==="headref")return "ref";
-  return openSide;
-}
+var openGame=null;
 function openSheet(gameId){
   openGame=gameId;
-  if(state.role==="marshal")openSide="marshal";
-  else if(state.role==="headref")openSide="ref";
   renderSheet();
   $("#modal").classList.add("on");
 }
@@ -2309,41 +2317,44 @@ function closeSheet(){openGame=null;$("#modal").classList.remove("on");}
 
 function renderSheet(){
   var g=gameById(openGame);if(!g)return;
-  var s=sheet(g.id),which=whichEntry(),E=s[which];
-  var editable=(which==="marshal"&&can("marshalEntry"))||(which==="ref"&&can("refEntry"));
+  var s=sheet(g.id),E=s.marshal;
+  var editable=can("marshalEntry");
   var locked=E.submitted;
 
   $("#modal-t").textContent=teamName(homeId(g))+" v "+teamName(awayId(g));
 
-  var html='<div class="btnrow" style="margin-bottom:14px;justify-content:space-between">'+
-    '<div class="note">'+dayName(g.day)+' · '+g.time+' · Field '+g.field+' · '+DIV_NAME[g.div]+'</div>';
-  if(can("seeBoth")){
-    html+='<div class="toggle">'+
-      '<button data-side="marshal" aria-pressed="'+(which==="marshal")+'">Marshal</button>'+
-      '<button data-side="ref" aria-pressed="'+(which==="ref")+'">Referee</button></div>';
-  }
-  html+='</div>';
+  var html='<div class="note" style="margin-bottom:14px">'+dayName(g.day)+' · '+g.time+' · Field '+g.field+' · '+DIV_NAME[g.div]+'</div>';
 
-  if(!can("marshalEntry")&&!can("refEntry")){
-    html+='<div class="msg warn">You are signed in as public. Sign in as a field marshal to enter a sheet.</div>';
+  if(!can("marshalEntry")){
+    html+='<div class="msg warn">'+(state.role==="headref"
+      ?"You're signed in as head referee — the marshal is the one who runs this sheet, with you confirming at the end of the game. You're seeing a read-only view."
+      :"You are signed in as "+ROLES[state.role].label.toLowerCase()+". Sign in as a field marshal to run this sheet.")+'</div>';
   }
 
-  // blind rule
-  if(which==="marshal"&&state.role==="marshal"&&s.ref.submitted)
-    html+='<div class="msg ok">The referee record for this game is already in. You cannot see it — that is what makes the two records worth comparing.</div>';
-
-  if(disputed(g)&&can("seeBoth")){
-    var mh=entryScore(g,s.marshal,"home"),ma=entryScore(g,s.marshal,"away");
-    var rh=entryScore(g,s.ref,"home"),ra=entryScore(g,s.ref,"away");
-    html+='<div class="msg bad"><b>The two records disagree.</b> Marshal has '+mh+'–'+ma+
-      ', referee has '+rh+'–'+ra+'. Nothing publishes until this is settled.'+
-      '<div class="btnrow" style="margin-top:9px">'+
-      '<button class="btn sm" data-resolve="marshal">Publish the marshal record</button>'+
-      '<button class="btn sm" data-resolve="ref">Publish the referee record</button>'+
-      '</div></div>';
+  var bothConfirmed=s.precheck.home.confirmed&&s.precheck.away.confirmed;
+  // The gate only applies to a sheet that's never been submitted.
+  // Checking "ever submitted" (by/at survive an Unlock) rather than
+  // just "currently locked" matters for two cases: viewing an
+  // already-final sheet (true of every sheet entered before this
+  // feature existed) shouldn't retroactively demand a pre-game
+  // check, and neither should re-opening one via Unlock to fix a
+  // typo -- the actual pre-game check already happened at kickoff,
+  // once, for real; it doesn't need re-doing to correct a score.
+  var everSubmitted=!!(E.by||E.at);
+  if(!bothConfirmed&&!locked&&!everSubmitted){
+    html+='<div class="msg warn"><b>Pre-game check first.</b> Confirm the roster, jersey numbers and eligibility with each captain before the game sheet opens.</div>';
+    html+=precheckCard(g,"home",homeId(g),s.precheck.home);
+    html+=precheckCard(g,"away",awayId(g),s.precheck.away);
+    html+='<div class="btnrow" style="margin-top:16px"><button class="btn ghost" id="closebtn">Close</button></div>';
+    $("#modal-b").innerHTML=html;
+    return;
   }
+  html+='<div class="msg ok">Pre-game check complete — '+esc(teamName(homeId(g)))+' confirmed by '+esc(s.precheck.home.by)+
+    ', '+esc(teamName(awayId(g)))+' confirmed by '+esc(s.precheck.away.by)+
+    '. <button class="linkbtn" id="precheckeditall">Redo</button></div>';
+
   if(s.resolved)
-    html+='<div class="msg ok">Published from the <b>'+esc(s.resolved.source)+'</b> record.</div>';
+    html+='<div class="msg ok">Published from a manually corrected record.</div>';
 
   html+='<div class="sheet-head">'+
     box("Game","<span class=\"mono\">"+g.id.toUpperCase()+"</span>")+
@@ -2383,7 +2394,7 @@ function renderSheet(){
   }
 
   html+='<div class="btnrow" style="margin-top:16px">';
-  if(editable&&!locked)html+='<button class="btn go" id="submit">Submit '+(which==="marshal"?"marshal":"referee")+' record</button>';
+  if(editable&&!locked)html+='<button class="btn go" id="submit">Submit game sheet</button>';
   if(locked&&can("resolve"))html+='<button class="btn ghost" id="unlock">Unlock</button>';
   if(locked&&!can("resolve"))html+='<span class="tag ok">Submitted'+(E.at?" at "+esc(E.at):"")+'</span>';
   html+='<button class="btn ghost" id="closebtn">Close</button></div>';
@@ -2391,6 +2402,32 @@ function renderSheet(){
   $("#modal-b").innerHTML=html;
 }
 function box(k,v){return '<div class="fieldbox"><label>'+k+'</label><div style="font-size:15px;font-weight:500">'+v+'</div></div>';}
+
+/* One card per side of the pre-game check -- squad, the same
+   eligibility warnings the old sheet used to show in passing
+   (validateSheet), and a confirm button. Two captains, so two
+   independent confirmations rather than one for the whole game. */
+function precheckCard(g,sideKey,teamId,pc){
+  var issues=validateSheet(g,teamId);
+  var html='<div class="card'+(pc.confirmed?"":" action")+'"><h3>'+esc(teamName(teamId))+'</h3><div class="body">';
+  issues.forEach(function(i){html+='<div class="msg '+i.level+'">'+esc(i.text)+'</div>';});
+  html+='<div class="rosterrow hd"><span>#</span><span>Player</span><span></span><span></span></div>';
+  squad(teamId).forEach(function(p){
+    html+='<div class="rosterrow"><span class="jer">'+(numberIn(g.id,p)||"—")+'</span>'+
+      '<span class="pname">'+esc(displayName(p))+'<span class="g">'+(p.gender==="f"?"F":p.gender==="m"?"M":"?")+
+      (!signed(p)?" · waiver outstanding":"")+'</span></span><span></span><span></span></div>';
+  });
+  if(pc.confirmed){
+    html+='<div class="msg ok" style="margin-top:10px">Confirmed by '+esc(pc.by)+(pc.at?" at "+esc(pc.at):"")+
+      '. <button class="linkbtn" data-precheckedit="'+sideKey+'">Edit</button></div>';
+  } else if(can("marshalEntry")){
+    html+='<div class="btnrow" style="margin-top:10px"><button class="btn" data-precheckconfirm="'+sideKey+'">Confirm with '+esc(teamName(teamId))+'’s captain</button></div>';
+  } else {
+    html+='<p class="note" style="margin-top:10px">Not confirmed yet.</p>';
+  }
+  html+='</div></div>';
+  return html;
+}
 
 function teamBlock(g,teamId,sideKey,E,editable){
   var sq=squad(teamId),susp=suspendedFor(g.id),issues=validateSheet(g,teamId);
@@ -2499,7 +2536,25 @@ document.addEventListener("click",function(ev){
     if(t.dataset.div){fDiv=t.dataset.div;renderSchedule();return;}
     if(t.dataset.howto){howToRole=t.dataset.howto;renderHowTo();return;}
     if(t.dataset.sheet){openSheet(t.dataset.sheet);return;}
-    if(t.dataset.side){openSide=t.dataset.side;renderSheet();return;}
+    if(t.dataset.precheckconfirm){
+      var s5=sheet(openGame),pc5=s5.precheck[t.dataset.precheckconfirm];
+      pc5.confirmed=true;pc5.by=ROLES[state.role].label;
+      pc5.at=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+      postSheet(openGame,"precheck",s5.precheck);
+      renderSheet();return;
+    }
+    if(t.dataset.precheckedit){
+      var s6=sheet(openGame);
+      s6.precheck[t.dataset.precheckedit].confirmed=false;
+      postSheet(openGame,"precheck",s6.precheck);
+      renderSheet();return;
+    }
+    if(t.id==="precheckeditall"){
+      var s7=sheet(openGame);
+      s7.precheck.home.confirmed=false;s7.precheck.away.confirmed=false;
+      postSheet(openGame,"precheck",s7.precheck);
+      renderSheet();return;
+    }
     if(t.dataset.bin!=null){state.bins.splice(+t.dataset.bin,1);renderBins();return;}
     if(t.dataset.roster){showRoster(t.dataset.roster);return;}
     if(t.dataset.editroster){editRoster(t.dataset.editroster);return;}
@@ -2649,29 +2704,21 @@ document.addEventListener("click",function(ev){
     if(t.dataset.code){tryCode(t.dataset.code);return;}
 
     if(t.dataset.step){
-      var g=gameById(openGame),E=sheet(g.id)[whichEntry()];
+      var g=gameById(openGame),E=sheet(g.id).marshal;
       var L=line(E,t.dataset.p),k=t.dataset.k,d=+t.dataset.step;
       L[k]=Math.max(0,(L[k]||0)+d);
       if(d>0&&(k==="y"||k==="r"))startBin(t.dataset.p,k);
       renderSheet();return;
     }
-    if(t.dataset.resolve){
-      var g2=gameById(openGame),s2=sheet(g2.id),src=t.dataset.resolve;
-      s2.resolved={
-        home:entryScore(g2,s2[src],"home"),away:entryScore(g2,s2[src],"away"),
-        source:src==="marshal"?"marshal":"referee",pens:null,forfeit:null
-      };
-      renderAll();return;
-    }
     if(t.id==="submit"){
-      var g3=gameById(openGame),w=whichEntry(),E3=sheet(g3.id)[w];
+      var g3=gameById(openGame),E3=sheet(g3.id).marshal;
       E3.submitted=true;E3.by=ROLES[state.role].label;
       E3.at=new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
-      postSheet(g3.id,w,E3);
+      postSheet(g3.id,"marshal",E3);
       renderAll();return;
     }
     if(t.id==="unlock"){
-      sheet(gameById(openGame).id)[whichEntry()].submitted=false;
+      sheet(gameById(openGame).id).marshal.submitted=false;
       sheet(gameById(openGame).id).resolved=null;
       renderAll();return;
     }
@@ -2715,7 +2762,7 @@ document.addEventListener("change",function(ev){
     if(el.dataset.gnum){setNumberIn(openGame,el.dataset.gnum,el.value);return;}
     if(el.dataset.qual){qualifiers[el.dataset.qual]=+el.value;rebuild();renderAll();return;}
     if(!openGame)return;
-    var E=sheet(openGame)[whichEntry()];
+    var E=sheet(openGame).marshal;
     if(el.id==="kickoff"){E.kickoff=el.value;return;}
     if(el.id==="shortened"){E.shortened=el.checked;renderSheet();return;}
     if(el.id==="injury"){E.injury=el.checked;renderSheet();return;}
@@ -2724,7 +2771,7 @@ document.addEventListener("change",function(ev){
 });
 document.addEventListener("input",function(ev){
   if(!openGame)return;
-  var E=sheet(openGame)[whichEntry()];
+  var E=sheet(openGame).marshal;
   if(ev.target.id==="notes")E.notes=ev.target.value;
   if(ev.target.id==="shortReason")E.shortReason=ev.target.value;
 });
@@ -2749,8 +2796,8 @@ function signIn(){
 }
 var ROLE_BLURB={
   public:"Schedule, scores and standings. No entry.",
-  marshal:"Enter the game sheet at your field. You cannot see the referee record.",
-  headref:"Enter the referee record. See both records and settle disagreements.",
+  marshal:"Run the pre-game check and enter the one game sheet at your field, with the referee confirming at the end.",
+  headref:"No typing — confirm what goes on the sheet with the marshal at the end of each game. Assign referees, see protests.",
   admin:"Everything, including marshal notes and published results.",
   captain:"Manage your own team's roster, waivers, check-in and logo. Pick your team, then your team's code."
 };
@@ -2909,13 +2956,8 @@ function fillDemo(){
       }
     });
     s.marshal.kickoff=g.time;s.marshal.submitted=true;s.marshal.by="Field marshal";
-    // referee record agrees on most games and differs on a few
-    s.ref=JSON.parse(JSON.stringify(s.marshal));
-    if(seeded(n++)>0.9){
-      var keys=Object.keys(s.ref.lines);
-      if(keys.length)s.ref.lines[keys[0]].g++;
-    }
-    s.ref.submitted=true;s.ref.by="Head referee";
+    s.precheck.home={confirmed:true,by:"Field marshal",at:g.time};
+    s.precheck.away={confirmed:true,by:"Field marshal",at:g.time};
   });
   TEAMS.forEach(function(t){state.checkin[t.id]={at:"07:45",by:"Organizer"};});
   rebuild();
