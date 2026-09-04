@@ -59,6 +59,31 @@ Also done, beyond the visual spec, per the handoff's own "Production notes" sect
   a local confirmation message, but nothing is actually sent anywhere yet.
 - **The "Sponsor a team" $750 tier is new** — per the handoff, confirm with the foundation
   before shipping; it isn't currently offered on the live WordPress page.
-- No deploy config yet (no `wrangler.toml`/dashboard project for this folder) — it's a file you
-  can open directly in a browser today; wiring it to its own Cloudflare Pages/Workers project is
-  a separate step, deliberately not done here per the "separate projects" decision above.
+- No Cloudflare project wired up yet — see "Deploy" below for the exact dashboard steps once
+  ready.
+
+## Deploy
+
+Not connected to anything live yet, on purpose — this is prep, not a switch-over. Devo still
+owns `ncbluesfoundation.org` and its DNS; nothing here touches that. The goal is to have a
+working preview link ready to hand him whenever he says "let's switch."
+
+Assets-only, same as `../public/`, so no `wrangler.toml` is needed here either — same reasoning
+CLAUDE.md §2 gives for the tournament tool: a config file would just be a second source of truth
+for `name`/`--assets`, duplicating what the dashboard's deploy command already covers. Set up as
+its own Cloudflare Workers & Pages project (Workers & Pages → Create → connect a repository →
+pick `flashgordon4384-source/ottawablues`):
+
+| Setting | Value |
+|---|---|
+| Project name | `obcc-site` |
+| Git repository | `flashgordon4384-source/ottawablues` (same repo as the tournament tool) |
+| Production branch | `main` |
+| Root directory | `/` |
+| Build command | none |
+| Deploy command | `npx wrangler deploy --assets ./obcc-site --name obcc-site` |
+
+That gives a real, presentable link — `obcc-site.gordon-perolli.workers.dev` (same account
+subdomain the tournament tool uses, just a different project name) — instead of Cloudflare's
+generic placeholder page, so there's something worth sending Devo once it's ready. No custom
+domain, no DNS change, no effect on the live WordPress site or the tournament tool's own project.
