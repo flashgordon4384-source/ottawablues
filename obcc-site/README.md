@@ -81,7 +81,7 @@ pick `flashgordon4384-source/ottawablues`):
 | Production branch | `main` |
 | Root directory | `/` |
 | Build command | none |
-| Deploy command | `npx wrangler deploy --assets ./obcc-site --name obcc-site` |
+| Deploy command | `npx wrangler deploy --assets ./obcc-site --name obcc-site --compatibility-date 2026-09-04` |
 
 That gives a real, presentable link — `obcc-site.obcc.workers.dev` (same account subdomain the
 tournament tool uses, just a different project name) — instead of Cloudflare's generic
@@ -91,3 +91,9 @@ DNS change, no effect on the live WordPress site or the tournament tool's own pr
 Live at [obcc-site.obcc.workers.dev](https://obcc-site.obcc.workers.dev/), deployed 4 Sept 2026.
 The account's `workers.dev` subdomain was renamed the same day from `gordon-perolli` to `obcc`
 (Gord's name off the URL) — both this and the tournament tool's link moved together.
+
+**If this project's next deploy fails** with `A compatibility_date is required when uploading a
+Worker` — `npx` always fetches the latest `wrangler`, and a version released after this project's
+first deploy started enforcing that. The Deploy command above already has `--compatibility-date`
+baked in to prevent it; if the dashboard still shows the version without that flag, update it to
+match this table before retrying.
