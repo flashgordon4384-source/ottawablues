@@ -1237,10 +1237,16 @@ function discipline(){
     }
     [homeId(g),awayId(g)].forEach(function(tid){
       var q=pending[tid]||[];
+      var keep=[];
       q.forEach(function(pid){
         rec(pid).miss.push({gameId:g.id,label:gameLabel(g)});
+        // Expulsion is for the rest of the tournament, not just the
+        // next game -- keep re-queuing so every later game is also
+        // a miss, instead of clearing after this one like a normal
+        // one-game card suspension does.
+        if(rec(pid).expelled)keep.push(pid);
       });
-      pending[tid]=[];
+      pending[tid]=keep;
     });
     var lines=agreedLines(g);
     for(var pid in lines){
@@ -1258,8 +1264,16 @@ function discipline(){
       for(var k2=0;k2<(L.r||0);k2++){
         R.r++;R.rTotal++;
         R.events.push({type:"r",gameId:g.id});
-        if(R.rTotal>=RULES.redsToExpel){R.expelled=true;R.events.push({type:"expel",gameId:g.id});}
-        else (pending[pl.teamId]=pending[pl.teamId]||[]).push(pid);
+        if(R.rTotal>=RULES.redsToExpel){
+          R.expelled=true;
+          R.events.push({type:"expel",gameId:g.id});
+        }
+        // Queue for the next game either way -- a single red sits
+        // one game; the second (expelled) queues too, and the block
+        // above keeps re-queuing it forever from there. Crucially,
+        // this game itself is never added to their own miss list --
+        // the miss-check above already ran before this card did.
+        (pending[pl.teamId]=pending[pl.teamId]||[]).push(pid);
       }
     }
   });
@@ -1272,8 +1286,13 @@ function discipline(){
 function suspendedFor(gameId){
   var d=discipline(),out=[];
   for(var pid in d){
+    // miss[] already carries expulsion correctly (see discipline()
+    // above) -- every game from the one after the second red
+    // onward, never the expulsion game itself. There used to be a
+    // second, unconditional "if expelled, suspended everywhere"
+    // check here, which flagged a player as unable to play the very
+    // game they got sent off in. Fixed 5 Sept 2026.
     d[pid].miss.forEach(function(m){if(m.gameId===gameId)out.push(pid);});
-    if(d[pid].expelled)out.push(pid);
   }
   return out;
 }
