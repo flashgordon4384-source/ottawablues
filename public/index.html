@@ -82,7 +82,7 @@ a{color:var(--ink)}
   transition:background-color .18s ease,color .18s ease;
 }
 .mast-tabs button:hover{color:#fff;background:rgba(255,255,255,.08)}
-.mast-tabs button[aria-selected="true"]{background:var(--oyster);color:var(--ink);box-shadow:inset 0 -3px 0 var(--pitch)}
+.mast-tabs button[aria-selected="true"]{background:var(--oyster);color:var(--ink);box-shadow:inset 0 -5px 0 var(--pitch)}
 .mast-tabs button[aria-selected="true"]:hover{background:var(--oyster)}
 
 /* ---------- banner ---------- */
@@ -1201,10 +1201,10 @@ function stageName(s){return {pool:"Pool",qf:"Quarter-final",sf:"Semi-final",fin
    13. TABS
    --------------------------------------------------------- */
 var TABS=[
-  {id:"now",       label:"Now"},
-  {id:"howto",     label:"How to"},
   {id:"schedule",  label:"Schedule"},
   {id:"standings", label:"Standings"},
+  {id:"now",       label:"Now"},
+  {id:"howto",     label:"How to"},
   {id:"discipline",label:"Cards"},
   {id:"teams",     label:"Teams"},
   {id:"rosters",   label:"Rosters"},
