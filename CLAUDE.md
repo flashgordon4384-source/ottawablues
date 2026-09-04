@@ -122,6 +122,22 @@ redirect both carry `Cache-Control: no-cache, must-revalidate`, plus
 `nosniff` and the referrer-policy header. Workers static assets do
 honour it here — that question is closed.
 
+**Deploy command switched 4 Sept 2026** from the explicit
+`--assets ./public --name ottawablues` flags to plain
+`npx wrangler deploy`, so it now reads this file — the Durable
+Object binding and migration below are live (see "Shared state"
+further down; confirmed with a real read/write round-trip against
+`/api/state` and `/api/sheet` the same day).
+
+**Account `workers.dev` subdomain renamed 4 Sept 2026**, `gordon-perolli`
+→ `obcc` (Gord's name off the URL). Both projects moved with it —
+`ottawablues.gordon-perolli.workers.dev` → `ottawablues.obcc.workers.dev`,
+`obcc-site.gordon-perolli.workers.dev` → `obcc-site.obcc.workers.dev`.
+The old URLs are gone, not redirected — anyone with the old link
+(Babak, Sable) needs the new one. A real custom domain is still the
+better long-term answer (see §11) but wasn't done here — this was
+the free, five-minute fix.
+
 ### Shared state — in progress, not deployed
 
 `wrangler.toml` and `worker/index.js` were added 31 August 2026 to

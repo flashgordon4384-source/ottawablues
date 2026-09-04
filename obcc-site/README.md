@@ -83,7 +83,11 @@ pick `flashgordon4384-source/ottawablues`):
 | Build command | none |
 | Deploy command | `npx wrangler deploy --assets ./obcc-site --name obcc-site` |
 
-That gives a real, presentable link — `obcc-site.gordon-perolli.workers.dev` (same account
-subdomain the tournament tool uses, just a different project name) — instead of Cloudflare's
-generic placeholder page, so there's something worth sending Devo once it's ready. No custom
-domain, no DNS change, no effect on the live WordPress site or the tournament tool's own project.
+That gives a real, presentable link — `obcc-site.obcc.workers.dev` (same account subdomain the
+tournament tool uses, just a different project name) — instead of Cloudflare's generic
+placeholder page, so there's something worth sending Devo once it's ready. No custom domain, no
+DNS change, no effect on the live WordPress site or the tournament tool's own project.
+
+Live at [obcc-site.obcc.workers.dev](https://obcc-site.obcc.workers.dev/), deployed 4 Sept 2026.
+The account's `workers.dev` subdomain was renamed the same day from `gordon-perolli` to `obcc`
+(Gord's name off the URL) — both this and the tournament tool's link moved together.
