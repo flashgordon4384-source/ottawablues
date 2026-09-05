@@ -86,6 +86,31 @@
        15 minutes, $50 cash) — this digitizes the record, it doesn't
        replace the rule.
 
+     POST /api/notify
+       body: { text: "..." }
+       One-way relay to a Telegram chat via the Bot API. Added
+       6 Sept 2026 so the Head Marshal gets pinged for anything
+       unusual (cards, a shortened game, an injury, a marshal note,
+       a card protest, a new suspension/expulsion, a reopened
+       sheet, a pre-game check flagging a real problem) without
+       needing the app open. Deliberately stateless and outside the
+       Durable Object -- nothing here is tournament data, it's a
+       side-effect. Needs two secrets set in the Cloudflare
+       dashboard (Settings -> Variables, encrypted) to do anything:
+       TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID. Silently returns
+       {ok:false} if either is missing, rather than erroring the
+       caller -- notifications are a bonus, not something a sheet
+       submission should ever fail over. All message composition
+       (what counts as "unusual") happens client-side in
+       public/index.html, which already has the full roster/
+       discipline logic; this endpoint only knows how to forward
+       text to Telegram, on purpose, so that logic lives in one
+       place. No auth on this endpoint beyond obscurity -- same
+       demo-tier trust model as everything else here (CLAUDE.md
+       section 5) -- so anyone who finds the URL could in principle
+       spam the chat. Low risk for a single tournament's lifetime,
+       worth knowing about.
+
    Anything that isn't /api/* falls through to the static site
    (env.ASSETS). In practice Cloudflare serves a matching static
    asset before this Worker's fetch() is even invoked, so that
@@ -240,6 +265,30 @@ var TOURNAMENT_ID = "obcc-2026";
 export default {
   async fetch(request, env) {
     var url = new URL(request.url);
+
+    if (request.method === "POST" && url.pathname === "/api/notify") {
+      var notifyBody;
+      try {
+        notifyBody = await request.json();
+      } catch (e) {
+        return json({ error: "body must be JSON" }, 400);
+      }
+      var text = notifyBody && notifyBody.text;
+      if (!text) return json({ error: "expected { text }" }, 400);
+      if (!env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_CHAT_ID) {
+        return json({ ok: false, note: "Telegram not configured yet" });
+      }
+      try {
+        await fetch("https://api.telegram.org/bot" + env.TELEGRAM_BOT_TOKEN + "/sendMessage", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ chat_id: env.TELEGRAM_CHAT_ID, text: text })
+        });
+      } catch (e) {
+        // best-effort -- a failed notification should never fail the caller
+      }
+      return json({ ok: true });
+    }
 
     if (url.pathname.indexOf("/api/") === 0) {
       var id = env.TOURNAMENT.idFromName(TOURNAMENT_ID);

@@ -752,6 +752,68 @@ function postProtest(protest){
 }
 
 /* ---------------------------------------------------------
+   9d. TELEGRAM NOTIFICATIONS — added 6 Sept 2026. Every message
+   is composed here (full roster/discipline logic lives in this
+   file already), then handed to the worker's /api/notify as
+   plain text -- the worker's only job is forwarding it to
+   Telegram, so what counts as "unusual" stays in one place.
+   Fire-and-forget like every other sync call: a failed or
+   unconfigured notification never blocks the action it's about.
+   --------------------------------------------------------- */
+function postTelegram(text){
+  fetch("/api/notify",{
+    method:"POST",headers:{"content-type":"application/json"},
+    body:JSON.stringify({text:text})
+  }).catch(function(){/* offline, or Telegram isn't configured yet */});
+}
+function notifySheetSubmitted(g,E,wasCorrection){
+  var head="Game "+g.id.toUpperCase()+" — "+teamName(homeId(g))+" v "+teamName(awayId(g))+
+    " ("+dayName(g.day)+" "+g.time+")"+(wasCorrection?" — CORRECTED":"");
+  var unusual=[];
+  if(E.shortened)unusual.push("Shortened"+(E.shortReason?": "+E.shortReason:""));
+  if(E.injury)unusual.push("Injury: "+(E.injuryPlayer?displayName(player(E.injuryPlayer)):"unspecified player"));
+  var cardBits=[];
+  for(var pid in E.lines){
+    var L=E.lines[pid],p=player(pid);if(!p)continue;
+    if(L.y)cardBits.push(displayName(p)+" Y"+(L.y>1?" x"+L.y:""));
+    if(L.r)cardBits.push(displayName(p)+" R"+(L.r>1?" x"+L.r:""));
+  }
+  if(cardBits.length)unusual.push("Cards: "+cardBits.join(", "));
+  if(E.notes&&E.notes.trim())unusual.push("Marshal note: "+E.notes.trim());
+  var d=discipline();
+  [homeId(g),awayId(g)].forEach(function(tid){
+    squad(tid).forEach(function(p){
+      var R=d[p.id];if(!R)return;
+      R.events.forEach(function(ev){
+        if(ev.gameId!==g.id)return;
+        if(ev.type==="susp")unusual.push(displayName(p)+" ("+teamName(tid)+") is now suspended for their next game.");
+        if(ev.type==="expel")unusual.push(displayName(p)+" ("+teamName(tid)+") is expelled from the tournament — second red.");
+      });
+    });
+  });
+  postTelegram(unusual.length?head+"\n"+unusual.join("\n"):head+"\nNothing unusual.");
+}
+function notifyProtest(rec){
+  var g=gameById(rec.gameId);
+  var text="Card protest filed — "+(rec.teamId?teamName(rec.teamId):"")+
+    " ("+(g?dayName(g.day)+" "+g.time:rec.gameId)+")\n"+
+    "Player: "+rec.player+" · Card: "+rec.card+"\n"+rec.narrative+
+    (rec.talkedTo&&rec.talkedTo.length?"\nTalked to: "+rec.talkedTo.join(", "):"");
+  postTelegram(text);
+}
+function notifyPrecheckIssue(g,teamId,issues){
+  var bad=issues.filter(function(i){return i.level==="bad";});
+  if(!bad.length)return;
+  postTelegram("Pre-game check flagged an issue — "+teamName(teamId)+" before "+
+    dayName(g.day)+" "+g.time+" ("+teamName(homeId(g))+" v "+teamName(awayId(g))+")\n"+
+    bad.map(function(i){return "• "+i.text;}).join("\n"));
+}
+function notifyUnlock(g){
+  postTelegram("Game sheet reopened — "+teamName(homeId(g))+" v "+teamName(awayId(g))+
+    " ("+dayName(g.day)+" "+g.time+"), by "+ROLES[state.role].label+".");
+}
+
+/* ---------------------------------------------------------
    9c. FIELD MARSHALS — same idea as 9b, one assigned per game
    from a master list, shared via /api/marshals and
    /api/assignmarshal. Unlike referees there's no separate "head
@@ -2537,10 +2599,12 @@ document.addEventListener("click",function(ev){
     if(t.dataset.howto){howToRole=t.dataset.howto;renderHowTo();return;}
     if(t.dataset.sheet){openSheet(t.dataset.sheet);return;}
     if(t.dataset.precheckconfirm){
-      var s5=sheet(openGame),pc5=s5.precheck[t.dataset.precheckconfirm];
+      var s5=sheet(openGame),sideKey5=t.dataset.precheckconfirm,pc5=s5.precheck[sideKey5];
       pc5.confirmed=true;pc5.by=ROLES[state.role].label;
       pc5.at=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
       postSheet(openGame,"precheck",s5.precheck);
+      var g5=gameById(openGame),teamId5=sideKey5==="home"?homeId(g5):awayId(g5);
+      notifyPrecheckIssue(g5,teamId5,validateSheet(g5,teamId5));
       renderSheet();return;
     }
     if(t.dataset.precheckedit){
@@ -2623,6 +2687,7 @@ document.addEventListener("click",function(ev){
       };
       state.protests.push(rec);
       postProtest(rec);
+      notifyProtest(rec);
       protestFormOpen=false;protestJustSubmitted=true;
       renderDiscipline();return;
     }
@@ -2712,14 +2777,18 @@ document.addEventListener("click",function(ev){
     }
     if(t.id==="submit"){
       var g3=gameById(openGame),E3=sheet(g3.id).marshal;
+      var wasCorrection3=!!(E3.by||E3.at);
       E3.submitted=true;E3.by=ROLES[state.role].label;
       E3.at=new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
       postSheet(g3.id,"marshal",E3);
+      notifySheetSubmitted(g3,E3,wasCorrection3);
       renderAll();return;
     }
     if(t.id==="unlock"){
-      sheet(gameById(openGame).id).marshal.submitted=false;
-      sheet(gameById(openGame).id).resolved=null;
+      var gU=gameById(openGame);
+      sheet(gU.id).marshal.submitted=false;
+      sheet(gU.id).resolved=null;
+      notifyUnlock(gU);
       renderAll();return;
     }
     if(t.id==="save"){saveFile();return;}
